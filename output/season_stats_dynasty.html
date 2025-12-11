@@ -229,10 +229,11 @@
     <nav class="nav-bar">
         <div class="nav-title">🏈 Fantasy Tool</div>
         <div class="nav-links">
-            <a href="../index.html">Home</a>
+            <a href="index.html">Home</a>
             <a href="player_stats.html">Player Stats</a>
             <a href="defense_stats.html">Defense Stats</a>
-            <a href="season_stats.html" class="active">Season Stats</a>
+            <a href="season_stats_dynasty.html" class="active">Dynasty Stats</a>
+            <a href="season_stats_chopped.html">Chopped Stats</a>
         </div>
     </nav>
     <div class="content-wrapper">
@@ -265,9 +266,9 @@
         <table id="statsTable">
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)" title="Team ranking in the table">Rank</th>
-                    <th onclick="sortTable(1)" title="Team owner name">Team</th>
-                    <th onclick="sortTable(2)" title="Win-Loss record">W-L</th>
+                    <th onclick="sortTable(0)" title="Team owner name">Team</th>
+                    <th onclick="sortTable(1)" title="Win-Loss record">W-L</th>
+                    <th onclick="sortTable(2)" title="Total points scored this season">Total Points</th>
                     <th onclick="sortTable(3)" title="Average points scored per game">Avg PPG</th>
                     <th onclick="sortTable(4)" title="Lineup efficiency: (Actual Points / Optimal Points) × 100. Measures how well you set your lineup.">Efficiency</th>
                     <th onclick="sortTable(5)" title="Total points left on bench across all weeks. Lower is better.">Bench Pts</th>
@@ -282,9 +283,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>1</td>
                     <td><strong>emiliosolay</strong></td>
                     <td>12-2</td>
+                    <td>2178.0</td>
                     <td>155.6</td>
                     <td>85.7%</td>
                     <td>364.7</td>
@@ -297,9 +298,9 @@
                     <td><span class="trend-down">▼ 28.5%</span></td>
                 </tr>
                 <tr>
-                    <td>2</td>
                     <td><strong>dbyrd55</strong></td>
                     <td>8-6</td>
+                    <td>1670.2</td>
                     <td>119.3</td>
                     <td>85.2%</td>
                     <td>289.5</td>
@@ -312,9 +313,9 @@
                     <td><span class="trend-down">▼ 6.7%</span></td>
                 </tr>
                 <tr>
-                    <td>3</td>
                     <td><strong>SeanRabenaldt</strong></td>
                     <td>8-6</td>
+                    <td>1927.8</td>
                     <td>137.7</td>
                     <td>85.0%</td>
                     <td>341.0</td>
@@ -327,9 +328,9 @@
                     <td><span class="trend-stable">—</span></td>
                 </tr>
                 <tr>
-                    <td>4</td>
                     <td><strong>Taubitz</strong></td>
                     <td>6-8</td>
+                    <td>1741.6</td>
                     <td>124.4</td>
                     <td>84.8%</td>
                     <td>313.1</td>
@@ -342,9 +343,9 @@
                     <td><span class="trend-down">▼ 16.7%</span></td>
                 </tr>
                 <tr>
-                    <td>5</td>
                     <td><strong>Sangha</strong></td>
                     <td>7-7</td>
+                    <td>1762.6</td>
                     <td>125.9</td>
                     <td>83.3%</td>
                     <td>353.6</td>
@@ -357,9 +358,9 @@
                     <td><span class="trend-stable">—</span></td>
                 </tr>
                 <tr>
-                    <td>6</td>
                     <td><strong>agrusa17</strong></td>
                     <td>4-10</td>
+                    <td>1689.8</td>
                     <td>120.7</td>
                     <td>79.7%</td>
                     <td>431.1</td>
@@ -372,9 +373,9 @@
                     <td><span class="trend-down">▼ 5.9%</span></td>
                 </tr>
                 <tr>
-                    <td>7</td>
                     <td><strong>NLadocsi</strong></td>
                     <td>9-5</td>
+                    <td>1741.6</td>
                     <td>124.4</td>
                     <td>79.5%</td>
                     <td>448.5</td>
@@ -387,9 +388,9 @@
                     <td><span class="trend-stable">—</span></td>
                 </tr>
                 <tr>
-                    <td>8</td>
                     <td><strong>B-Ray</strong></td>
                     <td>6-8</td>
+                    <td>1689.8</td>
                     <td>120.7</td>
                     <td>79.1%</td>
                     <td>447.5</td>
@@ -402,9 +403,9 @@
                     <td><span class="trend-stable">—</span></td>
                 </tr>
                 <tr>
-                    <td>9</td>
                     <td><strong>BTThomp</strong></td>
                     <td>6-8</td>
+                    <td>1939.0</td>
                     <td>138.5</td>
                     <td>78.4%</td>
                     <td>533.5</td>
@@ -417,9 +418,9 @@
                     <td><span class="trend-down">▼ 12.9%</span></td>
                 </tr>
                 <tr>
-                    <td>10</td>
                     <td><strong>McInally</strong></td>
                     <td>4-10</td>
+                    <td>1647.8</td>
                     <td>117.7</td>
                     <td>78.3%</td>
                     <td>456.1</td>
@@ -858,13 +859,9 @@
                 return sortDirection[columnIndex] === 'asc' ? comparison : -comparison;
             });
            
-            // Reattach sorted rows and update rank column (only for non-Chopped leagues)
+            // Reattach sorted rows
             rows.forEach((row, index) => {
                 tbody.appendChild(row);
-                // Update rank column only if it exists (Dynasty leagues have rank in first column)
-                if (row.cells[0].textContent.match(/^\d+$/)) {
-                    row.cells[0].textContent = index + 1; // Update rank
-                }
             });
         }
     </script>

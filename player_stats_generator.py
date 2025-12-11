@@ -6,7 +6,7 @@ def generate_player_stats_report(league_data, all_player_data, output_dir="outpu
     import os
     league_name = league_data["league_name"]
     league_id = league_data["league_id"]
-    safe_filename = os.path.join(output_dir, f"player_stats_{league_id}.html")
+    safe_filename = os.path.join(output_dir, "player_stats.html")
    
     print(f"  Generating player stats report: {safe_filename}")
    
@@ -192,10 +192,11 @@ def generate_player_stats_report(league_data, all_player_data, output_dir="outpu
     <nav class="nav-bar">
         <div class="nav-title">🏈 Fantasy Tool</div>
         <div class="nav-links">
-            <a href="../index.html">Home</a>
+            <a href="index.html">Home</a>
             <a href="player_stats.html" class="active">Player Stats</a>
             <a href="defense_stats.html">Defense Stats</a>
-            <a href="season_stats.html">Season Stats</a>
+            <a href="season_stats_dynasty.html">Dynasty Stats</a>
+            <a href="season_stats_chopped.html">Chopped Stats</a>
         </div>
     </nav>
     <div class="content-wrapper">

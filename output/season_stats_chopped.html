@@ -229,10 +229,11 @@
     <nav class="nav-bar">
         <div class="nav-title">🏈 Fantasy Tool</div>
         <div class="nav-links">
-            <a href="../index.html">Home</a>
+            <a href="index.html">Home</a>
             <a href="player_stats.html">Player Stats</a>
             <a href="defense_stats.html">Defense Stats</a>
-            <a href="season_stats.html" class="active">Season Stats</a>
+            <a href="season_stats_dynasty.html">Dynasty Stats</a>
+            <a href="season_stats_chopped.html" class="active">Chopped Stats</a>
         </div>
     </nav>
     <div class="content-wrapper">
@@ -958,13 +959,9 @@
                 return sortDirection[columnIndex] === 'asc' ? comparison : -comparison;
             });
            
-            // Reattach sorted rows and update rank column (only for non-Chopped leagues)
+            // Reattach sorted rows
             rows.forEach((row, index) => {
                 tbody.appendChild(row);
-                // Update rank column only if it exists (Dynasty leagues have rank in first column)
-                if (row.cells[0].textContent.match(/^\d+$/)) {
-                    row.cells[0].textContent = index + 1; // Update rank
-                }
             });
         }
     </script>
