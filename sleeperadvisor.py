@@ -7,6 +7,7 @@ import statistics
 from html_report_generator import generate_html_report
 from player_stats_generator import generate_player_stats_report
 from player_detail_generator import generate_player_detail_page
+from defense_stats_generator import generate_defense_stats_report
 
 # Try to import nflreadpy for advanced stats
 try:
@@ -1526,11 +1527,142 @@ def generate_player_stats():
     print(f"Check the HTML files for detailed player analysis.")
     print(f"{'='*80}\n")
 
+def generate_defense_stats():
+    """Generate defensive statistics report."""
+    print("Generating Defense Statistics Report...")
+    
+    if not NFL_DATA_AVAILABLE:
+        print("  NFL data (nflreadpy) not available, cannot generate defense stats.")
+        return
+    
+    try:
+        print("Loading NFL weekly player stats...")
+        nfl_season = nfl.get_current_season()
+        print(f"  Detected current NFL season: {nfl_season}")
+        
+        season = nfl_season
+        weekly_stats = nfl.load_player_stats(season)
+        print(f"  Loaded weekly data for {season} season ({len(weekly_stats)} records)")
+        
+        # Track defensive stats by team and position
+        defense_stats = {}
+        
+        # Standard PPR scoring
+        PPR_SCORING = {
+            'passing_yards': 0.04,
+            'passing_tds': 4,
+            'passing_2pt': 2,
+            'interceptions': -1,
+            'rushing_yards': 0.1,
+            'rushing_tds': 6,
+            'rushing_2pt': 2,
+            'receptions': 1,
+            'receiving_yards': 0.1,
+            'receiving_tds': 6,
+            'receiving_2pt': 2,
+            'fumbles_lost': -2
+        }
+        
+        ROSTERABLE_POSITIONS = {'QB', 'RB', 'WR', 'TE'}
+        
+        print("Calculating defensive statistics...")
+        
+        # Process weekly stats
+        for row in weekly_stats.iter_rows(named=True):
+            opponent = row.get('opponent_team')
+            if not opponent:
+                continue
+            
+            position = row.get('position', '')
+            if position not in ROSTERABLE_POSITIONS:
+                continue
+            
+            # Initialize defense stats if needed
+            if opponent not in defense_stats:
+                defense_stats[opponent] = {
+                    'team': opponent,
+                    'games': 0,
+                    'total_points_allowed': 0,
+                    'qb_points_allowed': 0,
+                    'rb_points_allowed': 0,
+                    'wr_points_allowed': 0,
+                    'te_points_allowed': 0,
+                    'rushing_yards_allowed': 0,
+                    'rushing_tds_allowed': 0,
+                    'receiving_yards_allowed': 0,
+                    'receiving_tds_allowed': 0,
+                    'passing_tds_allowed': 0,
+                    'weeks_played': set()
+                }
+            
+            week = row.get('week')
+            if week:
+                defense_stats[opponent]['weeks_played'].add(week)
+            
+            # Calculate fantasy points
+            pts = 0
+            pts += (row.get('passing_yards', 0) or 0) * PPR_SCORING['passing_yards']
+            pts += (row.get('passing_tds', 0) or 0) * PPR_SCORING['passing_tds']
+            pts += (row.get('passing_2pt_conversions', 0) or 0) * PPR_SCORING['passing_2pt']
+            pts += (row.get('interceptions', 0) or 0) * PPR_SCORING['interceptions']
+            pts += (row.get('rushing_yards', 0) or 0) * PPR_SCORING['rushing_yards']
+            pts += (row.get('rushing_tds', 0) or 0) * PPR_SCORING['rushing_tds']
+            pts += (row.get('rushing_2pt_conversions', 0) or 0) * PPR_SCORING['rushing_2pt']
+            pts += (row.get('receptions', 0) or 0) * PPR_SCORING['receptions']
+            pts += (row.get('receiving_yards', 0) or 0) * PPR_SCORING['receiving_yards']
+            pts += (row.get('receiving_tds', 0) or 0) * PPR_SCORING['receiving_tds']
+            pts += (row.get('receiving_2pt_conversions', 0) or 0) * PPR_SCORING['receiving_2pt']
+            pts += (row.get('fumbles_lost', 0) or 0) * PPR_SCORING['fumbles_lost']
+            
+            # Track stats
+            defense_stats[opponent]['total_points_allowed'] += pts
+            
+            if position == 'QB':
+                defense_stats[opponent]['qb_points_allowed'] += pts
+                defense_stats[opponent]['passing_tds_allowed'] += (row.get('passing_tds', 0) or 0)
+            elif position == 'RB':
+                defense_stats[opponent]['rb_points_allowed'] += pts
+            elif position == 'WR':
+                defense_stats[opponent]['wr_points_allowed'] += pts
+            elif position == 'TE':
+                defense_stats[opponent]['te_points_allowed'] += pts
+            
+            # Yards and TDs
+            defense_stats[opponent]['rushing_yards_allowed'] += (row.get('rushing_yards', 0) or 0)
+            defense_stats[opponent]['rushing_tds_allowed'] += (row.get('rushing_tds', 0) or 0)
+            defense_stats[opponent]['receiving_yards_allowed'] += (row.get('receiving_yards', 0) or 0)
+            defense_stats[opponent]['receiving_tds_allowed'] += (row.get('receiving_tds', 0) or 0)
+        
+        # Calculate games played for each defense
+        for team, stats in defense_stats.items():
+            stats['games'] = len(stats['weeks_played'])
+            del stats['weeks_played']  # Remove set before JSON serialization
+        
+        # Convert to list
+        defense_data = list(defense_stats.values())
+        
+        print(f"  Calculated stats for {len(defense_data)} defenses")
+        
+        # Generate report
+        generate_defense_stats_report(defense_data, OUTPUT_DIR)
+        
+        print(f"\n{'='*80}")
+        print(f"Defense stats report successfully generated!")
+        print(f"Check defense_stats.html for detailed defensive analysis.")
+        print(f"{'='*80}\n")
+        
+    except Exception as e:
+        print(f"  Error generating defense stats: {e}")
+        import traceback
+        traceback.print_exc()
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "--season-stats":
         generate_season_stats()
     elif len(sys.argv) > 1 and sys.argv[1] == "--player-stats":
         generate_player_stats()
+    elif len(sys.argv) > 1 and sys.argv[1] == "--defense-stats":
+        generate_defense_stats()
     else:
         generate_copilot_context()
