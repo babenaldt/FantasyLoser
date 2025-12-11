@@ -261,8 +261,49 @@ def generate_html_report(league_data, output_dir="output"):
     <style>
         body {{
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f5f5f5;
+        }}
+        .nav-bar {{
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }}
+        .nav-bar .nav-title {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0;
+        }}
+        .nav-links {{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+        .nav-links a {{
+            text-decoration: none;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }}
+        .nav-links a:hover {{
+            background-color: #667eea;
+            color: white;
+        }}
+        .nav-links a.active {{
+            background-color: #667eea;
+            color: white;
+        }}
+        .content-wrapper {{
+            padding: 20px;
         }}
         .header {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -438,6 +479,16 @@ def generate_html_report(league_data, output_dir="output"):
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <div class="nav-title">🏈 Fantasy Tool</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="player_stats.html">Player Stats</a>
+            <a href="defense_stats.html">Defense Stats</a>
+            <a href="season_stats.html" class="active">Season Stats</a>
+        </div>
+    </nav>
+    <div class="content-wrapper">
     <div class="header">
         <h1>{league_name}</h1>
         <div class="subtitle">Season Statistics Report - Week {league_data["current_week"]} | {league_data.get("season", "2025")}</div>
@@ -1032,6 +1083,7 @@ def generate_html_report(league_data, output_dir="output"):
             });
         }
     </script>
+    </div>
 </body>
 </html>
 """

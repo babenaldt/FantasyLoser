@@ -27,8 +27,49 @@ def generate_defense_stats_report(defense_data, output_dir="output"):
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             color: #2c3e50;
+        }}
+        .nav-bar {{
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }}
+        .nav-bar .nav-title {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0;
+        }}
+        .nav-links {{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+        .nav-links a {{
+            text-decoration: none;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }}
+        .nav-links a:hover {{
+            background-color: #667eea;
+            color: white;
+        }}
+        .nav-links a.active {{
+            background-color: #667eea;
+            color: white;
+        }}
+        .content-wrapper {{
+            padding: 20px;
         }}
         .header {{
             text-align: center;
@@ -44,27 +85,13 @@ def generate_defense_stats_report(defense_data, output_dir="output"):
             font-size: 1.2em;
             opacity: 0.95;
         }}
-        .nav-links {{
+        .position-tabs {{
             background: white;
             padding: 15px;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             text-align: center;
-        }}
-        .nav-links a {{
-            display: inline-block;
-            margin: 5px 10px;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }}
-        .nav-links a:hover {{
-            transform: translateY(-2px);
         }}
         .filters {{
             background: white;
@@ -173,15 +200,19 @@ def generate_defense_stats_report(defense_data, output_dir="output"):
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <div class="nav-title">🏈 Fantasy Tool</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="player_stats.html">Player Stats</a>
+            <a href="defense_stats.html" class="active">Defense Stats</a>
+            <a href="season_stats.html">Season Stats</a>
+        </div>
+    </nav>
+    <div class="content-wrapper">
     <div class="header">
         <h1>NFL Defense Statistics</h1>
         <div class="subtitle">2025 Season - Fantasy Points Allowed Analysis</div>
-    </div>
-    
-    <div class="nav-links">
-        <a href="index.html">🏠 Home</a>
-        <a href="player_stats_1264304480178950144.html">📊 Player Stats</a>
-        <a href="season_stats_1264304480178950144.html">🏆 Season Stats</a>
     </div>
     
     <div class="position-tabs">
@@ -479,6 +510,7 @@ def generate_defense_stats_report(defense_data, output_dir="output"):
             updateRankings();
         }}
     </script>
+    </div>
 </body>
 </html>
 """
