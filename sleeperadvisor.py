@@ -6,6 +6,7 @@ import certifi
 import statistics
 from html_report_generator import generate_html_report
 from player_stats_generator import generate_player_stats_report
+from player_detail_generator import generate_player_detail_page
 
 # Try to import nflreadpy for advanced stats
 try:
@@ -1476,7 +1477,8 @@ def generate_player_stats():
             'trend_pct': trend_pct,
             'nfl_stats': player_nfl_stats,
             'dynasty_owner': dynasty_ownership.get(player_name, 'Free Agent'),
-            'chopped_owner': chopped_ownership.get(player_name, 'Free Agent')
+            'chopped_owner': chopped_ownership.get(player_name, 'Free Agent'),
+            'weekly_scores': scores  # Store weekly scores for detail pages
         })
    
     # Calculate position averages and add vs_position_avg metric
@@ -1499,6 +1501,23 @@ def generate_player_stats():
     }
    
     generate_player_stats_report(league_data, all_player_data, OUTPUT_DIR)
+    
+    # Generate individual player detail pages
+    print("\nGenerating individual player detail pages...")
+    detail_pages_created = 0
+    for player in all_player_data:
+        try:
+            generate_player_detail_page(
+                player['name'],
+                player,
+                player.get('weekly_scores', []),
+                OUTPUT_DIR
+            )
+            detail_pages_created += 1
+        except Exception as e:
+            print(f"  Error generating page for {player['name']}: {e}")
+    
+    print(f"  Created {detail_pages_created} player detail pages")
    
     print(f"\n{'='*80}")
     print(f"Player stats reports successfully generated!")
