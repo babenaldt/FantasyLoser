@@ -9,8 +9,9 @@ __pycache__/
 *$py.class
 *.so
 
-# Output files
-output/
+# Output cache files (but keep HTML reports for Cloudflare Pages)
+output/league_data/
+output/*.json
 
 # IDE
 .vscode/
