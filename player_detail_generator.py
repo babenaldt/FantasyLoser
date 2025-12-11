@@ -222,15 +222,16 @@ def generate_player_detail_page(player_name, player_data, weekly_performances, o
     <nav class="nav-bar">
         <div class="nav-title">🏈 Fantasy Tool</div>
         <div class="nav-links">
-            <a href="../../index.html">Home</a>
+            <a href="../index.html">Home</a>
             <a href="../player_stats.html" class="active">Player Stats</a>
             <a href="../defense_stats.html">Defense Stats</a>
-            <a href="../season_stats.html">Season Stats</a>
+            <a href="../season_stats_dynasty.html">Dynasty Stats</a>
+            <a href="../season_stats_chopped.html">Chopped Stats</a>
         </div>
     </nav>
     <div class="content-wrapper">
     <div class="container">
-        <a href="../player_stats_1264304480178950144.html" class="back-link">← Back to All Players</a>
+        <a href="../player_stats.html" class="back-link">← Back to All Players</a>
         
         <div class="player-header">
             <h1 class="player-name">{player_name}</h1>

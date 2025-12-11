@@ -203,10 +203,11 @@ def generate_defense_stats_report(defense_data, output_dir="output"):
     <nav class="nav-bar">
         <div class="nav-title">🏈 Fantasy Tool</div>
         <div class="nav-links">
-            <a href="../index.html">Home</a>
+            <a href="index.html">Home</a>
             <a href="player_stats.html">Player Stats</a>
             <a href="defense_stats.html" class="active">Defense Stats</a>
-            <a href="season_stats.html">Season Stats</a>
+            <a href="season_stats_dynasty.html">Dynasty Stats</a>
+            <a href="season_stats_chopped.html">Chopped Stats</a>
         </div>
     </nav>
     <div class="content-wrapper">

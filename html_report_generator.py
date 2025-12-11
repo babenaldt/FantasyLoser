@@ -213,12 +213,15 @@ def generate_html_report(league_data, output_dir="output"):
     import os
     league_name = league_data["league_name"]
     league_id = league_data["league_id"]
-    safe_filename = os.path.join(output_dir, f"season_stats_{league_id}.html")
-   
-    print(f"  Generating HTML report: {safe_filename}")
-   
+    
     # Check if this is a Chopped league
     is_chopped = league_data.get("is_chopped_league", False)
+    
+    # Use descriptive filename based on league type
+    league_type = "chopped" if is_chopped else "dynasty"
+    safe_filename = os.path.join(output_dir, f"season_stats_{league_type}.html")
+   
+    print(f"  Generating HTML report: {safe_filename}")
    
     # Prepare data for charts
     teams = [s["owner_name"] for s in league_data["season_stats"]]
@@ -482,10 +485,11 @@ def generate_html_report(league_data, output_dir="output"):
     <nav class="nav-bar">
         <div class="nav-title">🏈 Fantasy Tool</div>
         <div class="nav-links">
-            <a href="../index.html">Home</a>
+            <a href="index.html">Home</a>
             <a href="player_stats.html">Player Stats</a>
             <a href="defense_stats.html">Defense Stats</a>
-            <a href="season_stats.html" class="active">Season Stats</a>
+            <a href="season_stats_dynasty.html" class="{'active' if not is_chopped else ''}">Dynasty Stats</a>
+            <a href="season_stats_chopped.html" class="{'active' if is_chopped else ''}">Chopped Stats</a>
         </div>
     </nav>
     <div class="content-wrapper">
@@ -547,9 +551,9 @@ def generate_html_report(league_data, output_dir="output"):
 """
     else:
         html_content += """                <tr>
-                    <th onclick="sortTable(0)" title="Team ranking in the table">Rank</th>
-                    <th onclick="sortTable(1)" title="Team owner name">Team</th>
-                    <th onclick="sortTable(2)" title="Win-Loss record">W-L</th>
+                    <th onclick="sortTable(0)" title="Team owner name">Team</th>
+                    <th onclick="sortTable(1)" title="Win-Loss record">W-L</th>
+                    <th onclick="sortTable(2)" title="Total points scored this season">Total Points</th>
                     <th onclick="sortTable(3)" title="Average points scored per game">Avg PPG</th>
                     <th onclick="sortTable(4)" title="Lineup efficiency: (Actual Points / Optimal Points) × 100. Measures how well you set your lineup.">Efficiency</th>
                     <th onclick="sortTable(5)" title="Total points left on bench across all weeks. Lower is better.">Bench Pts</th>
@@ -629,9 +633,9 @@ def generate_html_report(league_data, output_dir="output"):
             all_play_display = f"{all_play_wins}-{all_play_losses} ({all_play_pct:.3f})"
            
             html_content += f"""                <tr>
-                    <td>{idx}</td>
                     <td><strong>{stats['owner_name']}</strong></td>
                     <td>{team_actual_wins}-{stats.get('losses', 0)}</td>
+                    <td>{stats.get('total_points_scored', 0):.1f}</td>
                     <td>{stats.get('average_points', 0):.1f}</td>
                     <td>{stats.get('efficiency_rate', 0):.1f}%</td>
                     <td>{stats.get('points_left_on_bench', 0):.1f}</td>
@@ -1073,13 +1077,9 @@ def generate_html_report(league_data, output_dir="output"):
                 return sortDirection[columnIndex] === 'asc' ? comparison : -comparison;
             });
            
-            // Reattach sorted rows and update rank column (only for non-Chopped leagues)
+            // Reattach sorted rows
             rows.forEach((row, index) => {
                 tbody.appendChild(row);
-                // Update rank column only if it exists (Dynasty leagues have rank in first column)
-                if (row.cells[0].textContent.match(/^\\d+$/)) {
-                    row.cells[0].textContent = index + 1; // Update rank
-                }
             });
         }
     </script>
