@@ -1,0 +1,205 @@
+# Fantasy Football Analysis Request
+
+Generated: 2025-12-10 19:20:31
+Username: seanrabenaldt
+
+## Instructions
+I need fantasy football advice based on my league data. Please:
+1. Search the internet for current NFL news, injury reports, and week matchups
+2. Analyze my roster strengths and weaknesses
+3. Provide start/sit recommendations for this week
+4. Suggest waiver wire pickups from the trending players
+5. Identify potential trade targets based on my needs and league standings
+
+## League 1: IBAC 2025 Fantasy Football Chopped League
+Type: 3
+Scoring: 1.0 PPR
+My Record: 0-0 (1613 points)
+
+Roster Positions: QB, RB, RB, WR, WR, TE, FLEX, BN, BN, BN, BN
+
+### My Current Lineup
+Starters:
+  - Josh Allen (QB, BUF)
+  - Christian McCaffrey (RB, SF)
+  - De'Von Achane (RB, MIA)
+  - Puka Nacua (WR, LAR)
+  - Amon-Ra St. Brown (WR, DET)
+  - George Kittle (TE, SF)
+  - Derrick Henry (RB, BAL)
+
+Bench:
+  - Brock Bowers (TE, LV)
+  - Davante Adams (WR, LAR)
+  - CeeDee Lamb (WR, DAL)
+  - Jonathan Taylor (RB, IND)
+
+### Top Available Free Agents
+
+QBs:
+  - AJ McCarron (FA)
+  - Aaron Bailey (BAL)
+  - Aaron Rodgers (PIT)
+  - Adrian Martinez (NYJ)
+  - Aeneas Dennis (FA)
+  - Aidan O'Connell (LV)
+  - Alex McGough (FA)
+  - Alex Smith (FA)
+  - Alex Tanney (FA)
+  - Andrew Peasley (FA)
+
+RBs:
+  - A.J. Dillon (PHI)
+  - A.J. Ouellette (FA)
+  - A.J. Rose (FA)
+  - Aaron Dykes (FA)
+  - Aaron Jones (MIN) [Questionable]
+  - Aaron Shampklin (FA)
+  - Abram Smith (FA)
+  - Aca'Cedric Ware (FA)
+  - Adam Choice (FA)
+  - Adrian Killins (DEN)
+
+WRs:
+  - A.J. Brown (PHI)
+  - A.J. Green (FA)
+  - A.J. Richardson (FA)
+  - A.T. Perry (DEN)
+  - AJ Henning (MIA) [Sus]
+  - Aaron Fuller (FA)
+  - Aaron Lacombe (FA)
+  - Aaron Parker (FA)
+  - Adam Humphries (FA)
+  - Adam Thielen (PIT)
+
+TEs:
+  - AJ Barner (SEA)
+  - Aaron Peck (FA)
+  - Adam Shaheen (FA)
+  - Adam Trautman (DEN)
+  - Adam Zaruba (FA)
+  - Albert Okwuegbunam (LV)
+  - Alec Bloom (FA)
+  - Alec Holler (FA)
+  - Alex Ellis (FA)
+  - Alex Gray (FA)
+
+## League 2: IBAC Dynasty
+Type: 2
+Scoring: 1.0 PPR
+My Record: 8-6 (1927 points)
+
+Roster Positions: QB, RB, RB, WR, WR, WR, TE, FLEX, SUPER_FLEX, BN, BN, BN, BN, BN, BN, BN, BN, BN, BN
+
+### My Current Lineup
+Starters:
+  - Josh Allen (QB, BUF)
+  - Travis Etienne (RB, JAX)
+  - Javonte Williams (RB, DAL)
+  - Chris Olave (WR, NO)
+  - Nico Collins (WR, HOU)
+  - Jaxon Smith-Njigba (WR, SEA)
+  - Brock Bowers (TE, LV)
+  - Jaylen Waddle (WR, MIA)
+  - C.J. Stroud (QB, HOU)
+
+Bench:
+  - Cedric Tillman (WR, CLE)
+  - Adonai Mitchell (WR, NYJ)
+  - Ryan Flournoy (WR, DAL)
+  - Jalen Milroe (QB, SEA)
+  - Colston Loveland (TE, CHI)
+  - Luther Burden (WR, CHI)
+  - Trevor Etienne (RB, CAR)
+  - Kyle Williams (WR, NE)
+  - Alvin Kamara (RB, NO)
+  - Tua Tagovailoa (QB, MIA)
+  - Jerry Jeudy (WR, CLE)
+  - Jake Ferguson (TE, DAL)
+  - Alec Pierce (WR, IND)
+  - Anthony Richardson (QB, IND)
+  - Parker Washington (WR, JAX)
+
+### Top Available Free Agents
+
+QBs:
+  - AJ McCarron (FA)
+  - Aaron Bailey (BAL)
+  - Adrian Martinez (NYJ)
+  - Aeneas Dennis (FA)
+  - Aidan O'Connell (LV)
+  - Alex McGough (FA)
+  - Alex Smith (FA)
+  - Alex Tanney (FA)
+  - Andrew Peasley (FA)
+  - Andy Dalton (CAR)
+
+RBs:
+  - A.J. Dillon (PHI)
+  - A.J. Ouellette (FA)
+  - A.J. Rose (FA)
+  - Aaron Dykes (FA)
+  - Aaron Shampklin (FA)
+  - Abram Smith (FA)
+  - Aca'Cedric Ware (FA)
+  - Adam Choice (FA)
+  - Adrian Killins (DEN)
+  - Adrian Peterson (FA)
+
+WRs:
+  - A.J. Green (FA)
+  - A.J. Richardson (FA)
+  - A.T. Perry (DEN)
+  - AJ Henning (MIA) [Sus]
+  - Aaron Fuller (FA)
+  - Aaron Lacombe (FA)
+  - Aaron Parker (FA)
+  - Adam Humphries (FA)
+  - Adam Thielen (PIT)
+  - Adonis Jennings (FA)
+
+TEs:
+  - Aaron Peck (FA)
+  - Adam Shaheen (FA)
+  - Adam Trautman (DEN)
+  - Adam Zaruba (FA)
+  - Albert Okwuegbunam (LV)
+  - Alec Bloom (FA)
+  - Alec Holler (FA)
+  - Alex Ellis (FA)
+  - Alex Gray (FA)
+  - Alex Larson (FA)
+
+## Trending Players (Last 24h)
+Top Adds:
+  - Ryan Flournoy (WR-DAL) (Added by 901656 teams)
+  - Jacksonville Jaguars (DEF-JAX) (Added by 575346 teams)
+  - Philip Rivers (QB-IND) (Added by 303672 teams)
+  - San Francisco 49ers (DEF-SF) (Added by 291471 teams)
+  - Jaylen Wright (RB-MIA) (Added by 247012 teams)
+  - Shedeur Sanders (QB-CLE) (Added by 231816 teams)
+  - Jerry Jeudy (WR-CLE) (Added by 229752 teams)
+  - Harold Fannin (TE-CLE) (Added by 196415 teams)
+  - Blake Corum (RB-LAR) (Added by 182664 teams)
+  - Dylan Sampson (RB-CLE) (Added by 162950 teams)
+
+Top Drops:
+  - Zach Ertz (TE-WAS) (Dropped by 547362 teams)
+  - Cleveland Browns (DEF-CLE) (Dropped by 499891 teams)
+  - Adonai Mitchell (WR-NYJ) (Dropped by 300224 teams)
+  - Daniel Jones (QB-IND) (Dropped by 293060 teams)
+  - Trey Benson (RB-ARI) (Dropped by 234690 teams)
+  - Washington Commanders (DEF-WAS) (Dropped by 221872 teams)
+  - Tampa Bay Buccaneers (DEF-TB) (Dropped by 201510 teams)
+  - Jayden Daniels (QB-WAS) (Dropped by 187552 teams)
+  - Darren Waller (TE-MIA) (Dropped by 183807 teams)
+  - Brenton Strange (TE-JAX) (Dropped by 170262 teams)
+
+## Questions to Answer
+1. Who should I start at each position this week?
+2. Which trending players should I target on waivers?
+3. What trades should I pursue?
+4. What are my biggest roster concerns?
+5. Playoff outlook and strategy?
+
+See attached fantasy_context.json for complete league data.
