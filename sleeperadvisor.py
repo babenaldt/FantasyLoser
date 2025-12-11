@@ -1274,8 +1274,8 @@ def generate_player_stats():
                 
                 if pts > 0:
                     if player_name not in player_performances:
-                        player_performances[player_name] = []
-                    player_performances[player_name].append(pts)
+                        player_performances[player_name] = {}  # Use dict to track week->points
+                    player_performances[player_name][week] = pts
     
     print(f"  Calculated fantasy points for {len(player_performances)} players from NFL stats")
     
@@ -1334,7 +1334,9 @@ def generate_player_stats():
     position_averages = {}
     seen_players = {}  # Track players by name to avoid duplicates
    
-    for player_name, scores in player_performances.items():
+    for player_name, weekly_scores in player_performances.items():
+        # Convert dict to list of scores for calculations
+        scores = list(weekly_scores.values())
         if len(scores) < 1:
             continue
        
@@ -1478,7 +1480,7 @@ def generate_player_stats():
             'nfl_stats': player_nfl_stats,
             'dynasty_owner': dynasty_ownership.get(player_name, 'Free Agent'),
             'chopped_owner': chopped_ownership.get(player_name, 'Free Agent'),
-            'weekly_scores': scores  # Store weekly scores for detail pages
+            'weekly_scores': weekly_scores  # Store weekly scores dict (week->points) for detail pages
         })
    
     # Calculate position averages and add vs_position_avg metric

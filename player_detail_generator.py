@@ -4,9 +4,14 @@ import json
 def generate_player_detail_page(player_name, player_data, weekly_performances, output_dir="output"):
     """Generate a detailed player page with week-by-week stats."""
     
+    # Create players subfolder
+    players_dir = os.path.join(output_dir, "players")
+    if not os.path.exists(players_dir):
+        os.makedirs(players_dir)
+    
     # Create safe filename from player name
     safe_name = player_name.replace(' ', '_').replace('.', '').replace("'", '')
-    filename = os.path.join(output_dir, f"player_{safe_name}.html")
+    filename = os.path.join(players_dir, f"player_{safe_name}.html")
     
     # Get player info
     position = player_data.get('position', 'UNKNOWN')
@@ -21,9 +26,14 @@ def generate_player_detail_page(player_name, player_data, weekly_performances, o
     nfl_stats = player_data.get('nfl_stats', {})
     age = nfl_stats.get('age', '-')
     
-    # Weekly performance data
+    # Weekly performance data - handle both dict (week->points) and list formats
     weeks_data = []
-    if weekly_performances:
+    if isinstance(weekly_performances, dict):
+        # Dict format: {week_num: points}
+        for week_num in sorted(weekly_performances.keys()):
+            weeks_data.append({'week': week_num, 'points': weekly_performances[week_num]})
+    elif weekly_performances:
+        # Legacy list format (fallback)
         for i, pts in enumerate(weekly_performances, 1):
             weeks_data.append({'week': i, 'points': pts})
     
@@ -169,7 +179,7 @@ def generate_player_detail_page(player_name, player_data, weekly_performances, o
 </head>
 <body>
     <div class="container">
-        <a href="player_stats_1264304480178950144.html" class="back-link">← Back to All Players</a>
+        <a href="../player_stats_1264304480178950144.html" class="back-link">← Back to All Players</a>
         
         <div class="player-header">
             <h1 class="player-name">{player_name}</h1>

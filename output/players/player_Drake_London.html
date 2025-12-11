@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drake London - Player Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .player-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .player-name {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .player-meta {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .meta-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .meta-value {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }
+        .position {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        .position.QB { background: #e74c3c; }
+        .position.RB { background: #3498db; }
+        .position.WR { background: #2ecc71; }
+        .position.TE { background: #f39c12; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .weekly-table {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .best-week {
+            background-color: #d4edda !important;
+            font-weight: 600;
+        }
+        .worst-week {
+            background-color: #f8d7da !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../player_stats_1264304480178950144.html" class="back-link">← Back to All Players</a>
+        
+        <div class="player-header">
+            <h1 class="player-name">Drake London</h1>
+            <span class="position WR">WR</span>
+            
+            <div class="player-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Team</span>
+                    <span class="meta-value">ATL</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Age</span>
+                    <span class="meta-value">24</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Dynasty Owner</span>
+                    <span class="meta-value">emiliosolay</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Chopped Owner</span>
+                    <span class="meta-value">Free Agent</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Season Totals</h3>
+                <div class="meta-item">
+                    <span class="meta-label">Games Played</span>
+                    <span class="meta-value">9</span>
+                </div>
+                <div class="meta-item" style="margin-top: 15px;">
+                    <span class="meta-label">Total Points</span>
+                    <span class="meta-value">179.0</span>
+                </div>
+                <div class="meta-item" style="margin-top: 15px;">
+                    <span class="meta-label">Average PPG</span>
+                    <span class="meta-value">19.9</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Performance</h3>
+                <div class="meta-item">
+                    <span class="meta-label">Best Game</span>
+                    <span class="meta-value">38.8 pts</span>
+                </div>
+                <div class="meta-item" style="margin-top: 15px;">
+                    <span class="meta-label">Worst Game</span>
+                    <span class="meta-value">7.9 pts</span>
+                </div>
+                <div class="meta-item" style="margin-top: 15px;">
+                    <span class="meta-label">Consistency</span>
+                    <span class="meta-value">1.82</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Advanced Stats</h3>
+                <div class="meta-item">
+                    <span class="meta-label">Avg Targets</span>
+                    <span class="meta-value">10.4</span>
+                </div>
+                <div class="meta-item" style="margin-top: 15px;">
+                    <span class="meta-label">Avg Rush Attempts</span>
+                    <span class="meta-value">0.0</span>
+                </div>
+                <div class="meta-item" style="margin-top: 15px;">
+                    <span class="meta-label">Snap %</span>
+                    <span class="meta-value">91.9%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3 style="color: #667eea; margin-bottom: 20px;">Weekly Performance Chart</h3>
+            <canvas id="weeklyChart"></canvas>
+        </div>
+        
+        <div class="weekly-table">
+            <h3 style="color: #667eea; margin-bottom: 20px;">Week-by-Week Stats</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Fantasy Points</th>
+                        <th>vs Average</th>
+                        <th>Rank</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr class="">
+                        <td><strong>Week 1</strong></td>
+                        <td><strong>13.5</strong></td>
+                        <td>-6.4</td>
+                        <td></td>
+                    </tr>
+
+                    <tr class="worst-week">
+                        <td><strong>Week 2</strong></td>
+                        <td><strong>7.9</strong></td>
+                        <td>-12.0</td>
+                        <td>💔</td>
+                    </tr>
+
+                    <tr class="">
+                        <td><strong>Week 3</strong></td>
+                        <td><strong>10.5</strong></td>
+                        <td>-9.4</td>
+                        <td></td>
+                    </tr>
+
+                    <tr class="">
+                        <td><strong>Week 4</strong></td>
+                        <td><strong>25.0</strong></td>
+                        <td>+5.1</td>
+                        <td></td>
+                    </tr>
+
+                    <tr class="">
+                        <td><strong>Week 6</strong></td>
+                        <td><strong>31.8</strong></td>
+                        <td>+11.9</td>
+                        <td></td>
+                    </tr>
+
+                    <tr class="">
+                        <td><strong>Week 7</strong></td>
+                        <td><strong>8.2</strong></td>
+                        <td>-11.7</td>
+                        <td></td>
+                    </tr>
+
+                    <tr class="best-week">
+                        <td><strong>Week 9</strong></td>
+                        <td><strong>38.8</strong></td>
+                        <td>+18.9</td>
+                        <td>🏆</td>
+                    </tr>
+
+                    <tr class="">
+                        <td><strong>Week 10</strong></td>
+                        <td><strong>24.4</strong></td>
+                        <td>+4.5</td>
+                        <td></td>
+                    </tr>
+
+                    <tr class="">
+                        <td><strong>Week 11</strong></td>
+                        <td><strong>18.9</strong></td>
+                        <td>-1.0</td>
+                        <td></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [1, 2, 3, 4, 6, 7, 9, 10, 11],
+                datasets: [{
+                    label: 'Fantasy Points',
+                    data: [13.5, 7.9, 10.5, 25.0, 31.8, 8.2, 38.8, 24.4, 18.9],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Season Average',
+                    data: [19.88888888888889, 19.88888888888889, 19.88888888888889, 19.88888888888889, 19.88888888888889, 19.88888888888889, 19.88888888888889, 19.88888888888889, 19.88888888888889],
+                    borderColor: '#e74c3c',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2.5,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Fantasy Points'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Week'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -296,9 +296,9 @@ def generate_player_stats_report(league_data, all_player_data, output_dir="outpu
         else:
             trend_display = f'<span>— {trend_val:.1f}%</span>'
        
-        # Create safe filename for player detail page
+        # Create safe filename for player detail page in players subfolder
         safe_name = player['name'].replace(' ', '_').replace('.', '').replace("'", '')
-        detail_link = f"player_{safe_name}.html"
+        detail_link = f"players/player_{safe_name}.html"
         
         html_content += f"""                <tr data-position="{player['position']}" data-games="{player['games']}">
                     <td>{idx}</td>
