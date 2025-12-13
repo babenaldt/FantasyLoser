@@ -294,24 +294,21 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
     
     function updateStatsUI(stats) {
       // Update stat cards
-      const totalEl = document.querySelector('.meta-item .meta-value');
-      if (totalEl && totalEl.textContent.includes('.')) {
-        document.querySelectorAll('.meta-item').forEach(item => {
-          const label = item.querySelector('.meta-label')?.textContent;
-          const valueEl = item.querySelector('.meta-value');
-          if (!valueEl) return;
-          
-          if (label === 'Total Points') valueEl.textContent = stats.totalPoints.toFixed(1);
-          else if (label === 'Average PPG') valueEl.textContent = stats.avgPpg.toFixed(1);
-          else if (label === 'Consistency') valueEl.textContent = stats.consistency.toFixed(2);
-          else if (label === 'Std Dev') valueEl.textContent = stats.stdDev.toFixed(1);
-          else if (label === '% > Avg') valueEl.textContent = stats.pctAboveAvg.toFixed(0) + '%';
-          else if (label === 'Trend (4wk)') {
-            valueEl.textContent = stats.trendDir + ' ' + Math.abs(stats.trendPct).toFixed(1) + '%';
-            valueEl.style.color = stats.trendPct > 0 ? 'green' : (stats.trendPct < 0 ? 'red' : 'inherit');
-          }
-        });
-      }
+      document.querySelectorAll('.meta-item').forEach(item => {
+        const label = item.querySelector('.meta-label')?.textContent;
+        const valueEl = item.querySelector('.meta-value');
+        if (!valueEl) return;
+        
+        if (label === 'Total Points') valueEl.textContent = stats.totalPoints.toFixed(1);
+        else if (label === 'Average PPG') valueEl.textContent = stats.avgPpg.toFixed(1);
+        else if (label === 'Consistency') valueEl.textContent = stats.consistency.toFixed(2);
+        else if (label === 'Std Dev') valueEl.textContent = stats.stdDev.toFixed(1);
+        else if (label === '% > Avg') valueEl.textContent = stats.pctAboveAvg.toFixed(0) + '%';
+        else if (label === 'Trend (4wk)') {
+          valueEl.textContent = stats.trendDir + ' ' + Math.abs(stats.trendPct).toFixed(1) + '%';
+          valueEl.style.color = stats.trendPct > 0 ? 'green' : (stats.trendPct < 0 ? 'red' : 'inherit');
+        }
+      });
       
       // Update weekly table
       const tbody = document.querySelector('.weekly-table tbody');

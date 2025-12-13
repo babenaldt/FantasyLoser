@@ -340,14 +340,26 @@ def generate_player_stats_json():
             stats['dynasty_owner'] = ownership.get('dynasty_owner', 'Free Agent')
             stats['chopped_owner'] = ownership.get('chopped_owner', 'Free Agent')
 
-            # Trend (Last 4 weeks vs Season Avg)
-            last_4_weeks = stats['weekly_points'][-4:]
-            if last_4_weeks:
-                last_4_avg = sum(w['points'] for w in last_4_weeks) / len(last_4_weeks)
-                trend_diff = last_4_avg - avg_ppg
-                trend_pct = (trend_diff / avg_ppg * 100) if avg_ppg > 0 else 0
-                stats['trend_pct'] = trend_pct
-                stats['trend_dir'] = "▲" if trend_diff > 0 else "▼"
+            # Trend - Compare last 2 games to previous 2 games (excludes bye weeks)
+            played_weeks = [w for w in stats['weekly_points'] if w['points'] > 0]
+            if len(played_weeks) >= 4:
+                # Last 2 games vs previous 2 games
+                last_2 = played_weeks[-2:]
+                prev_2 = played_weeks[-4:-2]
+                last_2_avg = sum(w['points'] for w in last_2) / 2
+                prev_2_avg = sum(w['points'] for w in prev_2) / 2
+                diff = last_2_avg - prev_2_avg
+                trend_pct = (diff / prev_2_avg * 100) if prev_2_avg > 0 else 0
+                stats['trend_pct'] = abs(trend_pct)
+                stats['trend_dir'] = "▲" if diff > 1 else ("▼" if diff < -1 else "-")
+            elif len(played_weeks) >= 2:
+                # Not enough games for comparison, use last 2 vs season avg
+                last_2 = played_weeks[-2:]
+                last_2_avg = sum(w['points'] for w in last_2) / 2
+                diff = last_2_avg - avg_ppg
+                trend_pct = (diff / avg_ppg * 100) if avg_ppg > 0 else 0
+                stats['trend_pct'] = abs(trend_pct)
+                stats['trend_dir'] = "▲" if diff > 1 else ("▼" if diff < -1 else "-")
             else:
                 stats['trend_pct'] = 0
                 stats['trend_dir'] = "-"
