@@ -1,0 +1,674 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Fantasy Football Statistics and Analysis" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <style is:global>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        color: #2c3e50;
+      }
+      
+      .nav-bar {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 15px 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      
+      .nav-bar .nav-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+        margin: 0;
+      }
+      
+      .nav-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      
+      .nav-links a {
+        text-decoration: none;
+        color: #667eea;
+        padding: 8px 16px;
+        border-radius: 5px;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+      
+      .nav-links a:hover {
+        background-color: #667eea;
+        color: white;
+      }
+      
+      .nav-links a.active {
+        background-color: #667eea;
+        color: white;
+      }
+      
+      .content-wrapper {
+        padding: 20px;
+      }
+      
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        .nav-bar {
+          padding: 10px 15px;
+        }
+        .nav-bar .nav-title {
+          font-size: 18px;
+        }
+        .nav-links {
+          gap: 5px;
+        }
+        .nav-links a {
+          padding: 6px 12px;
+          font-size: 14px;
+        }
+        .content-wrapper {
+          padding: 10px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .nav-bar .nav-title {
+          font-size: 16px;
+        }
+        .nav-links a {
+          padding: 5px 10px;
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav-bar">
+      <div class="nav-title">🏈 Fantasy Tool</div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/player-stats">Player Stats</a>
+        <a href="/defense-stats">Defense Stats</a>
+        <a href="/season-stats-chopped">Chopped Stats</a>
+        <a href="/season-stats-dynasty">Dynasty Stats</a>
+        <button id="settingsBtn" class="settings-btn" title="Scoring Settings">
+          ⚙️
+        </button>
+      </div>
+    </nav>
+
+    <!-- Scoring Settings Modal -->
+    <div id="scoringModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>⚙️ Scoring Settings</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="preset-selection">
+            <label for="scoringPreset"><strong>Scoring Format:</strong></label>
+            <select id="scoringPreset" class="scoring-select">
+              <option value="standard">Standard (No PPR)</option>
+              <option value="half_ppr">Half PPR</option>
+              <option value="ppr" selected>Full PPR</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div id="advancedSettings" class="advanced-settings">
+            <h3>Advanced Settings</h3>
+            <div class="settings-grid">
+              <!-- Passing -->
+              <div class="setting-group">
+                <h4>Passing</h4>
+                <div class="setting-item">
+                  <label for="passing_yards">Yards:</label>
+                  <input type="number" id="passing_yards" step="0.01" value="0.04" />
+                </div>
+                <div class="setting-item">
+                  <label for="passing_tds">TDs:</label>
+                  <input type="number" id="passing_tds" step="0.5" value="4" />
+                </div>
+                <div class="setting-item">
+                  <label for="passing_2pt">2PT:</label>
+                  <input type="number" id="passing_2pt" step="0.5" value="2" />
+                </div>
+                <div class="setting-item">
+                  <label for="interceptions">INTs:</label>
+                  <input type="number" id="interceptions" step="0.5" value="-2" />
+                </div>
+              </div>
+
+              <!-- Rushing -->
+              <div class="setting-group">
+                <h4>Rushing</h4>
+                <div class="setting-item">
+                  <label for="rushing_yards">Yards:</label>
+                  <input type="number" id="rushing_yards" step="0.01" value="0.1" />
+                </div>
+                <div class="setting-item">
+                  <label for="rushing_tds">TDs:</label>
+                  <input type="number" id="rushing_tds" step="0.5" value="6" />
+                </div>
+                <div class="setting-item">
+                  <label for="rushing_2pt">2PT:</label>
+                  <input type="number" id="rushing_2pt" step="0.5" value="2" />
+                </div>
+              </div>
+
+              <!-- Receiving -->
+              <div class="setting-group">
+                <h4>Receiving</h4>
+                <div class="setting-item">
+                  <label for="receptions">Receptions:</label>
+                  <input type="number" id="receptions" step="0.1" value="1" />
+                </div>
+                <div class="setting-item">
+                  <label for="receiving_yards">Yards:</label>
+                  <input type="number" id="receiving_yards" step="0.01" value="0.1" />
+                </div>
+                <div class="setting-item">
+                  <label for="receiving_tds">TDs:</label>
+                  <input type="number" id="receiving_tds" step="0.5" value="6" />
+                </div>
+                <div class="setting-item">
+                  <label for="receiving_2pt">2PT:</label>
+                  <input type="number" id="receiving_2pt" step="0.5" value="2" />
+                </div>
+              </div>
+
+              <!-- Other -->
+              <div class="setting-group">
+                <h4>Other</h4>
+                <div class="setting-item">
+                  <label for="fumbles_lost">Fumbles:</label>
+                  <input type="number" id="fumbles_lost" step="0.5" value="-2" />
+                </div>
+              </div>
+
+              <!-- Kicker -->
+              <div class="setting-group">
+                <h4>Kicker</h4>
+                <div class="setting-item">
+                  <label for="fg_made">FG Made:</label>
+                  <input type="number" id="fg_made" step="0.5" value="3" />
+                </div>
+                <div class="setting-item">
+                  <label for="fg_missed">FG Miss:</label>
+                  <input type="number" id="fg_missed" step="0.5" value="-1" />
+                </div>
+                <div class="setting-item">
+                  <label for="xp_made">XP Made:</label>
+                  <input type="number" id="xp_made" step="0.5" value="1" />
+                </div>
+                <div class="setting-item">
+                  <label for="xp_missed">XP Miss:</label>
+                  <input type="number" id="xp_missed" step="0.5" value="-1" />
+                </div>
+              </div>
+
+              <!-- Defense -->
+              <div class="setting-group">
+                <h4>Defense</h4>
+                <div class="setting-item">
+                  <label for="def_td">TD:</label>
+                  <input type="number" id="def_td" step="0.5" value="6" />
+                </div>
+                <div class="setting-item">
+                  <label for="def_int">INT:</label>
+                  <input type="number" id="def_int" step="0.5" value="2" />
+                </div>
+                <div class="setting-item">
+                  <label for="def_fumble">Fumble:</label>
+                  <input type="number" id="def_fumble" step="0.5" value="2" />
+                </div>
+                <div class="setting-item">
+                  <label for="def_sack">Sack:</label>
+                  <input type="number" id="def_sack" step="0.5" value="1" />
+                </div>
+                <div class="setting-item">
+                  <label for="def_safety">Safety:</label>
+                  <input type="number" id="def_safety" step="0.5" value="2" />
+                </div>
+              </div>
+            </div>
+            
+            <div class="setting-actions">
+              <button id="resetScoring" class="btn-secondary">Reset to PPR</button>
+            </div>
+          </div>
+          
+          <div class="setting-actions" style="margin-top: 25px;">
+            <button id="applyScoring" class="btn-primary">Apply Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      <slot />
+    </div>
+
+    <style>
+      .settings-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .settings-btn:hover {
+        background: #764ba2;
+        transform: rotate(90deg);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+      }
+
+      .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        padding-bottom: 40px;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        border-bottom: 2px solid #ecf0f1;
+      }
+
+      .modal-header h2 {
+        color: #667eea;
+        margin: 0;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 32px;
+        color: #7f8c8d;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.3s;
+      }
+
+      .close-btn:hover {
+        color: #e74c3c;
+      }
+
+      .modal-body {
+        padding: 30px;
+      }
+
+      .preset-selection {
+        margin-bottom: 25px;
+      }
+
+      .preset-selection label {
+        display: block;
+        margin-bottom: 12px;
+        color: #2c3e50;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .scoring-select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #ecf0f1;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+        background: white;
+      }
+
+      .scoring-select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .advanced-settings {
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid #ecf0f1;
+      }
+
+      .advanced-settings h3 {
+        color: #667eea;
+        margin-bottom: 25px;
+        font-size: 20px;
+      }
+
+      .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .setting-group h4 {
+        color: #2c3e50;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 8px 0;
+      }
+
+      .setting-item label {
+        color: #2c3e50;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .setting-item input {
+        width: 100px;
+        padding: 8px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        text-align: right;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .setting-item input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .setting-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #ecf0f1;
+      }
+
+      .btn-primary, .btn-secondary {
+        padding: 14px 32px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+      }
+
+      .btn-secondary:hover {
+        background: #bdc3c7;
+      }
+
+      @media (max-width: 768px) {
+        .settings-btn {
+          width: 36px;
+          height: 36px;
+        }
+
+        .settings-btn svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .modal-content {
+          width: 95%;
+          max-height: 95vh;
+        }
+
+        .modal-header {
+          padding: 15px 20px;
+        }
+
+        .modal-header h2 {
+          font-size: 1.3em;
+        }
+
+        .modal-body {
+          padding: 20px;
+        }
+
+        .settings-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .setting-actions {
+          flex-direction: column;
+        }
+
+        .btn-primary, .btn-secondary {
+          width: 100%;
+        }
+      }
+    </style>
+
+    <script is:inline>
+      // Global scoring management
+      (function() {
+        let scoringConfig = null;
+        let currentScoring = null;
+
+        // Load scoring config
+        fetch('/data/scoring_config.json')
+          .then(res => res.json())
+          .then(data => {
+            scoringConfig = data;
+            
+            // Load from localStorage or use default
+            const saved = localStorage.getItem('fantasyScoringSettings');
+            const savedPreset = localStorage.getItem('fantasyScoringPreset');
+            
+            if (saved) {
+              currentScoring = JSON.parse(saved);
+              if (savedPreset) {
+                document.getElementById('scoringPreset').value = savedPreset;
+                if (savedPreset === 'custom') {
+                  loadScoringToInputs(currentScoring);
+                }
+              }
+            } else {
+              currentScoring = { ...data.presets[data.default] };
+              delete currentScoring.name;
+            }
+            
+            // Make globally available
+            window.getCurrentScoring = () => currentScoring;
+            window.dispatchEvent(new CustomEvent('scoringLoaded', { detail: currentScoring }));
+          })
+          .catch(err => console.error('Failed to load scoring config:', err));
+
+        // Modal controls
+        const modal = document.getElementById('scoringModal');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const closeBtn = document.getElementById('closeModal');
+
+        settingsBtn?.addEventListener('click', () => {
+          modal.classList.add('show');
+        });
+
+        closeBtn?.addEventListener('click', () => {
+          modal.classList.remove('show');
+        });
+
+        modal?.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('show');
+          }
+        });
+        
+        // Apply Settings button
+        const applyBtn = document.getElementById('applyScoring');
+        applyBtn?.addEventListener('click', () => {
+          const presetId = presetSelect?.value;
+          
+          if (presetId === 'custom') {
+            // Save custom input values
+            const inputs = document.querySelectorAll('.setting-item input');
+            inputs.forEach(input => {
+              currentScoring[input.id] = parseFloat(input.value);
+            });
+            localStorage.setItem('fantasyScoringSettings', JSON.stringify(currentScoring));
+            localStorage.setItem('fantasyScoringPreset', 'custom');
+          } else if (scoringConfig && scoringConfig.presets[presetId]) {
+            // Apply the selected preset
+            currentScoring = { ...scoringConfig.presets[presetId] };
+            delete currentScoring.name;
+            localStorage.setItem('fantasyScoringSettings', JSON.stringify(currentScoring));
+            localStorage.setItem('fantasyScoringPreset', presetId);
+          }
+          
+          modal.classList.remove('show');
+          // Trigger scoring change to refresh all pages
+          applyCurrentScoring();
+        });
+        
+        // Add hover effect to Apply button
+        applyBtn?.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-2px)';
+          this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+        });
+        applyBtn?.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = 'none';
+        });
+
+        // Preset selection
+        const presetSelect = document.getElementById('scoringPreset');
+        const advancedSettings = document.getElementById('advancedSettings');
+        
+        // Initially hide advanced settings
+        if (advancedSettings) {
+          advancedSettings.style.display = 'none';
+        }
+
+        presetSelect?.addEventListener('change', (e) => {
+          const presetId = e.target.value;
+          localStorage.setItem('fantasyScoringPreset', presetId);
+          
+          if (presetId === 'custom') {
+            advancedSettings.style.display = 'block';
+            loadScoringToInputs(currentScoring);
+          } else {
+            advancedSettings.style.display = 'none';
+            if (scoringConfig && scoringConfig.presets[presetId]) {
+              currentScoring = { ...scoringConfig.presets[presetId] };
+              delete currentScoring.name;
+              localStorage.setItem('fantasyScoringSettings', JSON.stringify(currentScoring));
+              // Don't auto-apply - wait for Apply button click
+            }
+          }
+        });
+
+        // Reset scoring
+        document.getElementById('resetScoring')?.addEventListener('click', () => {
+          presetSelect.value = 'ppr';
+          if (scoringConfig) {
+            currentScoring = { ...scoringConfig.presets.ppr };
+            delete currentScoring.name;
+            localStorage.setItem('fantasyScoringSettings', JSON.stringify(currentScoring));
+            localStorage.setItem('fantasyScoringPreset', 'ppr');
+            applyCurrentScoring();
+          }
+          advancedSettings.style.display = 'none';
+        });
+
+        function loadScoringToInputs(scoring) {
+          Object.keys(scoring).forEach(key => {
+            const input = document.getElementById(key);
+            if (input) {
+              input.value = scoring[key];
+            }
+          });
+        }
+
+        function applyCurrentScoring() {
+          window.dispatchEvent(new CustomEvent('scoringChanged', { 
+            detail: currentScoring 
+          }));
+        }
+      })();
+    </script>
+  </body>
+</html>

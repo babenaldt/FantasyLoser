@@ -1,0 +1,831 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import playerData from '../../public/data/player_stats.json';
+import kickerData from '../../public/data/kicker_stats.json';
+import dstData from '../../public/data/dst_stats.json';
+
+// Load player stats
+const allPlayers = playerData.players;
+const allKickers = kickerData.players;
+const allDSTs = dstData.teams;
+
+// Group players by position
+const playersByPosition = {
+  ALL: [...allPlayers, ...allKickers, ...allDSTs],
+  QB: allPlayers.filter(p => p.position === 'QB'),
+  RB: allPlayers.filter(p => p.position === 'RB'),
+  WR: allPlayers.filter(p => p.position === 'WR'),
+  TE: allPlayers.filter(p => p.position === 'TE'),
+  K: allKickers,
+  DEF: allDSTs
+};
+
+// Show all players for each position
+const topPlayers = {
+  ALL: playersByPosition.ALL,
+  QB: playersByPosition.QB,
+  RB: playersByPosition.RB,
+  WR: playersByPosition.WR,
+  TE: playersByPosition.TE,
+  K: playersByPosition.K,
+  DEF: playersByPosition.DEF
+};
+---
+
+<BaseLayout title="Player Stats - Fantasy Football">
+  <div class="page-header">
+    <h1>📊 Player Statistics</h1>
+    <p>Top fantasy football players by position for the 2025 season</p>
+  </div>
+
+  <!-- Position Tabs -->
+  <div class="position-tabs">
+    <button class="tab-btn active" data-position="ALL">All Players</button>
+    <button class="tab-btn" data-position="QB">Quarterbacks</button>
+    <button class="tab-btn" data-position="RB">Running Backs</button>
+    <button class="tab-btn" data-position="WR">Wide Receivers</button>
+    <button class="tab-btn" data-position="TE">Tight Ends</button>
+    <button class="tab-btn" data-position="K">Kickers</button>
+    <button class="tab-btn" data-position="DEF">Defense</button>
+  </div>
+
+  <!-- Charts Container -->
+  <div class="chart-container">
+    <h3 style="text-align: center; color: #667eea; margin-bottom: 20px; font-size: 1.5em;">Top 5 Players - Weekly Performance</h3>
+    <canvas id="playerChart"></canvas>
+  </div>
+
+  <!-- Tables for each position -->
+  {Object.keys(topPlayers).map(position => (
+    <div class={`position-table ${position === 'ALL' ? 'active' : ''}`} data-position={position}>
+      <h2>{position === 'ALL' ? 'All Players' : position === 'QB' ? 'Quarterbacks' : position === 'RB' ? 'Running Backs' : position === 'WR' ? 'Wide Receivers' : position === 'TE' ? 'Tight Ends' : position === 'K' ? 'Kickers' : 'Defense'}</h2>
+      <div class="table-container">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th style="cursor: pointer;" data-sort="rank">Rank</th>
+              <th style="cursor: pointer; text-align: left;" data-sort="name">Player</th>
+              {position === 'ALL' && <th style="cursor: pointer;" data-sort="pos">Pos</th>}
+              <th style="cursor: pointer;" data-sort="team">Team</th>
+              <th style="cursor: pointer;" data-sort="games">Games</th>
+              <th style="cursor: pointer;" data-sort="total">Total Pts</th>
+              <th style="cursor: pointer;" data-sort="avg">Avg PPG</th>
+              {(position === 'QB' || position === 'RB' || position === 'WR' || position === 'TE') && (
+                <>
+                  <th style="cursor: pointer;" data-sort="consistency" title="Consistency Score (Mean / Std Dev)">Consist</th>
+                  <th style="cursor: pointer;" data-sort="std_dev" title="Standard Deviation">Std Dev</th>
+                  <th style="cursor: pointer;" data-sort="pct_above_avg" title="% Games Above Average">% > Avg</th>
+                  <th style="cursor: pointer;" data-sort="trend" title="Trend (Last 4 Weeks vs Season Avg)">Trend</th>
+                  <th style="cursor: pointer;" data-sort="vs_pos" title="Points vs Position Average">vs Pos</th>
+                </>
+              )}
+              {position === 'K' && (
+                <>
+                  <th style="cursor: pointer;" data-sort="fg_made">FG Made</th>
+                  <th style="cursor: pointer;" data-sort="fg_pct">FG %</th>
+                  <th style="cursor: pointer;" data-sort="long">Longest</th>
+                  <th style="cursor: pointer;" data-sort="xp_made">XP Made</th>
+                  <th style="cursor: pointer;" data-sort="xp_pct">XP %</th>
+                </>
+              )}
+              {position === 'DEF' && (
+                <>
+                  <th style="cursor: pointer;" data-sort="sacks">Sacks</th>
+                  <th style="cursor: pointer;" data-sort="ints">INT</th>
+                  <th style="cursor: pointer;" data-sort="fum_rec">Fum Rec</th>
+                  <th style="cursor: pointer;" data-sort="tds">TD</th>
+                  <th style="cursor: pointer;" data-sort="pts_allowed">Pts Allow</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody id={`tbody-${position}`}>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ))}
+
+  <style>
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      color: white;
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .page-header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.2em;
+    }
+
+    .position-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: white;
+      color: #667eea;
+      border: 2px solid transparent;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tab-btn:hover {
+      background: #f8f9fa;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container canvas {
+      max-height: 400px;
+    }
+
+    .position-table {
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    .position-table.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .position-table h2 {
+      color: white;
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      overflow-x: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .stats-table thead tr {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .stats-table th {
+      padding: 15px 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .stats-table tbody tr {
+      transition: background-color 0.2s;
+    }
+
+    .stats-table tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .stats-table tbody tr:hover {
+      background-color: #e9ecef !important;
+    }
+
+    @media (max-width: 768px) {
+      .page-header h1 {
+        font-size: 2em;
+      }
+
+      .position-tabs {
+        gap: 10px;
+      }
+
+      .tab-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+
+      .chart-container {
+        padding: 15px;
+      }
+
+      .table-container {
+        padding: 10px;
+      }
+
+      .stats-table th,
+      .stats-table td {
+        padding: 8px 5px;
+        font-size: 14px;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <script define:vars={{ allPlayers, topPlayers, allKickers, allDSTs }}>
+    let currentPosition = 'ALL';
+    let currentChart = null;
+    let playerData = allPlayers;
+    let kickerData = allKickers;
+    let dstData = allDSTs;
+    
+    // Calculate fantasy points from raw stats
+    function calculateFantasyPoints(rawStats, scoring) {
+      let points = 0;
+      
+      // Offensive stats
+      points += (rawStats.passing_yards || 0) * (scoring.passing_yards || 0);
+      points += (rawStats.passing_tds || 0) * (scoring.passing_tds || 0);
+      points += (rawStats.passing_2pt || 0) * (scoring.passing_2pt || 0);
+      points += (rawStats.interceptions || 0) * (scoring.interceptions || 0);
+      points += (rawStats.rushing_yards || 0) * (scoring.rushing_yards || 0);
+      points += (rawStats.rushing_tds || 0) * (scoring.rushing_tds || 0);
+      points += (rawStats.rushing_2pt || 0) * (scoring.rushing_2pt || 0);
+      points += (rawStats.receptions || 0) * (scoring.receptions || 0);
+      points += (rawStats.receiving_yards || 0) * (scoring.receiving_yards || 0);
+      points += (rawStats.receiving_tds || 0) * (scoring.receiving_tds || 0);
+      points += (rawStats.receiving_2pt || 0) * (scoring.receiving_2pt || 0);
+      points += (rawStats.fumbles_lost || 0) * (scoring.fumbles_lost || 0);
+      
+      // Kicker stats (distance-based)
+      if (rawStats.fg_0_19 !== undefined || rawStats.fg_made !== undefined) {
+        points += (rawStats.fg_0_19 || 0) * (scoring.fg_0_19 || 0);
+        points += (rawStats.fg_20_29 || 0) * (scoring.fg_20_29 || 0);
+        points += (rawStats.fg_30_39 || 0) * (scoring.fg_30_39 || 0);
+        points += (rawStats.fg_40_49 || 0) * (scoring.fg_40_49 || 0);
+        points += (rawStats.fg_50_59 || 0) * (scoring.fg_50_59 || 0);
+        points += (rawStats.fg_60_plus || 0) * (scoring.fg_60_plus || 0);
+        points += (rawStats.fg_missed || 0) * (scoring.fg_missed || 0);
+        points += (rawStats.pat_made || 0) * (scoring.pat_made || 0);
+        points += (rawStats.pat_missed || 0) * (scoring.pat_missed || 0);
+      }
+      
+      // Defense stats
+      if (rawStats.def_td !== undefined) {
+        points += (rawStats.def_td || 0) * (scoring.def_td || 0);
+        points += (rawStats.kr_td || 0) * (scoring.kr_td || 0);
+        points += (rawStats.st_td || 0) * (scoring.st_td || 0);
+        points += (rawStats.def_int || 0) * (scoring.def_int || 0);
+        points += (rawStats.def_fumble_recovery || 0) * (scoring.def_fumble_recovery || 0);
+        points += (rawStats.def_fumble_forced || 0) * (scoring.def_fumble_forced || 0);
+        points += (rawStats.st_fumble_recovery || 0) * (scoring.st_fumble_recovery || 0);
+        points += (rawStats.st_fumble_forced || 0) * (scoring.st_fumble_forced || 0);
+        points += (rawStats.def_sack || 0) * (scoring.def_sack || 0);
+        points += (rawStats.def_safety || 0) * (scoring.def_safety || 0);
+        points += (rawStats.def_blocked_kick || 0) * (scoring.def_blocked_kick || 0);
+        
+        // Points allowed scoring (tiered)
+        const pts_allowed = rawStats.points_allowed || 0;
+        if (pts_allowed === 0) points += (scoring.points_allowed_0 || 0);
+        else if (pts_allowed <= 6) points += (scoring.points_allowed_1_6 || 0);
+        else if (pts_allowed <= 13) points += (scoring.points_allowed_7_13 || 0);
+        else if (pts_allowed <= 20) points += (scoring.points_allowed_14_20 || 0);
+        else if (pts_allowed <= 27) points += (scoring.points_allowed_21_27 || 0);
+        else if (pts_allowed <= 34) points += (scoring.points_allowed_28_34 || 0);
+        else points += (scoring.points_allowed_35_plus || 0);
+      }
+      
+      return points;
+    }
+    
+    // Recalculate player stats with new scoring
+    function recalculatePlayerStats(scoring) {
+      // First pass: Calculate individual stats
+      playerData.forEach(player => {
+        let totalPoints = 0;
+        let weeklyPointsList = [];
+        
+        player.weekly_points.forEach(week => {
+          if (week.raw_stats) {
+            const points = calculateFantasyPoints(week.raw_stats, scoring);
+            week.calculated_points = points;
+            totalPoints += points;
+            weeklyPointsList.push(points);
+          }
+        });
+        
+        player.calculated_total = totalPoints;
+        const games = player.games_played || weeklyPointsList.length;
+        const avg = games > 0 ? totalPoints / games : 0;
+        player.calculated_avg = avg;
+        
+        // Calculate Consistency & Std Dev
+        if (weeklyPointsList.length > 1) {
+            const mean = avg;
+            const squareDiffs = weeklyPointsList.map(value => Math.pow(value - mean, 2));
+            const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / (weeklyPointsList.length - 1); // Sample std dev
+            const stdDev = Math.sqrt(avgSquareDiff);
+            player.calculated_std_dev = stdDev;
+            player.calculated_consistency = stdDev > 0 ? mean / stdDev : 0;
+        } else {
+            player.calculated_std_dev = 0;
+            player.calculated_consistency = 0;
+        }
+        
+        // % Above Avg
+        const aboveAvgCount = weeklyPointsList.filter(p => p > avg).length;
+        player.calculated_pct_above_avg = weeklyPointsList.length > 0 ? (aboveAvgCount / weeklyPointsList.length) * 100 : 0;
+        
+        // Trend (Last 4 weeks)
+        const last4 = weeklyPointsList.slice(-4);
+        if (last4.length > 0) {
+            const last4Avg = last4.reduce((a, b) => a + b, 0) / last4.length;
+            const diff = last4Avg - avg;
+            player.calculated_trend_pct = avg > 0 ? (diff / avg) * 100 : 0;
+            player.calculated_trend_dir = diff > 0 ? '▲' : (diff < 0 ? '▼' : '-');
+        } else {
+            player.calculated_trend_pct = 0;
+            player.calculated_trend_dir = '-';
+        }
+      });
+      
+      // Second pass: Calculate position averages
+      const posTotals = {};
+      const posCounts = {};
+      
+      playerData.forEach(player => {
+          if (!posTotals[player.position]) {
+              posTotals[player.position] = 0;
+              posCounts[player.position] = 0;
+          }
+          posTotals[player.position] += player.calculated_avg;
+          posCounts[player.position]++;
+      });
+      
+      const posAvgs = {};
+      Object.keys(posTotals).forEach(pos => {
+          posAvgs[pos] = posTotals[pos] / posCounts[pos];
+      });
+      
+      // Third pass: Calculate vs Position Avg
+      playerData.forEach(player => {
+          const posAvg = posAvgs[player.position] || 0;
+          player.calculated_vs_pos = player.calculated_avg - posAvg;
+      });
+      
+      // Recalculate kicker stats
+      kickerData.forEach(player => {
+        let totalPoints = 0;
+        player.weekly_stats.forEach(week => {
+          if (week.raw_stats) {
+            const points = calculateFantasyPoints(week.raw_stats, scoring);
+            week.calculated_points = points;
+            totalPoints += points;
+          }
+        });
+        player.calculated_total = totalPoints;
+        player.calculated_avg = player.games_played > 0 ? totalPoints / player.games_played : 0;
+      });
+      
+      // Recalculate DST stats
+      dstData.forEach(team => {
+        let totalPoints = 0;
+        team.weekly_stats.forEach(week => {
+          if (week.raw_stats) {
+            const points = calculateFantasyPoints(week.raw_stats, scoring);
+            week.calculated_points = points;
+            totalPoints += points;
+          }
+        });
+        team.calculated_total = totalPoints;
+        team.calculated_avg = team.games_played > 0 ? totalPoints / team.games_played : 0;
+      });
+      
+      // Combine all data
+      const allData = [...playerData, ...kickerData, ...dstData];
+      
+      // Re-sort by position
+      const byPosition = {
+        ALL: allData.sort((a, b) => b.calculated_total - a.calculated_total),
+        QB: playerData.filter(p => p.position === 'QB').sort((a, b) => b.calculated_total - a.calculated_total),
+        RB: playerData.filter(p => p.position === 'RB').sort((a, b) => b.calculated_total - a.calculated_total),
+        WR: playerData.filter(p => p.position === 'WR').sort((a, b) => b.calculated_total - a.calculated_total),
+        TE: playerData.filter(p => p.position === 'TE').sort((a, b) => b.calculated_total - a.calculated_total),
+        K: kickerData.sort((a, b) => b.calculated_total - a.calculated_total),
+        DEF: dstData.sort((a, b) => b.calculated_total - a.calculated_total)
+      };
+      
+      return byPosition;
+    }
+    
+    // Refresh table with new data
+    function refreshTable(position, players) {
+      const tbody = document.getElementById(`tbody-${position}`);
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      
+      players.forEach((player, index) => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-player-id', player.player_id);
+        
+        row.addEventListener('mouseenter', function() {
+          this.style.backgroundColor = '#e9ecef';
+        });
+        row.addEventListener('mouseleave', function() {
+          this.style.backgroundColor = '';
+        });
+        
+        let extraCols = '';
+        let posCol = '';
+        
+        if (position === 'ALL') {
+          posCol = `<td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${player.position}</td>`;
+        } else {
+            // Common advanced stats for QB, RB, WR, TE
+            if (['QB', 'RB', 'WR', 'TE'].includes(player.position)) {
+                 const trendColor = player.calculated_trend_dir === '▲' ? 'green' : (player.calculated_trend_dir === '▼' ? 'red' : 'black');
+                 const vsPosColor = (player.calculated_vs_pos || 0) > 0 ? 'green' : ((player.calculated_vs_pos || 0) < 0 ? 'red' : 'black');
+                 
+                 extraCols = `
+                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_consistency || 0).toFixed(2)}</td>
+                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_std_dev || 0).toFixed(1)}</td>
+                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_pct_above_avg || 0).toFixed(0)}%</td>
+                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${trendColor};">${player.calculated_trend_dir} ${(Math.abs(player.calculated_trend_pct || 0)).toFixed(1)}%</td>
+                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsPosColor};">${(player.calculated_vs_pos || 0) > 0 ? '+' : ''}${(player.calculated_vs_pos || 0).toFixed(1)}</td>
+                 `;
+            } else if (position === 'K') {
+              const stats = player.aggregate_stats || {};
+              const longest = Math.max(
+                ...[60, 50, 40, 30, 20, 0].map((dist, i) => {
+                  const key = ['fg_60_plus', 'fg_50_59', 'fg_40_49', 'fg_30_39', 'fg_20_29', 'fg_0_19'][i];
+                  return stats[key] > 0 ? dist : 0;
+                })
+              );
+              extraCols = `
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.total_fg_made || 0}/${stats.total_fg_att || 0}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.fg_pct || 0}%</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${longest > 0 ? longest + '+' : '-'}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.total_pat_made || 0}/${stats.total_pat_att || 0}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.pat_pct || 0}%</td>
+              `;
+            } else if (position === 'DEF') {
+              const stats = player.aggregate_stats || {};
+              extraCols = `
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(stats.total_sacks || 0).toFixed(1)}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.total_interceptions || 0}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.total_fumble_recoveries || 0}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${stats.total_tds || 0}</td>
+                <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(stats.avg_points_allowed || 0).toFixed(1)}</td>
+              `;
+            }
+        }
+        
+        const displayName = player.player_name || player.team;
+        const displayTeam = player.position === 'DEF' ? 'DST' : player.team;
+        
+        // Create safe filename for player detail page
+        let detailLink;
+        if (player.position === 'DEF') {
+          detailLink = `/defense/${player.team}`;
+        } else {
+          detailLink = `/players/${player.player_id}`;
+        }
+        const nameHtml = `<a href="${detailLink}" style="color: #667eea; text-decoration: none; font-weight: 600;">${displayName}</a>`;
+        
+        row.innerHTML = `
+          <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${index + 1}</td>
+          <td style="text-align: left; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; font-weight: 600;">${nameHtml}</td>
+          ${posCol}
+          <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${displayTeam}</td>
+          <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${player.games_played}</td>
+          <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${player.calculated_total.toFixed(1)}</td>
+          <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${player.calculated_avg.toFixed(1)}</td>
+          ${extraCols}
+        `;
+        tbody.appendChild(row);
+      });
+    }
+    
+    // Update chart with new data - show weekly trend for top 5 players
+    function updateChart(position, players) {
+      const top5 = players.slice(0, 5);
+      
+      if (currentChart) {
+        // Get max week to ensure we show full season progression
+        let maxWeek = 0;
+        top5.forEach(p => {
+          const weeklyData = p.weekly_points || p.weekly_stats || [];
+          weeklyData.forEach(w => {
+            if (w.week > maxWeek) maxWeek = w.week;
+          });
+        });
+        
+        // Create array of all weeks from 1 to maxWeek
+        const allWeeks = Array.from({length: maxWeek}, (_, i) => i + 1);
+        
+        // Create datasets for each player
+        const datasets = top5.map((player, idx) => {
+          const colors = [
+            'rgba(102, 126, 234, 0.7)',
+            'rgba(231, 76, 60, 0.7)',
+            'rgba(46, 204, 113, 0.7)',
+            'rgba(243, 156, 18, 0.7)',
+            'rgba(155, 89, 182, 0.7)'
+          ];
+          const borderColors = [
+            'rgba(102, 126, 234, 1)',
+            'rgba(231, 76, 60, 1)',
+            'rgba(46, 204, 113, 1)',
+            'rgba(243, 156, 18, 1)',
+            'rgba(155, 89, 182, 1)'
+          ];
+          
+          const weeklySource = player.weekly_points || player.weekly_stats || [];
+          const weeklyData = allWeeks.map(week => {
+            const weekData = weeklySource.find(w => w.week === week);
+            return weekData ? (weekData.calculated_points || weekData.points) : 0;
+          });
+          
+          const displayName = player.player_name || player.team;
+
+          return {
+            label: displayName,
+            data: weeklyData,
+            backgroundColor: colors[idx],
+            borderColor: borderColors[idx],
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4
+          };
+        });        currentChart.data.labels = allWeeks.map(w => `Week ${w}`);
+        currentChart.data.datasets = datasets;
+        currentChart.options.plugins.legend.display = true;
+        currentChart.options.scales.y.title.text = 'Fantasy Points';
+        currentChart.update();
+      }
+    }
+    
+    // Initialize chart
+    function initChart() {
+      if (typeof Chart === 'undefined') {
+        setTimeout(initChart, 100);
+        return;
+      }
+      
+      const ctx = document.getElementById('playerChart');
+      if (ctx) {
+        // Destroy existing chart if it exists
+        const existingChart = Chart.getChart(ctx);
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        // Get top 5 players for current position from the initialized playerData
+        const top5 = playerData
+          .filter(p => p.position === currentPosition)
+          .sort((a, b) => b.calculated_total - a.calculated_total)
+          .slice(0, 5);
+        const isMobile = window.innerWidth < 768;
+        
+        // Get all weeks
+        const allWeeks = [];
+        top5.forEach(p => {
+          const weeklySource = p.weekly_points || p.weekly_stats || [];
+          weeklySource.forEach(w => {
+            if (!allWeeks.includes(w.week)) allWeeks.push(w.week);
+          });
+        });
+        allWeeks.sort((a, b) => a - b);
+        
+        // Create datasets
+        const colors = [
+          'rgba(102, 126, 234, 0.7)',
+          'rgba(231, 76, 60, 0.7)',
+          'rgba(46, 204, 113, 0.7)',
+          'rgba(243, 156, 18, 0.7)',
+          'rgba(155, 89, 182, 0.7)'
+        ];
+        const borderColors = [
+          'rgba(102, 126, 234, 1)',
+          'rgba(231, 76, 60, 1)',
+          'rgba(46, 204, 113, 1)',
+          'rgba(243, 156, 18, 1)',
+          'rgba(155, 89, 182, 1)'
+        ];
+        
+        const datasets = top5.map((player, idx) => {
+          const weeklySource = player.weekly_points || player.weekly_stats || [];
+          const weeklyData = allWeeks.map(week => {
+            const weekData = weeklySource.find(w => w.week === week);
+            return weekData ? (weekData.calculated_points || weekData.points) : 0;
+          });
+          
+          const displayName = player.player_name || player.team;
+          
+          return {
+            label: displayName,
+            data: weeklyData,
+            backgroundColor: colors[idx],
+            borderColor: borderColors[idx],
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4
+          };
+        });
+        
+        currentChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: allWeeks.map(w => `Week ${w}`),
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.parsed.y.toFixed(1)} points`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: !isMobile,
+                  text: 'Total Fantasy Points'
+                }
+              },
+              x: {
+                ticks: {
+                  maxRotation: isMobile ? 90 : 45,
+                  minRotation: isMobile ? 90 : 45
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const position = this.dataset.position;
+        currentPosition = position;
+        
+        // Update active states
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.querySelectorAll('.position-table').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.position-table[data-position="${position}"]`)?.classList.add('active');
+        
+        // Update chart
+        const scoring = window.getCurrentScoring ? window.getCurrentScoring() : null;
+        if (scoring) {
+          const byPosition = recalculatePlayerStats(scoring);
+          updateChart(position, byPosition[position]);
+        } else {
+          // Use the initialized data with aggregate stats
+          let posPlayers;
+          if (position === 'ALL') {
+            const allData = [...playerData, ...kickerData, ...dstData];
+            posPlayers = allData.sort((a, b) => b.calculated_total - a.calculated_total).slice(0, 5);
+          } else if (position === 'K') {
+            posPlayers = kickerData.sort((a, b) => b.calculated_total - a.calculated_total).slice(0, 5);
+          } else if (position === 'DEF') {
+            posPlayers = dstData.sort((a, b) => b.calculated_total - a.calculated_total).slice(0, 5);
+          } else {
+            posPlayers = playerData.filter(p => p.position === position).sort((a, b) => b.calculated_total - a.calculated_total).slice(0, 5);
+          }
+          updateChart(position, posPlayers);
+        }
+      });
+    });
+    
+    // Listen for scoring changes
+    window.addEventListener('scoringLoaded', (e) => {
+      const byPosition = recalculatePlayerStats(e.detail);
+      Object.keys(byPosition).forEach(pos => {
+        refreshTable(pos, byPosition[pos]);
+      });
+      const top5 = byPosition[currentPosition].slice(0, 5);
+      updateChart(currentPosition, top5);
+    });
+    
+    window.addEventListener('scoringChanged', (e) => {
+      const byPosition = recalculatePlayerStats(e.detail);
+      Object.keys(byPosition).forEach(pos => {
+        refreshTable(pos, byPosition[pos]);
+      });
+      const top5 = byPosition[currentPosition].slice(0, 5);
+      updateChart(currentPosition, top5);
+    });
+    
+    // Initialize tables with initial data
+    function initializeTables() {
+      // Calculate aggregate stats for initial data (offensive players)
+      playerData.forEach(player => {
+        player.calculated_total = player.total_points;
+        player.calculated_avg = player.avg_points_per_game;
+        
+        // Ensure calculated fields are present (they should be from JSON)
+        if (player.calculated_consistency === undefined) player.calculated_consistency = 0;
+        if (player.calculated_std_dev === undefined) player.calculated_std_dev = 0;
+        if (player.calculated_pct_above_avg === undefined) player.calculated_pct_above_avg = 0;
+        if (player.calculated_trend_pct === undefined) player.calculated_trend_pct = 0;
+        if (player.calculated_trend_dir === undefined) player.calculated_trend_dir = '-';
+        if (player.calculated_vs_pos === undefined) player.calculated_vs_pos = 0;
+      });
+      
+      // Initialize kickers
+      kickerData.forEach(kicker => {
+        kicker.calculated_total = kicker.total_points;
+        kicker.calculated_avg = kicker.avg_points;
+      });
+      
+      // Initialize DST
+      dstData.forEach(dst => {
+        dst.calculated_total = dst.total_points;
+        dst.calculated_avg = dst.avg_points;
+      });
+      
+      // Combine all data for ALL position
+      const allData = [...playerData, ...kickerData, ...dstData];
+      
+      // Populate all tables - show all players
+      const positions = ['ALL', 'QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+      positions.forEach(pos => {
+        let posPlayers;
+        if (pos === 'ALL') {
+          posPlayers = allData.sort((a, b) => b.calculated_total - a.calculated_total);
+        } else if (pos === 'K') {
+          posPlayers = kickerData.sort((a, b) => b.calculated_total - a.calculated_total);
+        } else if (pos === 'DEF') {
+          posPlayers = dstData.sort((a, b) => b.calculated_total - a.calculated_total);
+        } else {
+          posPlayers = playerData
+            .filter(p => p.position === pos)
+            .sort((a, b) => b.calculated_total - a.calculated_total);
+        }
+        if (posPlayers && posPlayers.length > 0) {
+          refreshTable(pos, posPlayers);
+        }
+      });
+    }
+    
+    // Initialize on load - tables first, then chart
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeTables();
+        initChart();
+      });
+    } else {
+      initializeTables();
+      initChart();
+    }
+
+    // Handle bfcache restores (back/forward button)
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) {
+        initializeTables();
+        initChart();
+      }
+    });
+  </script>
+</BaseLayout>

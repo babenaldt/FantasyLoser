@@ -9,9 +9,14 @@ __pycache__/
 *$py.class
 *.so
 
-# Output cache files (but keep HTML reports for Cloudflare Pages)
+# Generated data (intermediate output)
 output/league_data/
 output/*.json
+
+# Website build output
+website/dist/
+website/.astro/
+website/node_modules/
 
 # IDE
 .vscode/
@@ -22,3 +27,7 @@ output/*.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

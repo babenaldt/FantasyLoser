@@ -1,0 +1,112 @@
+{
+  "presets": {
+    "standard": {
+      "name": "Standard (No PPR)",
+      "passing_yards": 0.04,
+      "passing_tds": 4,
+      "passing_2pt": 2,
+      "interceptions": -2,
+      "rushing_yards": 0.1,
+      "rushing_tds": 6,
+      "rushing_2pt": 2,
+      "receptions": 0,
+      "receiving_yards": 0.1,
+      "receiving_tds": 6,
+      "receiving_2pt": 2,
+      "fumbles_lost": -2
+    },
+    "half_ppr": {
+      "name": "Half PPR",
+      "passing_yards": 0.04,
+      "passing_tds": 4,
+      "passing_2pt": 2,
+      "interceptions": -2,
+      "rushing_yards": 0.1,
+      "rushing_tds": 6,
+      "rushing_2pt": 2,
+      "receptions": 0.5,
+      "receiving_yards": 0.1,
+      "receiving_tds": 6,
+      "receiving_2pt": 2,
+      "fumbles_lost": -2
+    },
+    "ppr": {
+      "name": "Full PPR",
+      "passing_yards": 0.04,
+      "passing_tds": 4,
+      "passing_2pt": 2,
+      "interceptions": -2,
+      "rushing_yards": 0.1,
+      "rushing_tds": 6,
+      "rushing_2pt": 2,
+      "receptions": 1,
+      "receiving_yards": 0.1,
+      "receiving_tds": 6,
+      "receiving_2pt": 2,
+      "fumbles_lost": -2
+    }
+  },
+  "default": "ppr",
+  "scoring_categories": [
+    {
+      "id": "passing_yards",
+      "label": "Passing Yards",
+      "step": 0.01
+    },
+    {
+      "id": "passing_tds",
+      "label": "Passing TDs",
+      "step": 0.5
+    },
+    {
+      "id": "passing_2pt",
+      "label": "Passing 2PT",
+      "step": 0.5
+    },
+    {
+      "id": "interceptions",
+      "label": "Interceptions",
+      "step": 0.5
+    },
+    {
+      "id": "rushing_yards",
+      "label": "Rushing Yards",
+      "step": 0.01
+    },
+    {
+      "id": "rushing_tds",
+      "label": "Rushing TDs",
+      "step": 0.5
+    },
+    {
+      "id": "rushing_2pt",
+      "label": "Rushing 2PT",
+      "step": 0.5
+    },
+    {
+      "id": "receptions",
+      "label": "Receptions",
+      "step": 0.1
+    },
+    {
+      "id": "receiving_yards",
+      "label": "Receiving Yards",
+      "step": 0.01
+    },
+    {
+      "id": "receiving_tds",
+      "label": "Receiving TDs",
+      "step": 0.5
+    },
+    {
+      "id": "receiving_2pt",
+      "label": "Receiving 2PT",
+      "step": 0.5
+    },
+    {
+      "id": "fumbles_lost",
+      "label": "Fumbles Lost",
+      "step": 0.5
+    }
+  ]
+}

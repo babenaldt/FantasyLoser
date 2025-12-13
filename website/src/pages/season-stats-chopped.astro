@@ -1,0 +1,586 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import leagueData from '../../public/data/season_stats_chopped.json';
+
+const { league_name, season, teams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup } = leagueData;
+
+// Filter teams
+const activeTeams = teams.filter(t => t.weeks_played > 0);
+const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
+
+// Sort teams by total points (default)
+const sortedTeams = [...teams].sort((a, b) => b.total_points_scored - a.total_points_scored);
+
+// Prepare chart data (All teams)
+const chartTeams = sortedTeams;
+const weeks = chartTeams[0]?.weekly_scores.map(w => w.week) || [];
+
+// Summary Stats
+const avgPPG = teams.reduce((sum, t) => sum + t.avg_points_per_game, 0) / teams.length;
+const highestEfficiency = Math.max(...teams.map(t => t.efficiency_rate));
+const totalBenchPoints = teams.reduce((sum, t) => sum + t.points_left_on_bench, 0);
+const maxFAAB = 150; // Assuming 150 based on HTML
+const mostFAABRemaining = Math.max(...teams.map(t => maxFAAB - t.faab_spent));
+const bestTheoreticalAvg = Math.max(...teams.map(t => t.total_optimal_points / t.weeks_played));
+
+// Awards (Qualified Teams: >= 5 weeks)
+const highestScorer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.total_points_scored > current.total_points_scored) ? prev : current) : null;
+const bestManager = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.efficiency_rate > current.efficiency_rate) ? prev : current) : null;
+const mostConsistent = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.consistency_score > current.consistency_score) ? prev : current) : null;
+const benchWarmer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.points_left_on_bench > current.points_left_on_bench) ? prev : current) : null;
+const waiverWizard = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.points_per_faab > current.points_per_faab) ? prev : current) : null;
+const validWaiverWizard = waiverWizard && waiverWizard.points_per_faab > 0 ? waiverWizard : null;
+
+const livingOnEdge = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.avg_safety_margin < current.avg_safety_margin) ? prev : current) : null;
+
+const dangerZone = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.close_calls > current.close_calls) ? prev : current) : null;
+const validDangerZone = dangerZone && dangerZone.close_calls > 0 ? dangerZone : null;
+
+const boomOrBust = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.consistency_score < current.consistency_score) ? prev : current) : null;
+const mostAverage = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => 
+    (Math.abs(prev.avg_points_per_game - avgPPG) < Math.abs(current.avg_points_per_game - avgPPG)) ? prev : current
+) : null;
+
+// Awards (Active Teams: > 0 weeks)
+const highestAvgScore = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.avg_points_per_game > current.avg_points_per_game) ? prev : current) : null;
+
+// Weekly Awards (Exclude current week if in progress)
+let highestWeeklyScore = { score: -1, owner: '', week: 0 };
+let lowestWeeklyScore = { score: 9999, owner: '', week: 0 };
+
+activeTeams.forEach(t => {
+    t.weekly_scores.forEach(w => {
+        // Skip current week for awards
+        if (w.week >= current_week) return;
+
+        if (w.points > highestWeeklyScore.score) {
+            highestWeeklyScore = { score: w.points, owner: t.owner_name, week: w.week };
+        }
+        if (w.points < lowestWeeklyScore.score && w.points > 0) {
+            lowestWeeklyScore = { score: w.points, owner: t.owner_name, week: w.week };
+        }
+    });
+});
+
+// Unluckiest Chop Logic
+let unluckiestChop = { owner: '', diff: 9999, elimScore: 0, leagueAvg: 0, week: 0 };
+
+teams.forEach(t => {
+    if (t.eliminated_week) {
+        const elimWeek = t.eliminated_week;
+        const elimScoreObj = t.weekly_scores.find(w => w.week === elimWeek);
+        if (elimScoreObj) {
+            const elimScore = elimScoreObj.points;
+            
+            if (elimScore > 0) {
+                // Calculate league average for that week (excluding 0s)
+                let weekSum = 0;
+                let weekCount = 0;
+                teams.forEach(otherTeam => {
+                    const wScore = otherTeam.weekly_scores.find(w => w.week === elimWeek);
+                    if (wScore && wScore.points > 0) {
+                        weekSum += wScore.points;
+                        weekCount++;
+                    }
+                });
+                
+                if (weekCount > 0) {
+                    const leagueAvg = weekSum / weekCount;
+                    const diff = Math.abs(elimScore - leagueAvg);
+                    
+                    if (diff < unluckiestChop.diff) {
+                        unluckiestChop = { 
+                            owner: t.owner_name, 
+                            diff: diff, 
+                            elimScore: elimScore, 
+                            leagueAvg: leagueAvg, 
+                            week: elimWeek 
+                        };
+                    }
+                }
+            }
+        }
+    }
+});
+
+---
+
+<BaseLayout title={`${league_name} - Season Stats`}>
+  <div class="page-header">
+    <h1>🏆 {league_name}</h1>
+    <p class="subtitle">{season} Season Statistics</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-title">League Average PPG</div>
+      <div class="stat-value">{avgPPG.toFixed(1)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Highest Efficiency</div>
+      <div class="stat-value">{highestEfficiency.toFixed(1)}%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Total Bench Points</div>
+      <div class="stat-value">{totalBenchPoints.toFixed(0)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Most FAAB Remaining</div>
+      <div class="stat-value">${mostFAABRemaining}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Best Theoretical Avg</div>
+      <div class="stat-value">{bestTheoreticalAvg.toFixed(1)}</div>
+    </div>
+  </div>
+
+
+
+  <div class="table-container">
+    <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
+    <table class="stats-table" id="statsTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0)" title="Current elimination ranking">Rank</th>
+          <th style="text-align: left;" onclick="sortTable(1)" title="Team owner name">Team Owner</th>
+          <th onclick="sortTable(2)" title="Average points per game">Avg PPG</th>
+          <th onclick="sortTable(3)" title="Average margin above the eliminated team each week">Safety Margin</th>
+          <th onclick="sortTable(4)" title="Number of weeks with margin ≤ 10 points">Close Calls</th>
+          <th onclick="sortTable(5)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
+          <th onclick="sortTable(6)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
+          <th onclick="sortTable(7)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
+          <th onclick="sortTable(8)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
+          <th onclick="sortTable(9)" title="FAAB dollars spent on waivers">FAAB Used</th>
+          <th onclick="sortTable(10)" title="Points per FAAB dollar spent">Pt/$</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {sortedTeams.map((team, index) => (
+          <tr>
+            <td style="text-align: center;" data-value={index + 1}>{index + 1}</td>
+            <td style="font-weight: 600; color: #2d3748;">{team.owner_name}</td>
+            <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game}>{team.avg_points_per_game.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.avg_safety_margin}>{team.avg_safety_margin.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.close_calls}>{team.close_calls}</td>
+            <td style="text-align: center;" data-value={team.efficiency_rate}>{team.efficiency_rate.toFixed(1)}%</td>
+            <td style="text-align: center;" data-value={team.total_bench_points}>{team.total_bench_points.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.points_left_on_bench}>{team.points_left_on_bench.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.consistency_score}>{team.consistency_score.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.faab_spent}>${team.faab_spent}</td>
+            <td style="text-align: center;" data-value={team.points_per_faab}>{team.points_per_faab.toFixed(2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="awards-section">
+    <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
+    <div class="awards-grid">
+      {highestScorer && (
+      <div class="award-card">
+        <div class="award-icon">🏆</div>
+        <div class="award-title">Highest Scorer</div>
+        <div class="award-winner">{highestScorer.owner_name}</div>
+        <div class="award-value">{highestScorer.total_points_scored.toFixed(1)} points</div>
+      </div>
+      )}
+      {highestWeeklyScore.score > -1 && (
+      <div class="award-card">
+        <div class="award-icon">🔥</div>
+        <div class="award-title">Highest Weekly Score</div>
+        <div class="award-winner">{highestWeeklyScore.owner}</div>
+        <div class="award-value">{highestWeeklyScore.score.toFixed(1)} pts (Week {highestWeeklyScore.week})</div>
+      </div>
+      )}
+      {lowestWeeklyScore.score < 9999 && (
+      <div class="award-card">
+        <div class="award-icon">💩</div>
+        <div class="award-title">Lowest Weekly Score</div>
+        <div class="award-winner">{lowestWeeklyScore.owner}</div>
+        <div class="award-value">{lowestWeeklyScore.score.toFixed(1)} pts (Week {lowestWeeklyScore.week})</div>
+      </div>
+      )}
+      {highestAvgScore && (
+      <div class="award-card">
+        <div class="award-icon">⭐</div>
+        <div class="award-title">Highest Average Score</div>
+        <div class="award-winner">{highestAvgScore.owner_name}</div>
+        <div class="award-value">{highestAvgScore.avg_points_per_game.toFixed(1)} ppg</div>
+      </div>
+      )}
+      {bestManager && (
+      <div class="award-card">
+        <div class="award-icon">🎯</div>
+        <div class="award-title">Best Manager</div>
+        <div class="award-winner">{bestManager.owner_name}</div>
+        <div class="award-value">{bestManager.efficiency_rate.toFixed(1)}% efficiency</div>
+      </div>
+      )}
+      {unluckiestChop.owner && (
+      <div class="award-card">
+        <div class="award-icon">🪓</div>
+        <div class="award-title">Unluckiest Chop</div>
+        <div class="award-winner">{unluckiestChop.owner}</div>
+        <div class="award-value">{unluckiestChop.elimScore.toFixed(1)} pts (Week {unluckiestChop.week})</div>
+      </div>
+      )}
+      {livingOnEdge && (
+      <div class="award-card">
+        <div class="award-icon">🔪</div>
+        <div class="award-title">Living on the Edge</div>
+        <div class="award-winner">{livingOnEdge.owner_name}</div>
+        <div class="award-value">{livingOnEdge.avg_safety_margin.toFixed(1)} avg margin</div>
+      </div>
+      )}
+      {validDangerZone && (
+      <div class="award-card">
+        <div class="award-icon">⚠️</div>
+        <div class="award-title">Danger Zone</div>
+        <div class="award-winner">{validDangerZone.owner_name}</div>
+        <div class="award-value">{validDangerZone.close_calls} close calls</div>
+      </div>
+      )}
+      {boomOrBust && (
+      <div class="award-card">
+        <div class="award-icon">💥</div>
+        <div class="award-title">Boom or Bust</div>
+        <div class="award-winner">{boomOrBust.owner_name}</div>
+        <div class="award-value">{boomOrBust.consistency_score.toFixed(2)} consistency</div>
+      </div>
+      )}
+      {mostAverage && (
+      <div class="award-card">
+        <div class="award-icon">😐</div>
+        <div class="award-title">Most Average Team</div>
+        <div class="award-winner">{mostAverage.owner_name}</div>
+        <div class="award-value">{mostAverage.avg_points_per_game.toFixed(1)} ppg</div>
+      </div>
+      )}
+      {mostConsistent && (
+      <div class="award-card">
+        <div class="award-icon">📊</div>
+        <div class="award-title">Most Consistent</div>
+        <div class="award-winner">{mostConsistent.owner_name}</div>
+        <div class="award-value">{mostConsistent.consistency_score.toFixed(2)} score</div>
+      </div>
+      )}
+      {validWaiverWizard && (
+      <div class="award-card">
+        <div class="award-icon">🔮</div>
+        <div class="award-title">Waiver Wire Wizard</div>
+        <div class="award-winner">{validWaiverWizard.owner_name}</div>
+        <div class="award-value">{validWaiverWizard.points_per_faab.toFixed(2)} Pt/$</div>
+      </div>
+      )}
+      {benchWarmer && (
+      <div class="award-card">
+        <div class="award-icon">🪑</div>
+        <div class="award-title">Bench Warmer</div>
+        <div class="award-winner">{benchWarmer.owner_name}</div>
+        <div class="award-value">{benchWarmer.points_left_on_bench.toFixed(1)} pts</div>
+      </div>
+      )}
+    </div>
+  </div>
+
+  <div class="chart-container" style="height: 600px; margin-bottom: 40px;">
+    <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
+    <canvas id="leagueChart"></canvas>
+  </div>
+
+  {best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
+  <div class="table-container">
+    <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">📊 Best Theoretical Lineup by Week</h3>
+    <p style="text-align: center; color: #666; margin-bottom: 15px;">
+        The highest possible scoring lineup constructed from ALL players in the Dynasty league.
+        <br/>
+        <strong>Season Average: {avg_best_theoretical_lineup} pts</strong>
+    </p>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <th style="padding: 12px; text-align: left;">Week</th>
+                    <th style="padding: 12px; text-align: left;">Total Points</th>
+                    <th style="padding: 12px; text-align: left;">Optimal Lineup</th>
+                </tr>
+            </thead>
+            <tbody>
+                {best_theoretical_lineups.map((weekData) => (
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; font-weight: bold;">Week {weekData.week}</td>
+                    <td style="padding: 12px; font-weight: bold; color: #2d3748;">{weekData.points}</td>
+                    <td style="padding: 12px;">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            {weekData.lineup.map((player) => (
+                            <span style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.9em; border: 1px solid #e2e8f0;">
+                                <strong>{player.slot}:</strong> {player.player} ({player.points})
+                            </span>
+                            ))}
+                        </div>
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+  </div>
+  )}
+
+  <script is:inline>
+    function sortTable(columnIndex) {
+      const table = document.getElementById('statsTable');
+      const tbody = document.getElementById('tableBody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+      // Determine sort direction
+      const currentSort = table.getAttribute('data-sort-col');
+      const currentDir = table.getAttribute('data-sort-dir') || 'desc';
+      const newDir = (currentSort == columnIndex && currentDir === 'desc') ? 'asc' : 'desc';
+      
+      table.setAttribute('data-sort-col', columnIndex);
+      table.setAttribute('data-sort-dir', newDir);
+      
+      // Sort rows
+      rows.sort((a, b) => {
+        let aVal, bVal;
+        
+        if (columnIndex === 1) {
+          // Team name - sort alphabetically
+          aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+          bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+          return newDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        } else {
+          // Numeric columns - use data-value attribute
+          aVal = parseFloat(a.cells[columnIndex].getAttribute('data-value')) || 0;
+          bVal = parseFloat(b.cells[columnIndex].getAttribute('data-value')) || 0;
+          return newDir === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+      });
+      
+      // Re-append sorted rows
+      rows.forEach(row => tbody.appendChild(row));
+    }
+  </script>
+  
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script define:vars={{ chartTeams, weeks }}>
+    const ctx = document.getElementById('leagueChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (Chart.getChart(ctx)) {
+      Chart.getChart(ctx).destroy();
+    }
+
+    const colors = [
+      'rgba(54, 162, 235, 1)',
+      'rgba(255, 99, 132, 1)',
+      'rgba(75, 192, 192, 1)',
+      'rgba(255, 159, 64, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 205, 86, 1)',
+      'rgba(201, 203, 207, 1)',
+      'rgba(255, 105, 180, 1)',
+      'rgba(0, 128, 128, 1)',
+      'rgba(165, 42, 42, 1)',
+      'rgba(0, 0, 128, 1)',
+      'rgba(128, 128, 0, 1)'
+    ];
+
+    const datasets = chartTeams.map((team, idx) => {
+      const color = colors[idx % colors.length];
+      
+      return {
+        label: team.owner_name,
+        data: team.weekly_scores.map(w => w.points),
+        borderColor: color,
+        backgroundColor: color.replace('1)', '0.1)'),
+        borderWidth: 2,
+        tension: 0.4,
+        fill: false
+      };
+    });
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: weeks.map(w => `Week ${w}`),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+                usePointStyle: true,
+                boxWidth: 10
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Week'
+            },
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              minRotation: 45
+            }
+          },
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Points Scored'
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+  <style>
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: white;
+    }
+    .page-header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .subtitle {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .stat-title {
+      font-size: 0.9em;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #2d3748;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      height: 400px;
+    }
+    
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    th:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    }
+    th:after {
+      content: ' ⇅';
+      opacity: 0.5;
+      font-size: 0.8em;
+    }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .awards-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .awards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .award-card {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 2px solid #f39c12;
+      text-align: center;
+    }
+    .award-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    .award-title {
+      font-size: 1em;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    .award-winner {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #8e44ad;
+      margin-bottom: 5px;
+    }
+    .award-value {
+      font-size: 0.9em;
+      color: #555;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header h1 { font-size: 2em; }
+      th, td { padding: 8px; font-size: 0.9em; }
+      .stat-value { font-size: 1.4em; }
+    }
+  </style>
+</BaseLayout>
