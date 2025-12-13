@@ -10,7 +10,7 @@ from generate_defense_stats import generate_defense_stats_json
 from generate_player_stats import generate_player_stats_json
 from generate_season_stats import generate_season_stats_json
 from generate_scoring_config import save_scoring_config
-from generate_dst_stats import main as generate_dst_stats
+from generate_dst_stats import generate_dst_stats
 from generate_kicker_stats import generate_kicker_stats
 
 
