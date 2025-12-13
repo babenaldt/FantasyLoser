@@ -48,23 +48,25 @@ const weeklyData = rawWeeklyData.map(w => ({
   week: w.week,
   points: w.points,
   opponent: w.opponent || '-',
-  opp_avg_allowed: w.opp_avg_allowed || 0
+  opp_avg_allowed: w.opp_avg_allowed || 0,
+  hasPlayed: w.points !== null && w.points !== undefined
 })).sort((a, b) => a.week - b.week);
 
-// Chart Data
-const weeksList = weeklyData.map(w => w.week);
-const pointsList = weeklyData.map(w => w.points);
-const oppAvgList = weeklyData.map(w => w.opp_avg_allowed);
-const avgLine = new Array(weeklyData.length).fill(avg_ppg);
+// Chart Data - only include played weeks
+const playedWeeks = weeklyData.filter(w => w.hasPlayed);
+const weeksList = playedWeeks.map(w => w.week);
+const pointsList = playedWeeks.map(w => w.points);
+const oppAvgList = playedWeeks.map(w => w.opp_avg_allowed);
+const avgLine = new Array(playedWeeks.length).fill(avg_ppg);
 
-// Best/Worst Weeks
+// Best/Worst Weeks - only from played weeks
 let bestWeekNum = -1;
 let worstWeekNum = -1;
-if (weeklyData.length > 0) {
-  const maxPts = Math.max(...weeklyData.map(w => w.points));
-  const minPts = Math.min(...weeklyData.map(w => w.points));
-  const bestWeek = weeklyData.find(w => w.points === maxPts);
-  const worstWeek = weeklyData.find(w => w.points === minPts);
+if (playedWeeks.length > 0) {
+  const maxPts = Math.max(...playedWeeks.map(w => w.points));
+  const minPts = Math.min(...playedWeeks.map(w => w.points));
+  const bestWeek = playedWeeks.find(w => w.points === maxPts);
+  const worstWeek = playedWeeks.find(w => w.points === minPts);
   if (bestWeek) bestWeekNum = bestWeek.week;
   if (worstWeek) worstWeekNum = worstWeek.week;
 }
@@ -182,14 +184,18 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
               <tr class={w.week === bestWeekNum ? 'best-week' : (w.week === worstWeekNum ? 'worst-week' : '')}>
                 <td>Week {w.week}</td>
                 {position !== 'K' && <td>{w.opponent}</td>}
-                {position !== 'K' && <td>{w.opp_avg_allowed.toFixed(1)}</td>}
+                {position !== 'K' && <td>{w.opp_avg_allowed > 0 ? w.opp_avg_allowed.toFixed(1) : '-'}</td>}
                 <td style="font-weight: bold; color: #2d3748;">
-                  {w.points.toFixed(2)}
-                  {w.week === bestWeekNum && ' 🏆'}
-                  {w.week === worstWeekNum && ' 💔'}
+                  {w.hasPlayed ? (
+                    <>
+                      {w.points.toFixed(2)}
+                      {w.week === bestWeekNum && ' 🏆'}
+                      {w.week === worstWeekNum && ' 💔'}
+                    </>
+                  ) : '-'}
                 </td>
-                <td style={{color: w.points > avg_ppg ? 'green' : 'red'}}>
-                  {w.points > avg_ppg ? '+' : ''}{(w.points - avg_ppg).toFixed(2)}
+                <td style={{color: w.hasPlayed && w.points > avg_ppg ? 'green' : (w.hasPlayed && w.points < avg_ppg ? 'red' : 'inherit')}}>
+                  {w.hasPlayed ? `${w.points > avg_ppg ? '+' : ''}${(w.points - avg_ppg).toFixed(2)}` : '-'}
                 </td>
               </tr>
             ))}
@@ -243,30 +249,37 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
       let totalPoints = 0;
       
       weeklyPoints.forEach(week => {
+        // Skip future weeks (no raw_stats)
+        if (!week.raw_stats) {
+          recalcWeeklyPoints.push(null);
+          return;
+        }
+        
         const rawStats = week.raw_stats || {};
         const points = calculateFantasyPoints(rawStats, scoring);
         recalcWeeklyPoints.push(points);
         totalPoints += points;
       });
       
-      const games = recalcWeeklyPoints.length;
+      const playedGames = recalcWeeklyPoints.filter(p => p !== null);
+      const games = playedGames.length;
       const avgPpg = games > 0 ? totalPoints / games : 0;
       
-      // Calculate std dev and consistency
+      // Calculate std dev and consistency (only from played games)
       let stdDev = 0;
       let consistency = 0;
       if (games > 1) {
-        const variance = recalcWeeklyPoints.reduce((sum, pts) => sum + Math.pow(pts - avgPpg, 2), 0) / games;
+        const variance = playedGames.reduce((sum, pts) => sum + Math.pow(pts - avgPpg, 2), 0) / games;
         stdDev = Math.sqrt(variance);
         consistency = stdDev > 0 ? avgPpg / stdDev : 0;
       }
       
-      // Calculate % above avg
-      const aboveAvgCount = recalcWeeklyPoints.filter(p => p > avgPpg).length;
+      // Calculate % above avg (only from played games)
+      const aboveAvgCount = playedGames.filter(p => p > avgPpg).length;
       const pctAboveAvg = games > 0 ? (aboveAvgCount / games) * 100 : 0;
       
-      // Calculate trend (last 4 weeks)
-      const last4 = recalcWeeklyPoints.slice(-4);
+      // Calculate trend (last 4 played weeks)
+      const last4 = playedGames.slice(-4);
       let trendPct = 0;
       let trendDir = '-';
       if (last4.length > 0) {
@@ -321,14 +334,23 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
             const vsAvgCell = row.cells[row.cells.length - 1]; // vs Average column
             
             if (ptsCell) {
-              const emoji = ptsCell.textContent.includes('🏆') ? ' 🏆' : (ptsCell.textContent.includes('💔') ? ' 💔' : '');
-              ptsCell.textContent = pts.toFixed(2) + emoji;
+              if (pts === null) {
+                ptsCell.textContent = '-';
+              } else {
+                const emoji = ptsCell.textContent.includes('🏆') ? ' 🏆' : (ptsCell.textContent.includes('💔') ? ' 💔' : '');
+                ptsCell.textContent = pts.toFixed(2) + emoji;
+              }
             }
             
             if (vsAvgCell) {
-              const diff = pts - stats.avgPpg;
-              vsAvgCell.textContent = (diff > 0 ? '+' : '') + diff.toFixed(2);
-              vsAvgCell.style.color = diff > 0 ? 'green' : 'red';
+              if (pts === null) {
+                vsAvgCell.textContent = '-';
+                vsAvgCell.style.color = 'inherit';
+              } else {
+                const diff = pts - stats.avgPpg;
+                vsAvgCell.textContent = (diff > 0 ? '+' : '') + diff.toFixed(2);
+                vsAvgCell.style.color = diff > 0 ? 'green' : 'red';
+              }
             }
           }
         });
@@ -337,8 +359,10 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
     
     function updateChart(weeklyPoints, avgPpg) {
       if (currentChart) {
-        currentChart.data.datasets[0].data = weeklyPoints;
-        currentChart.data.datasets[2].data = new Array(weeklyPoints.length).fill(avgPpg);
+        // Filter out null values for chart (only show played weeks)
+        const playedPoints = weeklyPoints.filter(p => p !== null);
+        currentChart.data.datasets[0].data = playedPoints;
+        currentChart.data.datasets[2].data = new Array(playedPoints.length).fill(avgPpg);
         currentChart.update();
       }
     }

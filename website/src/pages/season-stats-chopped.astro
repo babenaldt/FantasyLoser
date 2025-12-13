@@ -158,7 +158,11 @@ teams.forEach(t => {
         {sortedTeams.map((team, index) => (
           <tr>
             <td style="text-align: center;" data-value={index + 1}>{index + 1}</td>
-            <td style="font-weight: 600; color: #2d3748;">{team.owner_name}</td>
+            <td style="font-weight: 600;">
+              <a href={`/users/chopped-${team.owner_id}`} style="color: #667eea; text-decoration: none;">
+                {team.owner_name} 🏈
+              </a>
+            </td>
             <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game}>{team.avg_points_per_game.toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.avg_safety_margin}>{team.avg_safety_margin.toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.close_calls}>{team.close_calls}</td>

@@ -124,7 +124,11 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
       <tbody id="tableBody">
         {sortedTeams.map((team, index) => (
           <tr>
-            <td style="font-weight: 600; color: #2d3748;">{team.owner_name}</td>
+            <td style="font-weight: 600;">
+              <a href={`/users/dynasty-${team.owner_id}`} style="color: #667eea; text-decoration: none;">
+                {team.owner_name} 🏈
+              </a>
+            </td>
             <td style="text-align: center;" data-value={team.wins}>{team.wins}-{team.losses}</td>
             <td style="text-align: center;" data-value={team.total_points_scored}>{team.total_points_scored.toFixed(1)}</td>
             <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game}>{team.avg_points_per_game.toFixed(1)}</td>
