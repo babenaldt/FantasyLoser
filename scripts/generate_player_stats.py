@@ -73,65 +73,125 @@ def generate_player_stats_json():
     from core_data import SleeperAPI
     
     # League IDs
-    DYNASTY_LEAGUE_ID = "1263579037352079360"
-    CHOPPED_LEAGUE_ID = "1264304480178950144"
+    DYNASTY_LEAGUE_ID = "1264304480178950144"
+    CHOPPED_LEAGUE_ID = "1263579037352079360"
     
-    player_ownership = {}  # player_id -> {'dynasty_owner': str, 'chopped_owner': str}
+    # Team code normalization (Sleeper -> NFL)
+    TEAM_CODE_MAP = {
+        'LAR': 'LA',   # LA Rams
+        'JAX': 'JAC',  # Jacksonville Jaguars
+    }
+    
+    def normalize_team(team_code):
+        """Normalize team codes from Sleeper to NFL format"""
+        if not team_code:
+            return team_code
+        return TEAM_CODE_MAP.get(team_code, team_code)
+    
+    player_ownership = {}  # (name, team) -> {'dynasty_owner': str, 'chopped_owner': str}
     
     try:
         # Load Sleeper player mapping
         sleeper_players = SleeperAPI.get_all_players()
-        # Create gsis_id -> sleeper_id mapping
-        gsis_to_sleeper = {}
-        for sleeper_id, p_data in sleeper_players.items():
-            gsis_id = p_data.get('gsis_id')
-            if gsis_id:
-                gsis_to_sleeper[gsis_id] = sleeper_id
+        if not sleeper_players:
+            print("  Warning: Could not load Sleeper players")
+            sleeper_players = {}
+        
+        print(f"  Loaded {len(sleeper_players)} players from Sleeper database")
         
         # Load Dynasty league rosters
+        # Note: Dynasty leagues have null players in rosters API, so use week 1 matchups instead
         dynasty_api = SleeperAPI(DYNASTY_LEAGUE_ID)
-        dynasty_rosters = dynasty_api.get_rosters()
-        dynasty_users = dynasty_api.get_users()
+        dynasty_users = dynasty_api.get_users() or []
         dynasty_user_map = {u['user_id']: u['display_name'] for u in dynasty_users}
+        
+        # Get rosters from week 1 matchups (more reliable for Dynasty leagues)
+        dynasty_matchups = dynasty_api.get_matchups(1) or []
+        # Get rosters to map roster_id to owner_id
+        dynasty_rosters_api = dynasty_api.get_rosters() or []
+        dynasty_roster_to_owner = {r['roster_id']: r['owner_id'] for r in dynasty_rosters_api if r}
+        
+        # Convert matchups to roster format
+        dynasty_rosters = []
+        for matchup in dynasty_matchups:
+            if matchup and matchup.get('players'):
+                roster_id = matchup.get('roster_id')
+                owner_id = dynasty_roster_to_owner.get(roster_id)
+                if owner_id:
+                    dynasty_rosters.append({
+                        'owner_id': owner_id,
+                        'players': matchup['players']
+                    })
         
         # Load Chopped league rosters
         chopped_api = SleeperAPI(CHOPPED_LEAGUE_ID)
-        chopped_rosters = chopped_api.get_rosters()
-        chopped_users = chopped_api.get_users()
+        chopped_rosters = chopped_api.get_rosters() or []
+        chopped_users = chopped_api.get_users() or []
         chopped_user_map = {u['user_id']: u['display_name'] for u in chopped_users}
         
-        # Map players to owners
+        # Map players to owners - Dynasty
+        dynasty_mapped = 0
         for roster in dynasty_rosters:
+            if not roster:
+                continue
             owner_id = roster.get('owner_id')
             owner_name = dynasty_user_map.get(owner_id, 'Unknown')
-            for sleeper_id in roster.get('players', []):
-                # Find GSIS ID for this Sleeper ID
-                gsis_id = None
-                for gid, sid in gsis_to_sleeper.items():
-                    if sid == sleeper_id:
-                        gsis_id = gid
-                        break
-                if gsis_id:
-                    if gsis_id not in player_ownership:
-                        player_ownership[gsis_id] = {}
-                    player_ownership[gsis_id]['dynasty_owner'] = owner_name
+            players_list = roster.get('players')
+            if not players_list:
+                continue
+            for sleeper_id in players_list:
+                player_data = sleeper_players.get(sleeper_id)
+                if player_data:
+                    # Use name + team as key
+                    first = player_data.get('first_name', '')
+                    last = player_data.get('last_name', '')
+                    team = player_data.get('team')
+                    
+                    if first and last and team:
+                        first = first.strip()
+                        last = last.strip()
+                        team = normalize_team(team.strip())
+                        full_name = f"{first} {last}"
+                        key = (full_name, team)
+                        if key not in player_ownership:
+                            player_ownership[key] = {}
+                        player_ownership[key]['dynasty_owner'] = owner_name
+                        dynasty_mapped += 1
         
+        print(f"  Mapped {dynasty_mapped} Dynasty roster spots by name+team")
+        
+        # Map players to owners - Chopped
+        chopped_mapped = 0
         for roster in chopped_rosters:
+            if not roster:
+                continue
             owner_id = roster.get('owner_id')
             owner_name = chopped_user_map.get(owner_id, 'Unknown')
-            for sleeper_id in roster.get('players', []):
-                # Find GSIS ID for this Sleeper ID
-                gsis_id = None
-                for gid, sid in gsis_to_sleeper.items():
-                    if sid == sleeper_id:
-                        gsis_id = gid
-                        break
-                if gsis_id:
-                    if gsis_id not in player_ownership:
-                        player_ownership[gsis_id] = {}
-                    player_ownership[gsis_id]['chopped_owner'] = owner_name
+            players_list = roster.get('players')
+            if not players_list:
+                continue
+            for sleeper_id in players_list:
+                player_data = sleeper_players.get(sleeper_id)
+                if player_data:
+                    # Use name + team as key
+                    first = player_data.get('first_name', '')
+                    last = player_data.get('last_name', '')
+                    team = player_data.get('team')
+                    
+                    if first and last and team:
+                        first = first.strip()
+                        last = last.strip()
+                        team = normalize_team(team.strip())
+                        full_name = f"{first} {last}"
+                        key = (full_name, team)
+                        if key not in player_ownership:
+                            player_ownership[key] = {}
+                        player_ownership[key]['chopped_owner'] = owner_name
+                        chopped_mapped += 1
         
-        print(f"  Loaded ownership for {len(player_ownership)} players")
+        print(f"  Mapped {chopped_mapped} Chopped roster spots by name+team")
+        print(f"  Total unique players with ownership: {len(player_ownership)}")
+        
     except Exception as e:
         print(f"  Error loading ownership data: {e}")
 
@@ -271,8 +331,12 @@ def generate_player_stats_json():
                 'avg_snap_pct': stats['avg_snap_pct']
             }
             
-            # Add Ownership Data
-            ownership = player_ownership.get(player_id, {})
+            # Add Ownership Data - use (name, team) key
+            player_name = stats['player_name']
+            player_team = stats['team']
+            ownership_key = (player_name, player_team)
+            ownership = player_ownership.get(ownership_key, {})
+            
             stats['dynasty_owner'] = ownership.get('dynasty_owner', 'Free Agent')
             stats['chopped_owner'] = ownership.get('chopped_owner', 'Free Agent')
 
