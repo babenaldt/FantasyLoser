@@ -1,6 +1,11 @@
 """Main script to generate all fantasy football data for Astro site."""
 
 import sys
+import os
+
+# Add scripts directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from generate_defense_stats import generate_defense_stats_json
 from generate_player_stats import generate_player_stats_json
 from generate_season_stats import generate_season_stats_json
