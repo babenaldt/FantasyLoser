@@ -1,0 +1,436 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  // Import data
+  const playerData = await import('../../../public/data/player_stats.json');
+  const kickerData = await import('../../../public/data/kicker_stats.json');
+  
+  const players = playerData.default?.players || playerData.players || [];
+  const kickers = kickerData.default?.players || kickerData.players || [];
+  
+  // Combine players and kickers
+  const allPlayers = [...players, ...kickers];
+
+  return allPlayers.map(player => ({
+    params: { player_id: player.player_id },
+    props: { player }
+  }));
+}
+
+const { player } = Astro.props;
+
+// Normalize data structures
+const position = player.position;
+const team = player.team;
+const player_name = player.player_name;
+const total_points = player.total_points || 0;
+const avg_ppg = player.avg_points_per_game || player.avg_points || 0; // Handle different field names
+const games = player.games_played || 0;
+
+// Stats
+const consistency = player.consistency || 0;
+const std_dev = player.std_dev || 0;
+const pct_above_avg = player.pct_above_avg || 0;
+const trend_pct = player.trend_pct || 0;
+const trend_dir = player.trend_dir || '-';
+const vs_position_avg = player.vs_position_avg || 0;
+
+// NFL Stats
+const nfl_stats = player.nfl_stats || {};
+const age = nfl_stats.age || player.age || '-'; // Kickers might have age at top level if I changed it there
+const avg_snap_pct = nfl_stats.avg_snap_pct || 0;
+
+// Weekly Data
+// Players use 'weekly_points', Kickers use 'weekly_stats'
+const rawWeeklyData = player.weekly_points || player.weekly_stats || [];
+const weeklyData = rawWeeklyData.map(w => ({
+  week: w.week,
+  points: w.points,
+  opponent: w.opponent || '-',
+  opp_avg_allowed: w.opp_avg_allowed || 0
+})).sort((a, b) => a.week - b.week);
+
+// Chart Data
+const weeksList = weeklyData.map(w => w.week);
+const pointsList = weeklyData.map(w => w.points);
+const oppAvgList = weeklyData.map(w => w.opp_avg_allowed);
+const avgLine = new Array(weeklyData.length).fill(avg_ppg);
+
+// Best/Worst Weeks
+let bestWeekNum = -1;
+let worstWeekNum = -1;
+if (weeklyData.length > 0) {
+  const maxPts = Math.max(...weeklyData.map(w => w.points));
+  const minPts = Math.min(...weeklyData.map(w => w.points));
+  const bestWeek = weeklyData.find(w => w.points === maxPts);
+  const worstWeek = weeklyData.find(w => w.points === minPts);
+  if (bestWeek) bestWeekNum = bestWeek.week;
+  if (worstWeek) worstWeekNum = worstWeek.week;
+}
+
+// Owners
+const dynasty_owner = player.dynasty_owner || 'Free Agent';
+const chopped_owner = player.chopped_owner || 'Free Agent';
+
+---
+
+<BaseLayout title={`${player_name} - Fantasy Stats`}>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <div class="content-wrapper">
+    <div class="container">
+      <a href="/player-stats" class="back-link">← Back to All Players</a>
+      
+      <div class="player-header">
+        <h1 class="player-name">{player_name}</h1>
+        <span class={`position ${position}`}>{position}</span>
+        
+        <div class="player-meta">
+          <div class="meta-item">
+            <span class="meta-label">Team</span>
+            <span class="meta-value">{team}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Age</span>
+            <span class="meta-value">{age}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Dynasty Owner</span>
+            <span class="meta-value">{dynasty_owner}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Chopped Owner</span>
+            <span class="meta-value">{chopped_owner}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Season Totals</h3>
+          <div class="meta-item">
+            <span class="meta-label">Games Played</span>
+            <span class="meta-value">{games}</span>
+          </div>
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">Total Points</span>
+            <span class="meta-value">{total_points.toFixed(1)}</span>
+          </div>
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">Average PPG</span>
+            <span class="meta-value">{avg_ppg.toFixed(1)}</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <h3>Performance</h3>
+          <div class="meta-item">
+            <span class="meta-label">Consistency</span>
+            <span class="meta-value">{consistency.toFixed(2)}</span>
+          </div>
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">Std Dev</span>
+            <span class="meta-value">{std_dev.toFixed(1)}</span>
+          </div>
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">% > Avg</span>
+            <span class="meta-value">{pct_above_avg.toFixed(0)}%</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <h3>Advanced Stats</h3>
+          <div class="meta-item">
+            <span class="meta-label">Trend (4wk)</span>
+            <span class="meta-value" style={{color: trend_pct > 0 ? 'green' : (trend_pct < 0 ? 'red' : 'inherit')}}>
+              {trend_dir} {Math.abs(trend_pct).toFixed(1)}%
+            </span>
+          </div>
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">vs Pos Avg</span>
+            <span class="meta-value" style={{color: vs_position_avg > 0 ? 'green' : (vs_position_avg < 0 ? 'red' : 'inherit')}}>
+              {vs_position_avg > 0 ? '+' : ''}{vs_position_avg.toFixed(1)}
+            </span>
+          </div>
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">Snap %</span>
+            <span class="meta-value">{avg_snap_pct > 0 ? avg_snap_pct + '%' : '-'}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h3 style="color: #667eea; margin-bottom: 20px;">Weekly Performance Chart</h3>
+        <canvas id="weeklyChart"></canvas>
+      </div>
+      
+      <div class="weekly-table">
+        <h3 style="color: #667eea; margin-bottom: 20px;">Week-by-Week Stats</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Week</th>
+              {position !== 'K' && <th>Opponent</th>}
+              {position !== 'K' && <th>Opp Avg Allowed</th>}
+              <th>Fantasy Points</th>
+              <th>vs Average</th>
+            </tr>
+          </thead>
+          <tbody>
+            {weeklyData.map(w => (
+              <tr class={w.week === bestWeekNum ? 'best-week' : (w.week === worstWeekNum ? 'worst-week' : '')}>
+                <td>Week {w.week}</td>
+                {position !== 'K' && <td>{w.opponent}</td>}
+                {position !== 'K' && <td>{w.opp_avg_allowed.toFixed(1)}</td>}
+                <td style="font-weight: bold; color: #2d3748;">
+                  {w.points.toFixed(2)}
+                  {w.week === bestWeekNum && ' 🏆'}
+                  {w.week === worstWeekNum && ' 💔'}
+                </td>
+                <td style={{color: w.points > avg_ppg ? 'green' : 'red'}}>
+                  {w.points > avg_ppg ? '+' : ''}{(w.points - avg_ppg).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ weeksList, pointsList, avgLine, oppAvgList }}>
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: weeksList,
+        datasets: [{
+          label: 'Fantasy Points',
+          data: pointsList,
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 5,
+          pointHoverRadius: 7
+        },
+        {
+          label: 'Opp Avg Allowed',
+          data: oppAvgList,
+          borderColor: '#a0aec0',
+          borderWidth: 2,
+          borderDash: [2, 2],
+          fill: false,
+          pointRadius: 3,
+          pointHoverRadius: 5
+        },
+        {
+          label: 'Season Average',
+          data: avgLine,
+          borderColor: '#e74c3c',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          fill: false,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2.5,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Fantasy Points'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Week'
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+  <style>
+    .content-wrapper {
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .back-link:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    .player-header {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .player-name {
+      font-size: 2.5em;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    .player-meta {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-label {
+      font-size: 0.9em;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    .meta-value {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #333;
+    }
+    .position {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+    .position.QB { background: #e74c3c; }
+    .position.RB { background: #3498db; }
+    .position.WR { background: #2ecc71; }
+    .position.TE { background: #f39c12; }
+    .position.K { background: #9b59b6; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.3em;
+    }
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .weekly-table {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 10px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    .best-week {
+      background-color: #d4edda !important;
+      font-weight: 600;
+    }
+    .worst-week {
+      background-color: #f8d7da !important;
+    }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: 10px;
+      }
+      .container {
+        padding: 0;
+      }
+      .back-link {
+        font-size: 1em;
+        padding: 8px 15px;
+        margin-bottom: 15px;
+      }
+      .player-header {
+        padding: 20px 15px;
+      }
+      .player-name {
+        font-size: 1.8em;
+      }
+      .player-meta {
+        gap: 15px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .meta-item {
+        width: 100%;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      table {
+        font-size: 12px;
+      }
+      th, td {
+        padding: 8px 5px;
+      }
+    }
+  </style>
+</BaseLayout>

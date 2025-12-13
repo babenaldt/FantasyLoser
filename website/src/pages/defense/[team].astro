@@ -1,0 +1,640 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  // Import the JSON data directly
+  const data = await import('../../../public/data/defense_stats.json');
+  const defenses = data.default?.defenses || data.defenses || [];
+
+  return defenses.map(defense => ({
+    params: { team: defense.team },
+    props: { defense }
+  }));
+}
+
+const { defense } = Astro.props;
+const { team } = Astro.params;
+
+// Prepare weekly chart data
+const weeklyData = defense.weekly_breakdown || [];
+---
+
+<BaseLayout title={`${team} Defense Stats - 2025`}>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <div class="defense-detail-container">
+    <div class="header">
+      <div class="breadcrumb">
+        <a href="/defense-stats">← Back to All Defenses</a>
+      </div>
+      <h1>{team} Defense</h1>
+      <p class="subtitle">2025 Season - Detailed Weekly Performance</p>
+    </div>
+
+    <!-- Season Summary Cards -->
+    <div class="summary-cards">
+      <div class="stat-card">
+        <h3>Total Points Allowed</h3>
+        <div class="stat-value">{defense.total_points_allowed.toFixed(1)}</div>
+        <div class="stat-label">Season Total</div>
+      </div>
+      <div class="stat-card">
+        <h3>Avg Points/Game</h3>
+        <div class="stat-value">{defense.avg_points_per_game.toFixed(1)}</div>
+        <div class="stat-label">{defense.games} Games</div>
+      </div>
+      <div class="stat-card">
+        <h3>vs QB</h3>
+        <div class="stat-value">{defense.qb_points_allowed.toFixed(1)}</div>
+        <div class="stat-label">{(defense.qb_points_allowed / defense.games).toFixed(1)}/game</div>
+      </div>
+      <div class="stat-card">
+        <h3>vs RB</h3>
+        <div class="stat-value">{defense.rb_points_allowed.toFixed(1)}</div>
+        <div class="stat-label">{(defense.rb_points_allowed / defense.games).toFixed(1)}/game</div>
+      </div>
+      <div class="stat-card">
+        <h3>vs WR</h3>
+        <div class="stat-value">{defense.wr_points_allowed.toFixed(1)}</div>
+        <div class="stat-label">{(defense.wr_points_allowed / defense.games).toFixed(1)}/game</div>
+      </div>
+      <div class="stat-card">
+        <h3>vs TE</h3>
+        <div class="stat-value">{defense.te_points_allowed.toFixed(1)}</div>
+        <div class="stat-label">{(defense.te_points_allowed / defense.games).toFixed(1)}/game</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container-full">
+      <h2>Points Allowed by Position</h2>
+      <div class="chart-wrapper">
+        <canvas id="stackedChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Weekly Breakdown Table -->
+    <div class="table-container">
+      <h2>Weekly Performance Breakdown</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Opponent</th>
+              <th>Total Pts</th>
+              <th>QB Pts</th>
+              <th>RB Pts</th>
+              <th>WR Pts</th>
+              <th>TE Pts</th>
+              <th>Rush Yds</th>
+              <th>Rec Yds</th>
+              <th>Rush TDs</th>
+              <th>Rec TDs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="totals-row">
+              <td class="week-label"><strong>AVG/Total</strong></td>
+              <td></td>
+              <td class="highlight"><strong>{defense.avg_points_per_game.toFixed(1)}</strong></td>
+              <td><strong>{(defense.qb_points_allowed / defense.games).toFixed(1)}</strong></td>
+              <td><strong>{(defense.rb_points_allowed / defense.games).toFixed(1)}</strong></td>
+              <td><strong>{(defense.wr_points_allowed / defense.games).toFixed(1)}</strong></td>
+              <td><strong>{(defense.te_points_allowed / defense.games).toFixed(1)}</strong></td>
+              <td><strong>{Math.round(defense.rushing_yards_allowed / defense.games)}</strong></td>
+              <td><strong>{Math.round(defense.receiving_yards_allowed / defense.games)}</strong></td>
+              <td><strong>{Math.round(defense.rushing_tds_allowed / defense.games)}</strong></td>
+              <td><strong>{Math.round(defense.receiving_tds_allowed / defense.games)}</strong></td>
+            </tr>
+            {weeklyData.map((week) => (
+              <tr>
+                <td class="week-label">Week {week.week}</td>
+                <td class="opponent-label">{week.opponent || 'vs Multiple'}</td>
+                <td class="highlight">{week.total_points.toFixed(1)}</td>
+                <td>{week.qb_points.toFixed(1)}</td>
+                <td>{week.rb_points.toFixed(1)}</td>
+                <td>{week.wr_points.toFixed(1)}</td>
+                <td>{week.te_points.toFixed(1)}</td>
+                <td>{week.rushing_yards}</td>
+                <td>{week.receiving_yards}</td>
+                <td>{week.rushing_tds}</td>
+                <td>{week.receiving_tds}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ weeklyData }}>
+  let currentChart = null;
+  let localWeeklyData = JSON.parse(JSON.stringify(weeklyData)); // Deep copy
+
+  // Calculate fantasy points from raw stats
+  function calculateFantasyPoints(rawStats, scoring) {
+    let points = 0;
+    
+    // Passing stats
+    if (rawStats.passing_yards !== undefined) {
+      points += (rawStats.passing_yards || 0) * (scoring.passing_yards || 0);
+      points += (rawStats.passing_tds || 0) * (scoring.passing_tds || 0);
+      points += (rawStats.interceptions || 0) * (scoring.interceptions || 0);
+    }
+    
+    // Rushing stats
+    if (rawStats.rushing_yards !== undefined) {
+      points += (rawStats.rushing_yards || 0) * (scoring.rushing_yards || 0);
+      points += (rawStats.rushing_tds || 0) * (scoring.rushing_tds || 0);
+    }
+    
+    // Receiving stats
+    if (rawStats.receiving_yards !== undefined) {
+      points += (rawStats.receiving_yards || 0) * (scoring.receiving_yards || 0);
+      points += (rawStats.receiving_tds || 0) * (scoring.receiving_tds || 0);
+      points += (rawStats.receptions || 0) * (scoring.receptions || 0);
+    }
+    
+    // Fumbles
+    if (rawStats.fumbles_lost !== undefined) {
+      points += (rawStats.fumbles_lost || 0) * (scoring.fumbles_lost || 0);
+    }
+    
+    return points;
+  }
+
+  // Recalculate all weekly stats with new scoring
+  function recalculateWeeklyStats(scoring) {
+    localWeeklyData.forEach((week, index) => {
+      if (week.raw_stats) {
+        // Calculate points for each position
+        week.qb_points = calculateFantasyPoints(week.raw_stats.qb, scoring);
+        week.rb_points = calculateFantasyPoints(week.raw_stats.rb, scoring);
+        week.wr_points = calculateFantasyPoints(week.raw_stats.wr, scoring);
+        week.te_points = calculateFantasyPoints(week.raw_stats.te, scoring);
+        week.total_points = week.qb_points + week.rb_points + week.wr_points + week.te_points;
+      }
+    });
+  }
+
+  // Update the UI with recalculated values
+  function refreshUI() {
+    // Calculate totals
+    const numWeeks = localWeeklyData.length;
+    const totalQB = localWeeklyData.reduce((sum, w) => sum + w.qb_points, 0);
+    const totalRB = localWeeklyData.reduce((sum, w) => sum + w.rb_points, 0);
+    const totalWR = localWeeklyData.reduce((sum, w) => sum + w.wr_points, 0);
+    const totalTE = localWeeklyData.reduce((sum, w) => sum + w.te_points, 0);
+    const totalPoints = totalQB + totalRB + totalWR + totalTE;
+    
+    // Calculate yard totals (these don't change with scoring)
+    const totalRushYds = localWeeklyData.reduce((sum, w) => sum + (w.rushing_yards || 0), 0);
+    const totalRecYds = localWeeklyData.reduce((sum, w) => sum + (w.receiving_yards || 0), 0);
+    const totalRushTDs = localWeeklyData.reduce((sum, w) => sum + (w.rushing_tds || 0), 0);
+    const totalRecTDs = localWeeklyData.reduce((sum, w) => sum + (w.receiving_tds || 0), 0);
+    
+    // Update summary cards
+    const cards = document.querySelectorAll('.stat-card');
+    if (cards[0]) cards[0].querySelector('.stat-value').textContent = totalPoints.toFixed(1);
+    if (cards[1]) cards[1].querySelector('.stat-value').textContent = (totalPoints / numWeeks).toFixed(1);
+    if (cards[2]) {
+      cards[2].querySelector('.stat-value').textContent = totalQB.toFixed(1);
+      cards[2].querySelector('.stat-label').textContent = `${(totalQB / numWeeks).toFixed(1)}/game`;
+    }
+    if (cards[3]) {
+      cards[3].querySelector('.stat-value').textContent = totalRB.toFixed(1);
+      cards[3].querySelector('.stat-label').textContent = `${(totalRB / numWeeks).toFixed(1)}/game`;
+    }
+    if (cards[4]) {
+      cards[4].querySelector('.stat-value').textContent = totalWR.toFixed(1);
+      cards[4].querySelector('.stat-label').textContent = `${(totalWR / numWeeks).toFixed(1)}/game`;
+    }
+    if (cards[5]) {
+      cards[5].querySelector('.stat-value').textContent = totalTE.toFixed(1);
+      cards[5].querySelector('.stat-label').textContent = `${(totalTE / numWeeks).toFixed(1)}/game`;
+    }
+    
+    // Rebuild table completely
+    const tbody = document.querySelector('tbody');
+    if (!tbody) return;
+    
+    // Get the Astro scoping attribute from an existing element
+    const table = tbody.closest('table');
+    const astroId = table ? Array.from(table.attributes).find(attr => attr.name.startsWith('data-astro-cid'))?.name : null;
+    tbody.innerHTML = '';
+    
+    // Create totals row
+    const totalsRow = document.createElement('tr');
+    totalsRow.className = 'totals-row';
+    if (astroId) totalsRow.setAttribute(astroId, '');
+    totalsRow.innerHTML = `
+      <td class="week-label" ${astroId ? astroId + '=""' : ''}><strong>AVG/Total</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}></td>
+      <td class="highlight" ${astroId ? astroId + '=""' : ''}><strong>${(totalPoints / numWeeks).toFixed(1)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${(totalQB / numWeeks).toFixed(1)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${(totalRB / numWeeks).toFixed(1)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${(totalWR / numWeeks).toFixed(1)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${(totalTE / numWeeks).toFixed(1)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${Math.round(totalRushYds / numWeeks)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${Math.round(totalRecYds / numWeeks)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${Math.round(totalRushTDs / numWeeks)}</strong></td>
+      <td ${astroId ? astroId + '=""' : ''}><strong>${Math.round(totalRecTDs / numWeeks)}</strong></td>
+    `;
+    tbody.appendChild(totalsRow);
+    
+    // Create weekly rows
+    localWeeklyData.forEach(week => {
+      const row = document.createElement('tr');
+      if (astroId) row.setAttribute(astroId, '');
+      row.innerHTML = `
+        <td class="week-label" ${astroId ? astroId + '=""' : ''}>Week ${week.week}</td>
+        <td class="opponent-label" ${astroId ? astroId + '=""' : ''}>${week.opponent || 'vs Multiple'}</td>
+        <td class="highlight" ${astroId ? astroId + '=""' : ''}>${week.total_points.toFixed(1)}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.qb_points.toFixed(1)}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.rb_points.toFixed(1)}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.wr_points.toFixed(1)}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.te_points.toFixed(1)}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.rushing_yards || 0}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.receiving_yards || 0}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.rushing_tds || 0}</td>
+        <td ${astroId ? astroId + '=""' : ''}>${week.receiving_tds || 0}</td>
+      `;
+      tbody.appendChild(row);
+    });
+    
+    // Update chart
+    if (currentChart) {
+      currentChart.data.datasets[0].data = localWeeklyData.map(w => w.qb_points);
+      currentChart.data.datasets[1].data = localWeeklyData.map(w => w.rb_points);
+      currentChart.data.datasets[2].data = localWeeklyData.map(w => w.wr_points);
+      currentChart.data.datasets[3].data = localWeeklyData.map(w => w.te_points);
+      currentChart.update();
+    }
+  }
+
+  // Listen for scoring changes
+  window.addEventListener('scoringLoaded', (e) => {
+    if (e.detail && localWeeklyData[0]?.raw_stats) {
+      recalculateWeeklyStats(e.detail);
+      refreshUI();
+    }
+  });
+  
+  window.addEventListener('scoringChanged', (e) => {
+    if (e.detail && localWeeklyData[0]?.raw_stats) {
+      recalculateWeeklyStats(e.detail);
+      refreshUI();
+    }
+  });
+
+  // Wait for Chart.js to load
+  function initCharts() {
+    if (typeof Chart === 'undefined') {
+      setTimeout(initCharts, 100);
+      return;
+    }
+    
+    // Prepare chart data from weekly breakdown
+    const weeks = weeklyData.map(w => w.opponent ? `${w.opponent}` : `Wk ${w.week}`);
+    const weeklyTotal = weeklyData.map(w => w.total_points);
+    const weeklyQB = weeklyData.map(w => w.qb_points);
+    const weeklyRB = weeklyData.map(w => w.rb_points);
+    const weeklyWR = weeklyData.map(w => w.wr_points);
+    const weeklyTE = weeklyData.map(w => w.te_points);
+
+    const lineChartData = {
+      labels: weeks,
+      datasets: [
+        {
+          label: 'Total Points',
+          data: weeklyTotal,
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    };
+
+    const stackedChartData = {
+      labels: weeks,
+      datasets: [
+        {
+          label: 'QB Points',
+          data: weeklyQB,
+          backgroundColor: 'rgba(231, 76, 60, 0.7)',
+          borderColor: 'rgba(231, 76, 60, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'RB Points',
+          data: weeklyRB,
+          backgroundColor: 'rgba(52, 152, 219, 0.7)',
+          borderColor: 'rgba(52, 152, 219, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'WR Points',
+          data: weeklyWR,
+          backgroundColor: 'rgba(46, 204, 113, 0.7)',
+          borderColor: 'rgba(46, 204, 113, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'TE Points',
+          data: weeklyTE,
+          backgroundColor: 'rgba(243, 156, 18, 0.7)',
+          borderColor: 'rgba(243, 156, 18, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+
+    // Stacked Bar Chart
+    const stackedCtx = document.getElementById('stackedChart');
+    if (stackedCtx) {
+      const isMobile = window.innerWidth < 768;
+      currentChart = new Chart(stackedCtx, {
+        type: 'bar',
+        data: stackedChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: {
+                font: {
+                  size: isMobile ? 9 : 11
+                },
+                maxRotation: isMobile ? 45 : 0
+              }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  size: isMobile ? 9 : 11
+                }
+              },
+              title: {
+                display: !isMobile,
+                text: 'Fantasy Points Allowed'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: {
+                  size: isMobile ? 10 : 12
+                },
+                padding: isMobile ? 8 : 10,
+                boxWidth: isMobile ? 15 : 40
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          }
+        }
+      });
+    }
+  }
+  
+  // Start initialization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts);
+  } else {
+    initCharts();
+  }
+</script>
+
+<style>
+  .defense-detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    color: white;
+    margin-bottom: 30px;
+  }
+  
+  .breadcrumb {
+    margin-bottom: 15px;
+  }
+  
+  .breadcrumb a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+  }
+  
+  .breadcrumb a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+  
+  .header h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .subtitle {
+    font-size: 1.2em;
+    opacity: 0.95;
+  }
+  
+  /* Summary Cards */
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .stat-card h3 {
+    color: #667eea;
+    font-size: 0.95em;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .stat-value {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .stat-label {
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+  
+  /* Chart */
+  .chart-container-full {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+  
+  .chart-container h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+  }
+  
+  .chart-wrapper {
+    position: relative;
+    height: 350px;
+    width: 100%;
+  }
+  
+  /* Table */
+  .table-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+  
+  .table-container h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 10px;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  
+  td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .week-label {
+    font-weight: 600;
+    color: #667eea;
+  }
+  
+  .opponent-label {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .highlight {
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .totals-row {
+    background-color: #f8f9fa;
+    border-bottom: 3px solid #667eea !important;
+  }
+  
+  .totals-row td {
+    padding: 15px 10px;
+    font-size: 1.05em;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .header h1 {
+      font-size: 2em;
+    }
+    .subtitle {
+      font-size: 1em;
+    }
+    .summary-cards {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .stat-card {
+      padding: 15px;
+    }
+    .stat-value {
+      font-size: 1.8em;
+    }
+    .chart-container-full {
+      padding: 15px;
+    }
+    .chart-container-full h2 {
+      font-size: 1.1em;
+    }
+    .chart-wrapper {
+      height: 280px;
+    }
+    .table-container {
+      padding: 15px;
+    }
+    table {
+      font-size: 12px;
+    }
+    th, td {
+      padding: 8px 5px;
+      white-space: nowrap;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header h1 {
+      font-size: 1.6em;
+    }
+    .summary-cards {
+      grid-template-columns: 1fr;
+    }
+    .stat-card h3 {
+      font-size: 0.85em;
+    }
+    .stat-value {
+      font-size: 1.5em;
+    }
+    .chart-wrapper {
+      height: 250px;
+    }
+    table {
+      font-size: 11px;
+    }
+    th, td {
+      padding: 6px 3px;
+    }
+  }
+</style>

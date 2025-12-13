@@ -1,0 +1,346 @@
+---
+// Scoring Settings Component
+const { showAdvanced = true } = Astro.props;
+---
+
+<div class="scoring-settings">
+  <div class="scoring-header">
+    <h3>⚙️ Scoring Settings</h3>
+    <button id="toggleScoring" class="toggle-btn">Show Settings</button>
+  </div>
+  
+  <div id="scoringPanel" class="scoring-panel" style="display: none;">
+    <!-- Preset Selection -->
+    <div class="preset-selection">
+      <label for="scoringPreset"><strong>Scoring Format:</strong></label>
+      <select id="scoringPreset" class="scoring-select">
+        <option value="standard">Standard (No PPR)</option>
+        <option value="half_ppr">Half PPR</option>
+        <option value="ppr" selected>Full PPR</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+
+    {showAdvanced && (
+      <div id="advancedSettings" class="advanced-settings" style="display: none;">
+        <h4>Advanced Settings</h4>
+        <div class="settings-grid">
+          <!-- Passing -->
+          <div class="setting-group">
+            <h5>Passing</h5>
+            <div class="setting-item">
+              <label for="passing_yards">Yards:</label>
+              <input type="number" id="passing_yards" step="0.01" value="0.04" />
+            </div>
+            <div class="setting-item">
+              <label for="passing_tds">TDs:</label>
+              <input type="number" id="passing_tds" step="0.5" value="4" />
+            </div>
+            <div class="setting-item">
+              <label for="passing_2pt">2PT:</label>
+              <input type="number" id="passing_2pt" step="0.5" value="2" />
+            </div>
+            <div class="setting-item">
+              <label for="interceptions">INTs:</label>
+              <input type="number" id="interceptions" step="0.5" value="-2" />
+            </div>
+          </div>
+
+          <!-- Rushing -->
+          <div class="setting-group">
+            <h5>Rushing</h5>
+            <div class="setting-item">
+              <label for="rushing_yards">Yards:</label>
+              <input type="number" id="rushing_yards" step="0.01" value="0.1" />
+            </div>
+            <div class="setting-item">
+              <label for="rushing_tds">TDs:</label>
+              <input type="number" id="rushing_tds" step="0.5" value="6" />
+            </div>
+            <div class="setting-item">
+              <label for="rushing_2pt">2PT:</label>
+              <input type="number" id="rushing_2pt" step="0.5" value="2" />
+            </div>
+          </div>
+
+          <!-- Receiving -->
+          <div class="setting-group">
+            <h5>Receiving</h5>
+            <div class="setting-item">
+              <label for="receptions">Receptions:</label>
+              <input type="number" id="receptions" step="0.1" value="1" />
+            </div>
+            <div class="setting-item">
+              <label for="receiving_yards">Yards:</label>
+              <input type="number" id="receiving_yards" step="0.01" value="0.1" />
+            </div>
+            <div class="setting-item">
+              <label for="receiving_tds">TDs:</label>
+              <input type="number" id="receiving_tds" step="0.5" value="6" />
+            </div>
+            <div class="setting-item">
+              <label for="receiving_2pt">2PT:</label>
+              <input type="number" id="receiving_2pt" step="0.5" value="2" />
+            </div>
+          </div>
+
+          <!-- Other -->
+          <div class="setting-group">
+            <h5>Other</h5>
+            <div class="setting-item">
+              <label for="fumbles_lost">Fumbles:</label>
+              <input type="number" id="fumbles_lost" step="0.5" value="-2" />
+            </div>
+          </div>
+        </div>
+        
+        <div class="setting-actions">
+          <button id="applyScoring" class="btn-primary">Apply Settings</button>
+          <button id="resetScoring" class="btn-secondary">Reset to Default</button>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .scoring-settings {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+
+  .scoring-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .scoring-header h3 {
+    color: #667eea;
+    margin: 0;
+  }
+
+  .toggle-btn {
+    padding: 8px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+
+  .toggle-btn:hover {
+    background: #764ba2;
+  }
+
+  .scoring-panel {
+    padding-top: 15px;
+    border-top: 1px solid #ecf0f1;
+  }
+
+  .preset-selection {
+    margin-bottom: 20px;
+  }
+
+  .preset-selection label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+  }
+
+  .scoring-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border: 2px solid #ecf0f1;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .scoring-select:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .advanced-settings {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .advanced-settings h4 {
+    color: #667eea;
+    margin-bottom: 20px;
+  }
+
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .setting-group h5 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #667eea;
+  }
+
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .setting-item label {
+    color: #2c3e50;
+    font-size: 14px;
+  }
+
+  .setting-item input {
+    width: 80px;
+    padding: 5px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: right;
+  }
+
+  .setting-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .btn-primary {
+    background: #667eea;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #764ba2;
+  }
+
+  .btn-secondary {
+    background: #ecf0f1;
+    color: #2c3e50;
+  }
+
+  .btn-secondary:hover {
+    background: #bdc3c7;
+  }
+
+  @media (max-width: 768px) {
+    .scoring-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .settings-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .setting-actions {
+      flex-direction: column;
+    }
+
+    .btn-primary, .btn-secondary {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // Load scoring config
+  let scoringConfig = null;
+  let currentScoring = null;
+
+  fetch('/data/scoring_config.json')
+    .then(res => res.json())
+    .then(data => {
+      scoringConfig = data;
+      currentScoring = { ...data.presets[data.default] };
+      delete currentScoring.name;
+    })
+    .catch(err => console.error('Failed to load scoring config:', err));
+
+  // Toggle scoring panel
+  const toggleBtn = document.getElementById('toggleScoring');
+  const scoringPanel = document.getElementById('scoringPanel');
+  
+  toggleBtn?.addEventListener('click', () => {
+    const isHidden = scoringPanel.style.display === 'none';
+    scoringPanel.style.display = isHidden ? 'block' : 'none';
+    toggleBtn.textContent = isHidden ? 'Hide Settings' : 'Show Settings';
+  });
+
+  // Preset selection
+  const presetSelect = document.getElementById('scoringPreset');
+  const advancedSettings = document.getElementById('advancedSettings');
+  
+  presetSelect?.addEventListener('change', (e) => {
+    const presetId = e.target.value;
+    
+    if (presetId === 'custom') {
+      advancedSettings.style.display = 'block';
+    } else {
+      advancedSettings.style.display = 'none';
+      if (scoringConfig && scoringConfig.presets[presetId]) {
+        currentScoring = { ...scoringConfig.presets[presetId] };
+        delete currentScoring.name;
+        applyCurrentScoring();
+      }
+    }
+  });
+
+  // Apply scoring button
+  document.getElementById('applyScoring')?.addEventListener('click', () => {
+    // Read all input values
+    const inputs = document.querySelectorAll('.setting-item input');
+    inputs.forEach(input => {
+      currentScoring[input.id] = parseFloat(input.value);
+    });
+    applyCurrentScoring();
+  });
+
+  // Reset button
+  document.getElementById('resetScoring')?.addEventListener('click', () => {
+    presetSelect.value = 'ppr';
+    if (scoringConfig) {
+      currentScoring = { ...scoringConfig.presets.ppr };
+      delete currentScoring.name;
+      applyCurrentScoring();
+    }
+    advancedSettings.style.display = 'none';
+  });
+
+  // Apply scoring function (to be implemented by each page)
+  function applyCurrentScoring() {
+    // Dispatch custom event that pages can listen to
+    window.dispatchEvent(new CustomEvent('scoringChanged', { 
+      detail: currentScoring 
+    }));
+  }
+
+  // Export for other scripts
+  window.getCurrentScoring = () => currentScoring;
+</script>

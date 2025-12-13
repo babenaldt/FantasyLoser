@@ -1,0 +1,618 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Import the JSON data directly
+const data = await import('../../public/data/defense_stats.json');
+const defenses = data.default?.defenses || data.defenses || [];
+---
+
+<BaseLayout title="NFL Defense Statistics - 2025">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <div class="defense-stats-container">
+    <div class="header">
+      <h1>NFL Defense Statistics</h1>
+      <p class="subtitle">2025 Season - Fantasy Points Allowed Analysis</p>
+      <div id="scoringNotice" class="scoring-notice">
+        <span id="currentScoringDisplay">Current Scoring: Full PPR</span>
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="chart-section">
+      <h2>Points Allowed by Position (Stacked)</h2>
+      <div class="chart-wrapper">
+        <canvas id="defenseChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Stats Table -->
+    <div class="table-container">
+      <h2>Defense Rankings</h2>
+      <div class="table-wrapper">
+        <table id="defenseTable">
+          <thead>
+            <tr>
+              <th data-column="0" title="Click to sort">Team</th>
+              <th data-column="1" title="Average fantasy points allowed per game - Click to sort">Avg PPG</th>
+              <th data-column="2" title="QB points per game - Click to sort">QB PPG</th>
+              <th data-column="3" title="RB points per game - Click to sort">RB PPG</th>
+              <th data-column="4" title="WR points per game - Click to sort">WR PPG</th>
+              <th data-column="5" title="TE points per game - Click to sort">TE PPG</th>
+            </tr>
+          </thead>
+          <tbody>
+            {defenses.map((defense, index) => (
+              <tr 
+                data-team={defense.team}
+                data-qb={defense.qb_points_allowed}
+                data-rb={defense.rb_points_allowed}
+                data-wr={defense.wr_points_allowed}
+                data-te={defense.te_points_allowed}
+                data-total={defense.total_points_allowed}
+                data-rush-yds={defense.rushing_yards_allowed}
+                data-rec-yds={defense.receiving_yards_allowed}
+              >
+                <td class="team-name"><a href={`/defense/${defense.team}`}>{defense.team}</a></td>
+                <td>{defense.avg_points_per_game.toFixed(1)}</td>
+                <td>{(defense.qb_points_allowed / defense.games).toFixed(1)}</td>
+                <td>{(defense.rb_points_allowed / defense.games).toFixed(1)}</td>
+                <td>{(defense.wr_points_allowed / defense.games).toFixed(1)}</td>
+                <td>{(defense.te_points_allowed / defense.games).toFixed(1)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ defenses }}>
+  // Store all defense data for sorting/filtering
+  const allDefenseData = defenses;
+  let currentChart = null;
+  
+  // Client-side fantasy points calculation
+  function calculateFantasyPoints(rawStats, scoring) {
+    let points = 0;
+    
+    // Passing stats (QB only)
+    if (rawStats.passing_yards !== undefined) {
+      points += rawStats.passing_yards * scoring.passing_yards;
+      points += rawStats.passing_tds * scoring.passing_tds;
+      points += rawStats.interceptions * scoring.interceptions;
+    }
+    
+    // Rushing stats
+    if (rawStats.rushing_yards !== undefined) {
+      points += rawStats.rushing_yards * scoring.rushing_yards;
+      points += rawStats.rushing_tds * scoring.rushing_tds;
+    }
+    
+    // Receiving stats
+    if (rawStats.receptions !== undefined) {
+      points += rawStats.receptions * scoring.receptions;
+    }
+    if (rawStats.receiving_yards !== undefined) {
+      points += rawStats.receiving_yards * scoring.receiving_yards;
+      points += rawStats.receiving_tds * scoring.receiving_tds;
+    }
+    
+    // Fumbles
+    if (rawStats.fumbles_lost !== undefined) {
+      points += rawStats.fumbles_lost * scoring.fumbles_lost;
+    }
+    
+    return points;
+  }
+  
+  // Recalculate all defense stats with new scoring
+  function recalculateDefenseStats(scoring) {
+    allDefenseData.forEach(defense => {
+      let totalPoints = 0;
+      let qbPoints = 0;
+      let rbPoints = 0;
+      let wrPoints = 0;
+      let tePoints = 0;
+      
+      defense.weekly_breakdown.forEach(week => {
+        if (week.raw_stats) {
+          const qbWeekly = calculateFantasyPoints(week.raw_stats.qb, scoring);
+          const rbWeekly = calculateFantasyPoints(week.raw_stats.rb, scoring);
+          const wrWeekly = calculateFantasyPoints(week.raw_stats.wr, scoring);
+          const teWeekly = calculateFantasyPoints(week.raw_stats.te, scoring);
+          
+          totalPoints += qbWeekly + rbWeekly + wrWeekly + teWeekly;
+          qbPoints += qbWeekly;
+          rbPoints += rbWeekly;
+          wrPoints += wrWeekly;
+          tePoints += teWeekly;
+        }
+      });
+      
+      defense.total_points_allowed = totalPoints;
+      defense.qb_points_allowed = qbPoints;
+      defense.rb_points_allowed = rbPoints;
+      defense.wr_points_allowed = wrPoints;
+      defense.te_points_allowed = tePoints;
+      defense.avg_points_per_game = totalPoints / defense.games;
+      defense.qb_ppg = qbPoints / defense.games;
+      defense.rb_ppg = rbPoints / defense.games;
+      defense.wr_ppg = wrPoints / defense.games;
+      defense.te_ppg = tePoints / defense.games;
+    });
+  }
+  
+  // Wait for Chart.js to load
+  function initChart() {
+    if (typeof Chart === 'undefined') {
+      setTimeout(initChart, 100);
+      return;
+    }
+    
+    // Sort defenses by total points allowed (ascending)
+    const sortedDefenses = [...defenses].sort((a, b) => a.total_points_allowed - b.total_points_allowed);
+    
+    // Prepare chart data
+    const chartLabels = sortedDefenses.map(d => d.team);
+    const qbPoints = sortedDefenses.map(d => d.qb_points_allowed);
+    const rbPoints = sortedDefenses.map(d => d.rb_points_allowed);
+    const wrPoints = sortedDefenses.map(d => d.wr_points_allowed);
+    const tePoints = sortedDefenses.map(d => d.te_points_allowed);
+
+    const chartData = {
+      labels: chartLabels,
+      datasets: [
+        {
+          label: 'QB Points',
+          data: qbPoints,
+          backgroundColor: 'rgba(231, 76, 60, 0.7)',
+          borderColor: 'rgba(231, 76, 60, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'RB Points',
+          data: rbPoints,
+          backgroundColor: 'rgba(52, 152, 219, 0.7)',
+          borderColor: 'rgba(52, 152, 219, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'WR Points',
+          data: wrPoints,
+          backgroundColor: 'rgba(46, 204, 113, 0.7)',
+          borderColor: 'rgba(46, 204, 113, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'TE Points',
+          data: tePoints,
+          backgroundColor: 'rgba(243, 156, 18, 0.7)',
+          borderColor: 'rgba(243, 156, 18, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+    
+    // Initialize Chart
+    const ctx = document.getElementById('defenseChart');
+    if (ctx) {
+      const isMobile = window.innerWidth < 768;
+      currentChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: {
+                font: {
+                  size: isMobile ? 9 : 12
+                },
+                maxRotation: isMobile ? 90 : 45,
+                minRotation: isMobile ? 90 : 0
+              },
+              title: {
+                display: !isMobile,
+                text: 'Team'
+              }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  size: isMobile ? 9 : 12
+                }
+              },
+              title: {
+                display: !isMobile,
+                text: 'Fantasy Points Allowed'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: {
+                  size: isMobile ? 10 : 12
+                },
+                padding: isMobile ? 8 : 10,
+                boxWidth: isMobile ? 15 : 40
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          }
+        }
+      });
+    }
+  }
+  
+  // Start initialization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChart);
+  } else {
+    initChart();
+  }
+  
+  // Listen for scoring changes
+  window.addEventListener('scoringLoaded', (e) => {
+    updateScoringDisplay();
+    if (e.detail) {
+      recalculateDefenseStats(e.detail);
+      refreshTableAndChart();
+    }
+  });
+  
+  window.addEventListener('scoringChanged', (e) => {
+    updateScoringDisplay();
+    if (e.detail) {
+      recalculateDefenseStats(e.detail);
+      refreshTableAndChart();
+    }
+  });
+  
+  function updateScoringDisplay() {
+    const preset = localStorage.getItem('fantasyScoringPreset') || 'ppr';
+    const displayEl = document.getElementById('currentScoringDisplay');
+    if (displayEl) {
+      const presetNames = {
+        'standard': 'Standard (No PPR)',
+        'half_ppr': 'Half PPR',
+        'ppr': 'Full PPR',
+        'custom': 'Custom Scoring'
+      };
+      displayEl.textContent = `Current Scoring: ${presetNames[preset] || 'Full PPR'}`;
+    }
+  }
+  
+  function refreshTableAndChart() {
+    // Update table
+    const tbody = document.getElementById('defenseTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    allDefenseData.forEach((defense, index) => {
+      const row = document.createElement('tr');
+      row.setAttribute('data-team', defense.team);
+      row.setAttribute('data-qb', defense.qb_points_allowed);
+      row.setAttribute('data-rb', defense.rb_points_allowed);
+      row.setAttribute('data-wr', defense.wr_points_allowed);
+      row.setAttribute('data-te', defense.te_points_allowed);
+      row.setAttribute('data-total', defense.total_points_allowed);
+      row.setAttribute('data-rush-yds', defense.rushing_yards_allowed || 0);
+      row.setAttribute('data-rec-yds', defense.receiving_yards_allowed || 0);
+      
+      // Add hover effect
+      row.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = '#f8f9fa';
+      });
+      row.addEventListener('mouseleave', function() {
+        this.style.backgroundColor = '';
+      });
+      
+      row.innerHTML = `
+        <td class="team-name" style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;"><a href="/defense/${defense.team}" style="text-decoration: none; color: #667eea; font-weight: 600; font-size: 1.1em;">${defense.team}</a></td>
+        <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${defense.avg_points_per_game.toFixed(1)}</td>
+        <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${defense.qb_ppg.toFixed(1)}</td>
+        <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${defense.rb_ppg.toFixed(1)}</td>
+        <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${defense.wr_ppg.toFixed(1)}</td>
+        <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${defense.te_ppg.toFixed(1)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+    
+    // Update chart with sorted data
+    if (currentChart) {
+      const sortedDefenses = [...allDefenseData].sort((a, b) => a.total_points_allowed - b.total_points_allowed);
+      currentChart.data.labels = sortedDefenses.map(d => d.team);
+      currentChart.data.datasets[0].data = sortedDefenses.map(d => d.qb_points_allowed);
+      currentChart.data.datasets[1].data = sortedDefenses.map(d => d.rb_points_allowed);
+      currentChart.data.datasets[2].data = sortedDefenses.map(d => d.wr_points_allowed);
+      currentChart.data.datasets[3].data = sortedDefenses.map(d => d.te_points_allowed);
+      currentChart.update();
+    }
+  }
+  
+  // Clickable table headers
+  document.querySelectorAll('#defenseTable th[data-column]').forEach(th => {
+    th.addEventListener('click', function() {
+      sortTableByColumn(parseInt(this.dataset.column));
+    });
+    th.style.cursor = 'pointer';
+    th.style.userSelect = 'none';
+  });
+  
+  function sortTableByColumn(columnIndex) {
+    const table = document.getElementById('defenseTable');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    const currentDir = table.dataset.sortDir || 'asc';
+    const newDir = currentDir === 'desc' ? 'asc' : 'desc';
+    table.dataset.sortDir = newDir;
+    
+    rows.sort((a, b) => {
+      let aVal = a.cells[columnIndex].textContent.trim();
+      let bVal = b.cells[columnIndex].textContent.trim();
+      
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return newDir === 'desc' ? bNum - aNum : aNum - bNum;
+      } else {
+        return newDir === 'desc' ?
+          bVal.localeCompare(aVal) :
+          aVal.localeCompare(bVal);
+      }
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+  }
+</script>
+
+<style>
+  .defense-stats-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+  }
+  
+  .header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .subtitle {
+    font-size: 1.2em;
+    opacity: 0.95;
+  }
+  
+  .scoring-notice {
+    margin-top: 15px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: inline-block;
+  }
+  
+  .scoring-notice span {
+    color: white;
+    font-weight: 500;
+    font-size: 0.95em;
+  }
+  
+  /* Chart Section */
+  .chart-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  
+  .chart-section h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+  }
+  
+  .chart-wrapper {
+    position: relative;
+    height: 500px;
+    width: 100%;
+  }
+  
+  #defenseChart {
+    max-height: 500px;
+  }
+  
+  /* Table */
+  .table-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+  
+  .table-container h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 10px;
+    text-align: center;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  th:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+  
+  td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #ecf0f1;
+    text-align: center;
+    font-size: 1em;
+    font-family: inherit;
+  }
+  
+  tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .rank {
+    font-weight: bold;
+    color: #667eea;
+  }
+  
+  .rank-1 { color: #f39c12; font-weight: bold; }
+  .rank-2 { color: #95a5a6; font-weight: bold; }
+  .rank-3 { color: #cd7f32; font-weight: bold; }
+  
+  .team-name {
+    font-weight: 600;
+    font-size: 1.1em;
+    text-align: center;
+  }
+  
+  .team-name a {
+    color: #667eea;
+    text-decoration: none;
+    transition: color 0.3s;
+    font-family: inherit;
+  }
+  
+  .team-name a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .header h1 {
+      font-size: 1.8em;
+    }
+    .subtitle {
+      font-size: 1em;
+    }
+    .filters {
+      padding: 15px 10px;
+    }
+    .filter-group {
+      display: block;
+      margin: 10px 0;
+    }
+    .filter-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .filter-group select,
+    .filter-group input {
+      width: 100%;
+      max-width: 100%;
+    }
+    .chart-section, .table-container {
+      padding: 15px;
+    }
+    .chart-section h2 {
+      font-size: 1.2em;
+    }
+    .chart-wrapper {
+      height: 350px;
+    }
+    #defenseChart {
+      max-height: 350px;
+    }
+    table {
+      font-size: 12px;
+    }
+    th, td {
+      padding: 8px 5px;
+      white-space: nowrap;
+    }
+    th {
+      font-size: 11px;
+    }
+    .team-name {
+      font-size: 1em;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header h1 {
+      font-size: 1.5em;
+    }
+    .subtitle {
+      font-size: 0.9em;
+    }
+    .chart-section h2 {
+      font-size: 1em;
+    }
+    .chart-wrapper {
+      height: 300px;
+    }
+    table {
+      font-size: 11px;
+    }
+    th, td {
+      padding: 6px 3px;
+    }
+  }
+  
+  /* Toast Notification */
+  .scoring-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    max-width: 350px;
+  }
+  
+  .scoring-toast strong {
+    color: #e67e22;
+    font-size: 1.1em;
+  }
+  
+  @media (max-width: 768px) {
+    .scoring-toast {
+      right: 10px;
+      left: 10px;
+      max-width: none;
+    }
+  }
+</style>

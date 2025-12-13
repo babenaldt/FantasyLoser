@@ -1,0 +1,52 @@
+---
+interface Props {
+  id: string;
+  type?: 'line' | 'bar' | 'doughnut' | 'pie';
+  data: any;
+  options?: any;
+}
+
+const { id, type = 'line', data, options = {} } = Astro.props;
+---
+
+<div class="chart-wrapper">
+  <canvas id={id}></canvas>
+</div>
+
+<script define:vars={{ id, type, data, options }}>
+  import('chart.js/auto').then((ChartModule) => {
+    const Chart = ChartModule.default;
+    const ctx = document.getElementById(id);
+    if (ctx) {
+      new Chart(ctx, {
+        type: type,
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          ...options
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .chart-wrapper {
+    position: relative;
+    width: 100%;
+    max-height: 400px;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .chart-wrapper {
+      padding: 15px 10px;
+      max-height: 300px;
+    }
+  }
+</style>

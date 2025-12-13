@@ -1,0 +1,2938 @@
+{
+  "league_id": "1263579037352079360",
+  "league_name": "Chopped League",
+  "season": "2025",
+  "current_week": 15,
+  "generated_at": "2025-12-13T01:56:40.696172",
+  "teams": [
+    {
+      "roster_id": 6,
+      "owner_id": "992533962855608320",
+      "owner_name": "SeanRabenaldt",
+      "total_points_scored": 1613.4999999999998,
+      "total_points_against": 0,
+      "total_optimal_points": 1755.54,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 14,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 104.48,
+          "optimal": 115.17999999999999,
+          "bench": 21.599999999999998,
+          "margin": 46.06,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 11,
+          "has_matchup": true,
+          "missed": 10.699999999999989
+        },
+        {
+          "week": 2,
+          "points": 110.34,
+          "optimal": 110.34,
+          "bench": 17.1,
+          "margin": 31.22,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 3,
+          "points": 94.74,
+          "optimal": 106.44,
+          "bench": 19.9,
+          "margin": 22.019999999999996,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 21,
+          "has_matchup": true,
+          "missed": 11.700000000000003
+        },
+        {
+          "week": 4,
+          "points": 104.46,
+          "optimal": 110.76,
+          "bench": 15.799999999999999,
+          "margin": 34.58,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 7,
+          "has_matchup": true,
+          "missed": 6.300000000000011
+        },
+        {
+          "week": 5,
+          "points": 125.98,
+          "optimal": 141.28,
+          "bench": 29.3,
+          "margin": 42.86,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 41,
+          "has_matchup": true,
+          "missed": 15.299999999999997
+        },
+        {
+          "week": 6,
+          "points": 98.4,
+          "optimal": 116.93999999999998,
+          "bench": 43.54,
+          "margin": 36.480000000000004,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 18.539999999999978
+        },
+        {
+          "week": 7,
+          "points": 128.76,
+          "optimal": 150.96,
+          "bench": 28.1,
+          "margin": 41.019999999999996,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 33,
+          "has_matchup": true,
+          "missed": 22.200000000000017
+        },
+        {
+          "week": 8,
+          "points": 84.82,
+          "optimal": 92.42,
+          "bench": 22.72,
+          "margin": 0.6399999999999864,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 7.6000000000000085
+        },
+        {
+          "week": 9,
+          "points": 121.82,
+          "optimal": 125.02,
+          "bench": 29.9,
+          "margin": 32.66,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 7,
+          "has_matchup": true,
+          "missed": 3.200000000000003
+        },
+        {
+          "week": 10,
+          "points": 118.74,
+          "optimal": 122.24,
+          "bench": 28.299999999999997,
+          "margin": 49.14,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 3.5
+        },
+        {
+          "week": 11,
+          "points": 141.48,
+          "optimal": 156.68,
+          "bench": 33.2,
+          "margin": 68.63999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 18,
+          "has_matchup": true,
+          "missed": 15.200000000000017
+        },
+        {
+          "week": 12,
+          "points": 103.82,
+          "optimal": 111.72000000000001,
+          "bench": 23.0,
+          "margin": 29.659999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 8,
+          "has_matchup": true,
+          "missed": 7.90000000000002
+        },
+        {
+          "week": 13,
+          "points": 129.32,
+          "optimal": 144.32,
+          "bench": 61.300000000000004,
+          "margin": 19.97999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 1,
+          "has_matchup": true,
+          "missed": 15.0
+        },
+        {
+          "week": 14,
+          "points": 146.34,
+          "optimal": 151.24,
+          "bench": 38.2,
+          "margin": 58.8,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 3,
+          "has_matchup": true,
+          "missed": 4.900000000000006
+        }
+      ],
+      "points_left_on_bench": 142.04000000000005,
+      "total_bench_points": 411.96,
+      "faab_spent": 150,
+      "waiver_moves": 17,
+      "safety_margin_sum": 513.7599999999999,
+      "close_calls": 1,
+      "eliminated_week": null,
+      "all_play_wins": 83,
+      "all_play_losses": 36,
+      "all_play_ties": 0,
+      "average_points": 115.24999999999999,
+      "avg_points_per_game": 115.24999999999999,
+      "efficiency_rate": 91.90904223201977,
+      "faab_efficiency": 0,
+      "points_per_faab": 10.756666666666666,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 9.755603759942174,
+      "avg_margin_above_last": 36.69714285714285,
+      "avg_safety_margin": 36.69714285714285,
+      "consistency_score": 6.394205239470435
+    },
+    {
+      "roster_id": 16,
+      "owner_id": "1264630225161965568",
+      "owner_name": "SamirNazir",
+      "total_points_scored": 1580.1399999999999,
+      "total_points_against": 0,
+      "total_optimal_points": 1756.3000000000002,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 14,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 88.02,
+          "optimal": 97.22,
+          "bench": 24.22,
+          "margin": 29.599999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 10,
+          "has_matchup": true,
+          "missed": 9.200000000000003
+        },
+        {
+          "week": 2,
+          "points": 103.14,
+          "optimal": 113.9,
+          "bench": 36.78,
+          "margin": 24.019999999999996,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 16,
+          "has_matchup": true,
+          "missed": 10.760000000000005
+        },
+        {
+          "week": 3,
+          "points": 78.26,
+          "optimal": 88.42,
+          "bench": 28.52,
+          "margin": 5.540000000000006,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 13,
+          "has_matchup": true,
+          "missed": 10.159999999999997
+        },
+        {
+          "week": 4,
+          "points": 112.08,
+          "optimal": 122.28000000000002,
+          "bench": 43.879999999999995,
+          "margin": 42.2,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 13,
+          "has_matchup": true,
+          "missed": 10.200000000000017
+        },
+        {
+          "week": 5,
+          "points": 94.28,
+          "optimal": 106.24,
+          "bench": 28.64,
+          "margin": 11.159999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 11.959999999999994
+        },
+        {
+          "week": 6,
+          "points": 128.5,
+          "optimal": 137.38,
+          "bench": 48.78,
+          "margin": 66.58,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 12,
+          "has_matchup": true,
+          "missed": 8.879999999999995
+        },
+        {
+          "week": 7,
+          "points": 103.02,
+          "optimal": 132.22000000000003,
+          "bench": 58.92,
+          "margin": 15.280000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 26,
+          "has_matchup": true,
+          "missed": 29.20000000000003
+        },
+        {
+          "week": 8,
+          "points": 121.64,
+          "optimal": 153.24,
+          "bench": 43.9,
+          "margin": 37.459999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 2,
+          "has_matchup": true,
+          "missed": 31.60000000000001
+        },
+        {
+          "week": 9,
+          "points": 97.48,
+          "optimal": 107.24,
+          "bench": 26.84,
+          "margin": 8.320000000000007,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 34,
+          "has_matchup": true,
+          "missed": 9.759999999999991
+        },
+        {
+          "week": 10,
+          "points": 146.7,
+          "optimal": 157.10000000000002,
+          "bench": 40.6,
+          "margin": 77.1,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 10.400000000000034
+        },
+        {
+          "week": 11,
+          "points": 115.8,
+          "optimal": 116.70000000000002,
+          "bench": 18.3,
+          "margin": 42.959999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0.9000000000000199
+        },
+        {
+          "week": 12,
+          "points": 169.52,
+          "optimal": 177.45999999999998,
+          "bench": 54.96,
+          "margin": 95.36000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 3,
+          "has_matchup": true,
+          "missed": 7.939999999999969
+        },
+        {
+          "week": 13,
+          "points": 109.9,
+          "optimal": 122.10000000000001,
+          "bench": 52.92,
+          "margin": 0.5600000000000023,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 11,
+          "has_matchup": true,
+          "missed": 12.200000000000003
+        },
+        {
+          "week": 14,
+          "points": 111.8,
+          "optimal": 124.8,
+          "bench": 36.0,
+          "margin": 24.25999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 6,
+          "faab_spent": 10,
+          "has_matchup": true,
+          "missed": 13.0
+        }
+      ],
+      "points_left_on_bench": 176.16000000000008,
+      "total_bench_points": 543.26,
+      "faab_spent": 150,
+      "waiver_moves": 24,
+      "safety_margin_sum": 480.4,
+      "close_calls": 3,
+      "eliminated_week": null,
+      "all_play_wins": 70,
+      "all_play_losses": 49,
+      "all_play_ties": 0,
+      "average_points": 112.86714285714285,
+      "avg_points_per_game": 112.86714285714285,
+      "efficiency_rate": 89.96982292319078,
+      "faab_efficiency": 0,
+      "points_per_faab": 10.534266666666666,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 15.53997325131529,
+      "avg_margin_above_last": 34.31428571428571,
+      "avg_safety_margin": 34.31428571428571,
+      "consistency_score": 4.768333018257576
+    },
+    {
+      "roster_id": 1,
+      "owner_id": "865700190626136064",
+      "owner_name": "NLadocsi",
+      "total_points_scored": 1453.72,
+      "total_points_against": 0,
+      "total_optimal_points": 1671.52,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 14,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 65.72,
+          "optimal": 98.92,
+          "bench": 59.92,
+          "margin": 7.299999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 33.2
+        },
+        {
+          "week": 2,
+          "points": 104.5,
+          "optimal": 106.9,
+          "bench": 15.38,
+          "margin": 25.379999999999995,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 88,
+          "has_matchup": true,
+          "missed": 2.4000000000000057
+        },
+        {
+          "week": 3,
+          "points": 92.66,
+          "optimal": 102.66000000000003,
+          "bench": 17.8,
+          "margin": 19.939999999999998,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 10.000000000000028
+        },
+        {
+          "week": 4,
+          "points": 99.24,
+          "optimal": 127.53999999999999,
+          "bench": 45.8,
+          "margin": 29.36,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 28.299999999999997
+        },
+        {
+          "week": 5,
+          "points": 110.54,
+          "optimal": 114.34,
+          "bench": 23.799999999999997,
+          "margin": 27.42,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 3.799999999999997
+        },
+        {
+          "week": 6,
+          "points": 127.94,
+          "optimal": 141.84,
+          "bench": 43.0,
+          "margin": 66.02,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 41,
+          "has_matchup": true,
+          "missed": 13.900000000000006
+        },
+        {
+          "week": 7,
+          "points": 107.84,
+          "optimal": 111.84,
+          "bench": 19.0,
+          "margin": 20.10000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 21,
+          "has_matchup": true,
+          "missed": 4.0
+        },
+        {
+          "week": 8,
+          "points": 111.8,
+          "optimal": 112.60000000000001,
+          "bench": 14.8,
+          "margin": 27.61999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0.8000000000000114
+        },
+        {
+          "week": 9,
+          "points": 125.72,
+          "optimal": 140.32,
+          "bench": 50.7,
+          "margin": 36.56,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 14.599999999999994
+        },
+        {
+          "week": 10,
+          "points": 108.64,
+          "optimal": 127.54,
+          "bench": 37.099999999999994,
+          "margin": 39.040000000000006,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 18.900000000000006
+        },
+        {
+          "week": 11,
+          "points": 102.82,
+          "optimal": 151.72,
+          "bench": 81.0,
+          "margin": 29.97999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 48.900000000000006
+        },
+        {
+          "week": 12,
+          "points": 90.22,
+          "optimal": 124.92,
+          "bench": 54.6,
+          "margin": 16.060000000000002,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 34.7
+        },
+        {
+          "week": 13,
+          "points": 118.54,
+          "optimal": 122.84,
+          "bench": 33.0,
+          "margin": 9.200000000000003,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 4.299999999999997
+        },
+        {
+          "week": 14,
+          "points": 87.54,
+          "optimal": 87.54000000000002,
+          "bench": 9.1,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 1.4210854715202004e-14
+        }
+      ],
+      "points_left_on_bench": 217.80000000000007,
+      "total_bench_points": 505.0,
+      "faab_spent": 150,
+      "waiver_moves": 9,
+      "safety_margin_sum": 353.98,
+      "close_calls": 2,
+      "eliminated_week": 14,
+      "all_play_wins": 62,
+      "all_play_losses": 57,
+      "all_play_ties": 0,
+      "average_points": 103.83714285714287,
+      "avg_points_per_game": 103.83714285714287,
+      "efficiency_rate": 86.96994352445678,
+      "faab_efficiency": 0,
+      "points_per_faab": 9.691466666666667,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -4.88310449513433,
+      "avg_margin_above_last": 27.22923076923077,
+      "avg_safety_margin": 27.22923076923077,
+      "consistency_score": 6.3511783329444995
+    },
+    {
+      "roster_id": 11,
+      "owner_id": "1263895969355808768",
+      "owner_name": "inTreywetrust",
+      "total_points_scored": 1358.06,
+      "total_points_against": 0,
+      "total_optimal_points": 1542.54,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 13,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 85.82,
+          "optimal": 92.12,
+          "bench": 10.6,
+          "margin": 27.39999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 6.300000000000011
+        },
+        {
+          "week": 2,
+          "points": 109.28,
+          "optimal": 127.28,
+          "bench": 27.4,
+          "margin": 30.159999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 18.0
+        },
+        {
+          "week": 3,
+          "points": 89.86,
+          "optimal": 110.46,
+          "bench": 54.9,
+          "margin": 17.14,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 20.599999999999994
+        },
+        {
+          "week": 4,
+          "points": 104.1,
+          "optimal": 140.2,
+          "bench": 59.6,
+          "margin": 34.22,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 36.099999999999994
+        },
+        {
+          "week": 5,
+          "points": 118.62,
+          "optimal": 130.01999999999998,
+          "bench": 14.600000000000001,
+          "margin": 35.5,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 45,
+          "has_matchup": true,
+          "missed": 11.399999999999977
+        },
+        {
+          "week": 6,
+          "points": 108.1,
+          "optimal": 116.60000000000001,
+          "bench": 48.099999999999994,
+          "margin": 46.17999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 8.500000000000014
+        },
+        {
+          "week": 7,
+          "points": 113.84,
+          "optimal": 119.03999999999999,
+          "bench": 14.3,
+          "margin": 26.10000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 4,
+          "has_matchup": true,
+          "missed": 5.199999999999989
+        },
+        {
+          "week": 8,
+          "points": 103.96,
+          "optimal": 103.96,
+          "bench": 3.4,
+          "margin": 19.779999999999987,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 98,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 9,
+          "points": 93.5,
+          "optimal": 101.0,
+          "bench": 52.1,
+          "margin": 4.340000000000003,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 7.5
+        },
+        {
+          "week": 10,
+          "points": 118.52,
+          "optimal": 127.62,
+          "bench": 23.7,
+          "margin": 48.92,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 3,
+          "has_matchup": true,
+          "missed": 9.100000000000009
+        },
+        {
+          "week": 11,
+          "points": 76.94,
+          "optimal": 99.92,
+          "bench": 52.82000000000001,
+          "margin": 4.099999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 22.980000000000004
+        },
+        {
+          "week": 12,
+          "points": 126.18,
+          "optimal": 146.78,
+          "bench": 26.14,
+          "margin": 52.02000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 20.599999999999994
+        },
+        {
+          "week": 13,
+          "points": 109.34,
+          "optimal": 127.53999999999999,
+          "bench": 35.9,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 18.19999999999999
+        }
+      ],
+      "points_left_on_bench": 184.47999999999996,
+      "total_bench_points": 423.56,
+      "faab_spent": 150,
+      "waiver_moves": 9,
+      "safety_margin_sum": 345.86,
+      "close_calls": 2,
+      "eliminated_week": 13,
+      "all_play_wins": 60,
+      "all_play_losses": 57,
+      "all_play_ties": 0,
+      "average_points": 104.46615384615384,
+      "avg_points_per_game": 104.46615384615384,
+      "efficiency_rate": 88.04050462224642,
+      "faab_efficiency": 0,
+      "points_per_faab": 9.053733333333334,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -0.2994467598387716,
+      "avg_margin_above_last": 28.82166666666667,
+      "avg_safety_margin": 28.82166666666667,
+      "consistency_score": 7.301147602252926
+    },
+    {
+      "roster_id": 12,
+      "owner_id": "992545813546979328",
+      "owner_name": "emiliosolay",
+      "total_points_scored": 1259.78,
+      "total_points_against": 0,
+      "total_optimal_points": 1422.48,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 12,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 64.02,
+          "optimal": 80.02000000000001,
+          "bench": 22.0,
+          "margin": 5.599999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 27,
+          "has_matchup": true,
+          "missed": 16.000000000000014
+        },
+        {
+          "week": 2,
+          "points": 81.4,
+          "optimal": 93.89999999999999,
+          "bench": 26.000000000000004,
+          "margin": 2.280000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 12.499999999999986
+        },
+        {
+          "week": 3,
+          "points": 141.96,
+          "optimal": 160.06,
+          "bench": 45.9,
+          "margin": 69.24000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 4,
+          "has_matchup": true,
+          "missed": 18.099999999999994
+        },
+        {
+          "week": 4,
+          "points": 99.0,
+          "optimal": 114.94,
+          "bench": 39.64,
+          "margin": 29.120000000000005,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 35,
+          "has_matchup": true,
+          "missed": 15.939999999999998
+        },
+        {
+          "week": 5,
+          "points": 136.72,
+          "optimal": 151.22,
+          "bench": 44.8,
+          "margin": 53.599999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 14.5
+        },
+        {
+          "week": 6,
+          "points": 70.2,
+          "optimal": 71.0,
+          "bench": 6.6,
+          "margin": 8.280000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 51,
+          "has_matchup": true,
+          "missed": 0.7999999999999972
+        },
+        {
+          "week": 7,
+          "points": 101.14,
+          "optimal": 115.24,
+          "bench": 26.4,
+          "margin": 13.400000000000006,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 5,
+          "has_matchup": true,
+          "missed": 14.099999999999994
+        },
+        {
+          "week": 8,
+          "points": 126.82,
+          "optimal": 137.72,
+          "bench": 38.72,
+          "margin": 42.639999999999986,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 4,
+          "has_matchup": true,
+          "missed": 10.900000000000006
+        },
+        {
+          "week": 9,
+          "points": 110.84,
+          "optimal": 123.5,
+          "bench": 53.300000000000004,
+          "margin": 21.680000000000007,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 12.659999999999997
+        },
+        {
+          "week": 10,
+          "points": 141.48,
+          "optimal": 141.48,
+          "bench": 3.9,
+          "margin": 71.88,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 15,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 11,
+          "points": 112.04,
+          "optimal": 138.94000000000003,
+          "bench": 33.0,
+          "margin": 39.2,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 3,
+          "has_matchup": true,
+          "missed": 26.90000000000002
+        },
+        {
+          "week": 12,
+          "points": 74.16,
+          "optimal": 94.46000000000001,
+          "bench": 42.699999999999996,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 20.30000000000001
+        }
+      ],
+      "points_left_on_bench": 162.70000000000002,
+      "total_bench_points": 382.96,
+      "faab_spent": 144,
+      "waiver_moves": 12,
+      "safety_margin_sum": 356.92,
+      "close_calls": 3,
+      "eliminated_week": 12,
+      "all_play_wins": 52,
+      "all_play_losses": 62,
+      "all_play_ties": 0,
+      "average_points": 104.98166666666667,
+      "avg_points_per_game": 104.98166666666667,
+      "efficiency_rate": 88.56222934593104,
+      "faab_efficiency": 0,
+      "points_per_faab": 8.748472222222222,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 4.0435631618219094,
+      "avg_margin_above_last": 32.447272727272725,
+      "avg_safety_margin": 32.447272727272725,
+      "consistency_score": 3.7303329223713693
+    },
+    {
+      "roster_id": 10,
+      "owner_id": "1263594623981326336",
+      "owner_name": "vmaxlau",
+      "total_points_scored": 1163.56,
+      "total_points_against": 0,
+      "total_optimal_points": 1259.0,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 11,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 86.92,
+          "optimal": 86.92,
+          "bench": 18.6,
+          "margin": 28.5,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 1,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 2,
+          "points": 113.18,
+          "optimal": 120.97999999999999,
+          "bench": 48.120000000000005,
+          "margin": 34.06,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 13,
+          "has_matchup": true,
+          "missed": 7.799999999999983
+        },
+        {
+          "week": 3,
+          "points": 89.0,
+          "optimal": 99.3,
+          "bench": 33.14,
+          "margin": 16.28,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 7,
+          "has_matchup": true,
+          "missed": 10.299999999999997
+        },
+        {
+          "week": 4,
+          "points": 118.52,
+          "optimal": 131.4,
+          "bench": 46.099999999999994,
+          "margin": 48.64,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 12.88000000000001
+        },
+        {
+          "week": 5,
+          "points": 93.84,
+          "optimal": 115.55999999999999,
+          "bench": 56.76,
+          "margin": 10.719999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 5,
+          "has_matchup": true,
+          "missed": 21.719999999999985
+        },
+        {
+          "week": 6,
+          "points": 101.96,
+          "optimal": 104.06000000000002,
+          "bench": 22.44,
+          "margin": 40.03999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 17,
+          "has_matchup": true,
+          "missed": 2.1000000000000227
+        },
+        {
+          "week": 7,
+          "points": 115.24,
+          "optimal": 127.39999999999999,
+          "bench": 48.2,
+          "margin": 27.5,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 45,
+          "has_matchup": true,
+          "missed": 12.159999999999997
+        },
+        {
+          "week": 8,
+          "points": 112.16,
+          "optimal": 113.08000000000001,
+          "bench": 30.880000000000003,
+          "margin": 27.97999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 4,
+          "has_matchup": true,
+          "missed": 0.9200000000000159
+        },
+        {
+          "week": 9,
+          "points": 127.3,
+          "optimal": 127.3,
+          "bench": 0.0,
+          "margin": 38.14,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 10,
+          "points": 132.6,
+          "optimal": 135.20000000000002,
+          "bench": 33.22,
+          "margin": 63.0,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 46,
+          "has_matchup": true,
+          "missed": 2.6000000000000227
+        },
+        {
+          "week": 11,
+          "points": 72.84,
+          "optimal": 97.80000000000001,
+          "bench": 42.2,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 24.960000000000008
+        }
+      ],
+      "points_left_on_bench": 95.44000000000004,
+      "total_bench_points": 379.66,
+      "faab_spent": 138,
+      "waiver_moves": 13,
+      "safety_margin_sum": 334.86,
+      "close_calls": 0,
+      "eliminated_week": 11,
+      "all_play_wins": 67,
+      "all_play_losses": 43,
+      "all_play_ties": 0,
+      "average_points": 105.7781818181818,
+      "avg_points_per_game": 105.7781818181818,
+      "efficiency_rate": 92.41938046068307,
+      "faab_efficiency": 0,
+      "points_per_faab": 8.43159420289855,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 4.854641502515288,
+      "avg_margin_above_last": 33.486000000000004,
+      "avg_safety_margin": 33.486000000000004,
+      "consistency_score": 5.728920428945352
+    },
+    {
+      "roster_id": 5,
+      "owner_id": "865703969211686912",
+      "owner_name": "EliWorkman",
+      "total_points_scored": 1030.2,
+      "total_points_against": 0,
+      "total_optimal_points": 1152.8,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 10,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 105.78,
+          "optimal": 112.98,
+          "bench": 37.86,
+          "margin": 47.36,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 7.200000000000003
+        },
+        {
+          "week": 2,
+          "points": 87.9,
+          "optimal": 120.0,
+          "bench": 61.099999999999994,
+          "margin": 8.780000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 32.099999999999994
+        },
+        {
+          "week": 3,
+          "points": 85.92,
+          "optimal": 138.02000000000004,
+          "bench": 78.4,
+          "margin": 13.200000000000003,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 76,
+          "has_matchup": true,
+          "missed": 52.10000000000004
+        },
+        {
+          "week": 4,
+          "points": 103.92,
+          "optimal": 112.32,
+          "bench": 40.9,
+          "margin": 34.040000000000006,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 8.399999999999991
+        },
+        {
+          "week": 5,
+          "points": 90.22,
+          "optimal": 90.22,
+          "bench": 0.0,
+          "margin": 7.099999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 6,
+          "points": 125.44,
+          "optimal": 141.53999999999996,
+          "bench": 20.4,
+          "margin": 63.519999999999996,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 16.099999999999966
+        },
+        {
+          "week": 7,
+          "points": 96.38,
+          "optimal": 98.67999999999999,
+          "bench": 7.5,
+          "margin": 8.64,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 2.299999999999997
+        },
+        {
+          "week": 8,
+          "points": 112.68,
+          "optimal": 112.68,
+          "bench": 4.2,
+          "margin": 28.5,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 56,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 9,
+          "points": 152.36,
+          "optimal": 152.36,
+          "bench": 8.5,
+          "margin": 63.20000000000002,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 5,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 10,
+          "points": 69.6,
+          "optimal": 74.0,
+          "bench": 23.6,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 4.400000000000006
+        }
+      ],
+      "points_left_on_bench": 122.6,
+      "total_bench_points": 282.46,
+      "faab_spent": 137,
+      "waiver_moves": 4,
+      "safety_margin_sum": 274.34000000000003,
+      "close_calls": 3,
+      "eliminated_week": 10,
+      "all_play_wins": 51,
+      "all_play_losses": 54,
+      "all_play_ties": 0,
+      "average_points": 103.02000000000001,
+      "avg_points_per_game": 103.02000000000001,
+      "efficiency_rate": 89.36502428868842,
+      "faab_efficiency": 0,
+      "points_per_faab": 7.519708029197081,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 8.276710023943561,
+      "avg_margin_above_last": 30.482222222222227,
+      "avg_safety_margin": 30.482222222222227,
+      "consistency_score": 4.422058588840286
+    },
+    {
+      "roster_id": 8,
+      "owner_id": "466651430967570432",
+      "owner_name": "Sangha",
+      "total_points_scored": 902.98,
+      "total_points_against": 0,
+      "total_optimal_points": 984.98,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 9,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 115.26,
+          "optimal": 130.36,
+          "bench": 56.82,
+          "margin": 56.84,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 15.100000000000009
+        },
+        {
+          "week": 2,
+          "points": 82.3,
+          "optimal": 87.7,
+          "bench": 34.08,
+          "margin": 3.1799999999999926,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 120,
+          "has_matchup": true,
+          "missed": 5.400000000000006
+        },
+        {
+          "week": 3,
+          "points": 99.52,
+          "optimal": 106.32,
+          "bench": 30.22,
+          "margin": 26.799999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 4,
+          "has_matchup": true,
+          "missed": 6.799999999999997
+        },
+        {
+          "week": 4,
+          "points": 101.58,
+          "optimal": 116.18,
+          "bench": 26.28,
+          "margin": 31.700000000000003,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 14.600000000000009
+        },
+        {
+          "week": 5,
+          "points": 99.84,
+          "optimal": 99.84,
+          "bench": 0.0,
+          "margin": 16.72,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 6,
+          "points": 113.46,
+          "optimal": 119.96,
+          "bench": 14.0,
+          "margin": 51.53999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 6.5
+        },
+        {
+          "week": 7,
+          "points": 91.16,
+          "optimal": 112.96,
+          "bench": 21.8,
+          "margin": 3.4200000000000017,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 21.799999999999997
+        },
+        {
+          "week": 8,
+          "points": 110.7,
+          "optimal": 110.7,
+          "bench": 5.0,
+          "margin": 26.519999999999996,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 9,
+          "points": 89.16,
+          "optimal": 100.96,
+          "bench": 30.22,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 11.799999999999997
+        }
+      ],
+      "points_left_on_bench": 82.00000000000001,
+      "total_bench_points": 218.42,
+      "faab_spent": 124,
+      "waiver_moves": 6,
+      "safety_margin_sum": 216.71999999999997,
+      "close_calls": 2,
+      "eliminated_week": 9,
+      "all_play_wins": 48,
+      "all_play_losses": 51,
+      "all_play_ties": 0,
+      "average_points": 100.33111111111111,
+      "avg_points_per_game": 100.33111111111111,
+      "efficiency_rate": 91.67495786716482,
+      "faab_efficiency": 0,
+      "points_per_faab": 7.2820967741935485,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -3.3134731666260686,
+      "avg_margin_above_last": 27.089999999999996,
+      "avg_safety_margin": 27.089999999999996,
+      "consistency_score": 8.802854132343422
+    },
+    {
+      "roster_id": 4,
+      "owner_id": "1263581912555855872",
+      "owner_name": "ProfOaks",
+      "total_points_scored": 836.74,
+      "total_points_against": 0,
+      "total_optimal_points": 861.9200000000001,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 7,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 120.6,
+          "optimal": 123.60000000000002,
+          "bench": 21.08,
+          "margin": 62.17999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 3.0000000000000284
+        },
+        {
+          "week": 2,
+          "points": 137.56,
+          "optimal": 137.56,
+          "bench": 29.5,
+          "margin": 58.44,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 3,
+          "points": 87.88,
+          "optimal": 97.36,
+          "bench": 34.160000000000004,
+          "margin": 15.159999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 9.480000000000004
+        },
+        {
+          "week": 4,
+          "points": 132.62,
+          "optimal": 132.62,
+          "bench": 16.32,
+          "margin": 62.74000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 5,
+          "points": 155.92,
+          "optimal": 155.92,
+          "bench": 17.8,
+          "margin": 72.79999999999998,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 58,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 6,
+          "points": 114.42,
+          "optimal": 117.32,
+          "bench": 23.880000000000003,
+          "margin": 52.5,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 2.8999999999999915
+        },
+        {
+          "week": 7,
+          "points": 87.74,
+          "optimal": 97.54,
+          "bench": 21.0,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 22,
+          "has_matchup": true,
+          "missed": 9.800000000000011
+        }
+      ],
+      "points_left_on_bench": 25.180000000000035,
+      "total_bench_points": 163.74,
+      "faab_spent": 80,
+      "waiver_moves": 2,
+      "safety_margin_sum": 323.82,
+      "close_calls": 0,
+      "eliminated_week": 7,
+      "all_play_wins": 64,
+      "all_play_losses": 20,
+      "all_play_ties": 0,
+      "average_points": 119.53428571428572,
+      "avg_points_per_game": 119.53428571428572,
+      "efficiency_rate": 97.0786151847039,
+      "faab_efficiency": 0,
+      "points_per_faab": 10.45925,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -0.1458039534383456,
+      "avg_margin_above_last": 53.97,
+      "avg_safety_margin": 53.97,
+      "consistency_score": 4.7126013732848255
+    },
+    {
+      "roster_id": 3,
+      "owner_id": "867508658106421248",
+      "owner_name": "B-Ray",
+      "total_points_scored": 693.98,
+      "total_points_against": 0,
+      "total_optimal_points": 813.48,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 8,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 76.74,
+          "optimal": 86.52000000000001,
+          "bench": 33.620000000000005,
+          "margin": 18.319999999999993,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 9.780000000000015
+        },
+        {
+          "week": 2,
+          "points": 80.04,
+          "optimal": 92.04000000000002,
+          "bench": 41.739999999999995,
+          "margin": 0.9200000000000017,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 26,
+          "has_matchup": true,
+          "missed": 12.000000000000014
+        },
+        {
+          "week": 3,
+          "points": 88.32,
+          "optimal": 101.22000000000001,
+          "bench": 28.18,
+          "margin": 15.599999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 28,
+          "has_matchup": true,
+          "missed": 12.90000000000002
+        },
+        {
+          "week": 4,
+          "points": 103.96,
+          "optimal": 123.64,
+          "bench": 51.339999999999996,
+          "margin": 34.08,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 2,
+          "has_matchup": true,
+          "missed": 19.680000000000007
+        },
+        {
+          "week": 5,
+          "points": 83.78,
+          "optimal": 83.78,
+          "bench": 20.08,
+          "margin": 0.6599999999999966,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 13,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 6,
+          "points": 82.04,
+          "optimal": 86.94,
+          "bench": 22.259999999999998,
+          "margin": 20.120000000000005,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 77,
+          "has_matchup": true,
+          "missed": 4.8999999999999915
+        },
+        {
+          "week": 7,
+          "points": 94.92,
+          "optimal": 128.86,
+          "bench": 55.36,
+          "margin": 7.180000000000007,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 1,
+          "has_matchup": true,
+          "missed": 33.94000000000001
+        },
+        {
+          "week": 8,
+          "points": 84.18,
+          "optimal": 110.47999999999999,
+          "bench": 30.380000000000003,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 26.299999999999983
+        }
+      ],
+      "points_left_on_bench": 119.50000000000004,
+      "total_bench_points": 282.96,
+      "faab_spent": 147,
+      "waiver_moves": 10,
+      "safety_margin_sum": 96.88,
+      "close_calls": 3,
+      "eliminated_week": 8,
+      "all_play_wins": 22,
+      "all_play_losses": 70,
+      "all_play_ties": 0,
+      "average_points": 86.7475,
+      "avg_points_per_game": 86.7475,
+      "efficiency_rate": 85.31002606087426,
+      "faab_efficiency": 0,
+      "points_per_faab": 4.720952380952381,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 0.34487064949037677,
+      "avg_margin_above_last": 13.84,
+      "avg_safety_margin": 13.84,
+      "consistency_score": 9.802205805918067
+    },
+    {
+      "roster_id": 2,
+      "owner_id": "713832511611965440",
+      "owner_name": "agrusa17",
+      "total_points_scored": 575.58,
+      "total_points_against": 0,
+      "total_optimal_points": 658.88,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 6,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 112.48,
+          "optimal": 125.18,
+          "bench": 26.900000000000002,
+          "margin": 54.06,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 2,
+          "has_matchup": true,
+          "missed": 12.700000000000003
+        },
+        {
+          "week": 2,
+          "points": 89.34,
+          "optimal": 109.74,
+          "bench": 33.0,
+          "margin": 10.219999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 67,
+          "has_matchup": true,
+          "missed": 20.39999999999999
+        },
+        {
+          "week": 3,
+          "points": 89.94,
+          "optimal": 121.24,
+          "bench": 44.0,
+          "margin": 17.22,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 3,
+          "has_matchup": true,
+          "missed": 31.299999999999997
+        },
+        {
+          "week": 4,
+          "points": 114.7,
+          "optimal": 114.7,
+          "bench": 17.5,
+          "margin": 44.82000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 6,
+          "has_matchup": true,
+          "missed": 0
+        },
+        {
+          "week": 5,
+          "points": 107.2,
+          "optimal": 124.19999999999999,
+          "bench": 24.099999999999998,
+          "margin": 24.08,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 2,
+          "has_matchup": true,
+          "missed": 16.999999999999986
+        },
+        {
+          "week": 6,
+          "points": 61.92,
+          "optimal": 63.82,
+          "bench": 4.6,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 1.8999999999999986
+        }
+      ],
+      "points_left_on_bench": 83.29999999999998,
+      "total_bench_points": 150.1,
+      "faab_spent": 80,
+      "waiver_moves": 6,
+      "safety_margin_sum": 150.4,
+      "close_calls": 0,
+      "eliminated_week": 6,
+      "all_play_wins": 44,
+      "all_play_losses": 31,
+      "all_play_ties": 0,
+      "average_points": 95.93,
+      "avg_points_per_game": 95.93,
+      "efficiency_rate": 87.3573336571151,
+      "faab_efficiency": 0,
+      "points_per_faab": 7.194750000000001,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -1.379478091664065,
+      "avg_margin_above_last": 30.080000000000002,
+      "avg_safety_margin": 30.080000000000002,
+      "consistency_score": 4.809483169192955
+    },
+    {
+      "roster_id": 15,
+      "owner_id": "1264276946364137472",
+      "owner_name": "Jiggs24",
+      "total_points_scored": 449.08,
+      "total_points_against": 0,
+      "total_optimal_points": 498.68,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 5,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 89.86,
+          "optimal": 96.36,
+          "bench": 33.68,
+          "margin": 31.439999999999998,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 5,
+          "has_matchup": true,
+          "missed": 6.5
+        },
+        {
+          "week": 2,
+          "points": 99.52,
+          "optimal": 100.12,
+          "bench": 33.8,
+          "margin": 20.39999999999999,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 5,
+          "has_matchup": true,
+          "missed": 0.6000000000000085
+        },
+        {
+          "week": 3,
+          "points": 79.82,
+          "optimal": 84.92,
+          "bench": 22.7,
+          "margin": 7.099999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 15,
+          "has_matchup": true,
+          "missed": 5.1000000000000085
+        },
+        {
+          "week": 4,
+          "points": 96.76,
+          "optimal": 122.06,
+          "bench": 63.16,
+          "margin": 26.88000000000001,
+          "opponent_points": 0,
+          "waiver_moves": 2,
+          "faab_spent": 30,
+          "has_matchup": true,
+          "missed": 25.299999999999997
+        },
+        {
+          "week": 5,
+          "points": 83.12,
+          "optimal": 95.22,
+          "bench": 29.68,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 12.099999999999994
+        }
+      ],
+      "points_left_on_bench": 49.60000000000001,
+      "total_bench_points": 183.01999999999998,
+      "faab_spent": 55,
+      "waiver_moves": 6,
+      "safety_margin_sum": 85.82,
+      "close_calls": 1,
+      "eliminated_week": 5,
+      "all_play_wins": 19,
+      "all_play_losses": 46,
+      "all_play_ties": 0,
+      "average_points": 89.816,
+      "avg_points_per_game": 89.816,
+      "efficiency_rate": 90.05374187855939,
+      "faab_efficiency": 0,
+      "points_per_faab": 8.165090909090909,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -3.6177666933879706,
+      "avg_margin_above_last": 21.455,
+      "avg_safety_margin": 21.455,
+      "consistency_score": 10.60066195162308
+    },
+    {
+      "roster_id": 9,
+      "owner_id": "1263593654002384896",
+      "owner_name": "HughesLineupIsItAnyway",
+      "total_points_scored": 337.12,
+      "total_points_against": 0,
+      "total_optimal_points": 378.72,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 4,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 93.42,
+          "optimal": 102.42,
+          "bench": 30.9,
+          "margin": 35.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 9.0
+        },
+        {
+          "week": 2,
+          "points": 88.5,
+          "optimal": 105.5,
+          "bench": 38.900000000000006,
+          "margin": 9.379999999999995,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 5,
+          "has_matchup": true,
+          "missed": 17.0
+        },
+        {
+          "week": 3,
+          "points": 85.32,
+          "optimal": 87.32,
+          "bench": 13.799999999999999,
+          "margin": 12.599999999999994,
+          "opponent_points": 0,
+          "waiver_moves": 1,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 2.0
+        },
+        {
+          "week": 4,
+          "points": 69.88,
+          "optimal": 83.48,
+          "bench": 29.300000000000004,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 13.600000000000009
+        }
+      ],
+      "points_left_on_bench": 41.60000000000001,
+      "total_bench_points": 112.9,
+      "faab_spent": 5,
+      "waiver_moves": 2,
+      "safety_margin_sum": 56.97999999999999,
+      "close_calls": 1,
+      "eliminated_week": 4,
+      "all_play_wins": 17,
+      "all_play_losses": 37,
+      "all_play_ties": 0,
+      "average_points": 84.28,
+      "avg_points_per_game": 84.28,
+      "efficiency_rate": 89.01563160118293,
+      "faab_efficiency": 0,
+      "points_per_faab": 67.424,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": -3.6149343458313563,
+      "avg_margin_above_last": 18.99333333333333,
+      "avg_safety_margin": 18.99333333333333,
+      "consistency_score": 8.29376522306451
+    },
+    {
+      "roster_id": 13,
+      "owner_id": "865700420419485696",
+      "owner_name": "thefatstig",
+      "total_points_scored": 260.9,
+      "total_points_against": 0,
+      "total_optimal_points": 291.42,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 3,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 95.68,
+          "optimal": 106.98000000000002,
+          "bench": 33.96,
+          "margin": 37.260000000000005,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 11.300000000000011
+        },
+        {
+          "week": 2,
+          "points": 92.5,
+          "optimal": 107.32,
+          "bench": 36.92,
+          "margin": 13.379999999999995,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 14.819999999999993
+        },
+        {
+          "week": 3,
+          "points": 72.72,
+          "optimal": 77.11999999999999,
+          "bench": 24.340000000000003,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 4.3999999999999915
+        }
+      ],
+      "points_left_on_bench": 30.519999999999996,
+      "total_bench_points": 95.22,
+      "faab_spent": 0,
+      "waiver_moves": 0,
+      "safety_margin_sum": 50.64,
+      "close_calls": 0,
+      "eliminated_week": 3,
+      "all_play_wins": 17,
+      "all_play_losses": 25,
+      "all_play_ties": 0,
+      "average_points": 86.96666666666665,
+      "avg_points_per_game": 86.96666666666665,
+      "efficiency_rate": 89.52714295518494,
+      "faab_efficiency": 0,
+      "points_per_faab": 0,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 0.0,
+      "avg_margin_above_last": 25.32,
+      "avg_safety_margin": 25.32,
+      "consistency_score": 6.990886591809996
+    },
+    {
+      "roster_id": 7,
+      "owner_id": "865996913412022272",
+      "owner_name": "McInally",
+      "total_points_scored": 153.34,
+      "total_points_against": 0,
+      "total_optimal_points": 201.33999999999997,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 2,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 74.22,
+          "optimal": 90.69999999999999,
+          "bench": 37.4,
+          "margin": 15.799999999999997,
+          "opponent_points": 0,
+          "waiver_moves": 3,
+          "faab_spent": 83,
+          "has_matchup": true,
+          "missed": 16.47999999999999
+        },
+        {
+          "week": 2,
+          "points": 79.12,
+          "optimal": 110.64,
+          "bench": 71.32000000000001,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 31.519999999999996
+        }
+      ],
+      "points_left_on_bench": 47.999999999999986,
+      "total_bench_points": 108.72,
+      "faab_spent": 83,
+      "waiver_moves": 3,
+      "safety_margin_sum": 15.799999999999997,
+      "close_calls": 0,
+      "eliminated_week": 2,
+      "all_play_wins": 3,
+      "all_play_losses": 26,
+      "all_play_ties": 0,
+      "average_points": 76.67,
+      "avg_points_per_game": 76.67,
+      "efficiency_rate": 76.15972981027119,
+      "faab_efficiency": 0,
+      "points_per_faab": 1.8474698795180724,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 0,
+      "avg_margin_above_last": 15.799999999999997,
+      "avg_safety_margin": 15.799999999999997,
+      "consistency_score": 22.128113025947975
+    },
+    {
+      "roster_id": 14,
+      "owner_id": "867509897846259712",
+      "owner_name": "BTThomp",
+      "total_points_scored": 58.42,
+      "total_points_against": 0,
+      "total_optimal_points": 58.42000000000001,
+      "wins": 0,
+      "losses": 0,
+      "ties": 0,
+      "weeks_played": 1,
+      "weekly_scores": [
+        {
+          "week": 1,
+          "points": 58.42,
+          "optimal": 58.42000000000001,
+          "bench": 4.300000000000001,
+          "margin": 0.0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true,
+          "missed": 7.105427357601002e-15
+        }
+      ],
+      "points_left_on_bench": 7.105427357601002e-15,
+      "total_bench_points": 4.300000000000001,
+      "faab_spent": 0,
+      "waiver_moves": 0,
+      "safety_margin_sum": 0.0,
+      "close_calls": 0,
+      "eliminated_week": 1,
+      "all_play_wins": 0,
+      "all_play_losses": 15,
+      "all_play_ties": 0,
+      "average_points": 58.42,
+      "avg_points_per_game": 58.42,
+      "efficiency_rate": 99.99999999999999,
+      "faab_efficiency": 0,
+      "points_per_faab": 0,
+      "pythagorean_wins": 0,
+      "luck_factor": 0,
+      "trend": 0,
+      "avg_margin_above_last": 0.0,
+      "avg_safety_margin": 0.0,
+      "consistency_score": 0
+    }
+  ],
+  "best_theoretical_lineups": [
+    {
+      "week": 1,
+      "points": 185.9,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Josh Allen",
+          "team": "BUF",
+          "position": "QB",
+          "points": 38.76
+        },
+        {
+          "slot": "RB",
+          "player": "Derrick Henry",
+          "team": "BAL",
+          "position": "RB",
+          "points": 29.2
+        },
+        {
+          "slot": "RB",
+          "player": "Bijan Robinson",
+          "team": "ATL",
+          "position": "RB",
+          "points": 24.4
+        },
+        {
+          "slot": "WR",
+          "player": "Zay Flowers",
+          "team": "BAL",
+          "position": "WR",
+          "points": 28.1
+        },
+        {
+          "slot": "WR",
+          "player": "Keon Coleman",
+          "team": "BUF",
+          "position": "WR",
+          "points": 25.2
+        },
+        {
+          "slot": "TE",
+          "player": "Brock Bowers",
+          "team": "LV",
+          "position": "TE",
+          "points": 15.3
+        },
+        {
+          "slot": "FLEX",
+          "player": "Quentin Johnston",
+          "team": "LAC",
+          "position": "WR",
+          "points": 24.9
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "points": 227.8,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Jared Goff",
+          "team": "DET",
+          "position": "QB",
+          "points": 33.96
+        },
+        {
+          "slot": "RB",
+          "player": "Jonathan Taylor",
+          "team": "IND",
+          "position": "RB",
+          "points": 29.5
+        },
+        {
+          "slot": "RB",
+          "player": "James Cook",
+          "team": "BUF",
+          "position": "RB",
+          "points": 26.5
+        },
+        {
+          "slot": "WR",
+          "player": "Amon-Ra St. Brown",
+          "team": "DET",
+          "position": "WR",
+          "points": 39.2
+        },
+        {
+          "slot": "WR",
+          "player": "Malik Nabers",
+          "team": "NYG",
+          "position": "WR",
+          "points": 37.7
+        },
+        {
+          "slot": "TE",
+          "player": "Tucker Kraft",
+          "team": "GB",
+          "position": "TE",
+          "points": 24.4
+        },
+        {
+          "slot": "FLEX",
+          "player": "Ja'Marr Chase",
+          "team": "CIN",
+          "position": "WR",
+          "points": 36.5
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "points": 212.7,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Caleb Williams",
+          "team": "CHI",
+          "position": "QB",
+          "points": 29.12
+        },
+        {
+          "slot": "RB",
+          "player": "Jonathan Taylor",
+          "team": "IND",
+          "position": "RB",
+          "points": 32.8
+        },
+        {
+          "slot": "RB",
+          "player": "David Montgomery",
+          "team": "DET",
+          "position": "RB",
+          "points": 29.4
+        },
+        {
+          "slot": "WR",
+          "player": "Tre Tucker",
+          "team": "LV",
+          "position": "WR",
+          "points": 40.9
+        },
+        {
+          "slot": "WR",
+          "player": "Garrett Wilson",
+          "team": "NYJ",
+          "position": "WR",
+          "points": 24.4
+        },
+        {
+          "slot": "TE",
+          "player": "Hunter Henry",
+          "team": "NE",
+          "position": "TE",
+          "points": 29.0
+        },
+        {
+          "slot": "FLEX",
+          "player": "Mark Andrews",
+          "team": "BAL",
+          "position": "TE",
+          "points": 27.1
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "points": 216.7,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Dak Prescott",
+          "team": "DAL",
+          "position": "QB",
+          "points": 30.96
+        },
+        {
+          "slot": "RB",
+          "player": "Ashton Jeanty",
+          "team": "LV",
+          "position": "RB",
+          "points": 33.5
+        },
+        {
+          "slot": "RB",
+          "player": "Josh Jacobs",
+          "team": "GB",
+          "position": "RB",
+          "points": 31.7
+        },
+        {
+          "slot": "WR",
+          "player": "Puka Nacua",
+          "team": "LAR",
+          "position": "WR",
+          "points": 36.0
+        },
+        {
+          "slot": "WR",
+          "player": "George Pickens",
+          "team": "DAL",
+          "position": "WR",
+          "points": 33.4
+        },
+        {
+          "slot": "TE",
+          "player": "Dallas Goedert",
+          "team": "PHI",
+          "position": "TE",
+          "points": 19.7
+        },
+        {
+          "slot": "FLEX",
+          "player": "Kenneth Gainwell",
+          "team": "PIT",
+          "position": "RB",
+          "points": 31.4
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "points": 208.1,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "C.J. Stroud",
+          "team": "HOU",
+          "position": "QB",
+          "points": 28.76
+        },
+        {
+          "slot": "RB",
+          "player": "Rico Dowdle",
+          "team": "CAR",
+          "position": "RB",
+          "points": 32.4
+        },
+        {
+          "slot": "RB",
+          "player": "Jonathan Taylor",
+          "team": "IND",
+          "position": "RB",
+          "points": 31.6
+        },
+        {
+          "slot": "WR",
+          "player": "Emeka Egbuka",
+          "team": "TB",
+          "position": "WR",
+          "points": 31.3
+        },
+        {
+          "slot": "WR",
+          "player": "Ja'Marr Chase",
+          "team": "CIN",
+          "position": "WR",
+          "points": 29.0
+        },
+        {
+          "slot": "TE",
+          "player": "Jake Ferguson",
+          "team": "DAL",
+          "position": "TE",
+          "points": 23.9
+        },
+        {
+          "slot": "FLEX",
+          "player": "Kyren Williams",
+          "team": "LAR",
+          "position": "RB",
+          "points": 31.1
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "points": 222.8,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Patrick Mahomes",
+          "team": "KC",
+          "position": "QB",
+          "points": 31.48
+        },
+        {
+          "slot": "RB",
+          "player": "Bijan Robinson",
+          "team": "ATL",
+          "position": "RB",
+          "points": 35.8
+        },
+        {
+          "slot": "RB",
+          "player": "Rico Dowdle",
+          "team": "CAR",
+          "position": "RB",
+          "points": 33.9
+        },
+        {
+          "slot": "WR",
+          "player": "George Pickens",
+          "team": "DAL",
+          "position": "WR",
+          "points": 31.8
+        },
+        {
+          "slot": "WR",
+          "player": "Drake London",
+          "team": "ATL",
+          "position": "WR",
+          "points": 31.8
+        },
+        {
+          "slot": "TE",
+          "player": "Dallas Goedert",
+          "team": "PHI",
+          "position": "TE",
+          "points": 26.0
+        },
+        {
+          "slot": "FLEX",
+          "player": "Josh Jacobs",
+          "team": "GB",
+          "position": "RB",
+          "points": 32.0
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "points": 250.9,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Bo Nix",
+          "team": "DEN",
+          "position": "QB",
+          "points": 39.96
+        },
+        {
+          "slot": "RB",
+          "player": "Christian McCaffrey",
+          "team": "SF",
+          "position": "RB",
+          "points": 39.1
+        },
+        {
+          "slot": "RB",
+          "player": "Jahmyr Gibbs",
+          "team": "DET",
+          "position": "RB",
+          "points": 36.8
+        },
+        {
+          "slot": "WR",
+          "player": "Ja'Marr Chase",
+          "team": "CIN",
+          "position": "WR",
+          "points": 38.1
+        },
+        {
+          "slot": "WR",
+          "player": "DeVonta Smith",
+          "team": "PHI",
+          "position": "WR",
+          "points": 33.3
+        },
+        {
+          "slot": "TE",
+          "player": "Oronde Gadsden",
+          "team": "LAC",
+          "position": "TE",
+          "points": 29.4
+        },
+        {
+          "slot": "FLEX",
+          "player": "Jonathan Taylor",
+          "team": "IND",
+          "position": "RB",
+          "points": 34.2
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "points": 218.4,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Jordan Love",
+          "team": "GB",
+          "position": "QB",
+          "points": 28.3
+        },
+        {
+          "slot": "RB",
+          "player": "Jonathan Taylor",
+          "team": "IND",
+          "position": "RB",
+          "points": 37.4
+        },
+        {
+          "slot": "RB",
+          "player": "James Cook",
+          "team": "BUF",
+          "position": "RB",
+          "points": 33.6
+        },
+        {
+          "slot": "WR",
+          "player": "Troy Franklin",
+          "team": "DEN",
+          "position": "WR",
+          "points": 26.9
+        },
+        {
+          "slot": "WR",
+          "player": "Rashee Rice",
+          "team": "KC",
+          "position": "WR",
+          "points": 25.5
+        },
+        {
+          "slot": "TE",
+          "player": "Tucker Kraft",
+          "team": "GB",
+          "position": "TE",
+          "points": 33.3
+        },
+        {
+          "slot": "FLEX",
+          "player": "Saquon Barkley",
+          "team": "PHI",
+          "position": "RB",
+          "points": 33.4
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "points": 246.1,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Caleb Williams",
+          "team": "CHI",
+          "position": "QB",
+          "points": 38.7
+        },
+        {
+          "slot": "RB",
+          "player": "Christian McCaffrey",
+          "team": "SF",
+          "position": "RB",
+          "points": 34.3
+        },
+        {
+          "slot": "RB",
+          "player": "Rico Dowdle",
+          "team": "CAR",
+          "position": "RB",
+          "points": 28.1
+        },
+        {
+          "slot": "WR",
+          "player": "Drake London",
+          "team": "ATL",
+          "position": "WR",
+          "points": 38.8
+        },
+        {
+          "slot": "WR",
+          "player": "Tee Higgins",
+          "team": "CIN",
+          "position": "WR",
+          "points": 33.1
+        },
+        {
+          "slot": "TE",
+          "player": "Brock Bowers",
+          "team": "LV",
+          "position": "TE",
+          "points": 43.3
+        },
+        {
+          "slot": "FLEX",
+          "player": "Colston Loveland",
+          "team": "CHI",
+          "position": "TE",
+          "points": 29.8
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "points": 231.2,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Matthew Stafford",
+          "team": "LAR",
+          "position": "QB",
+          "points": 26.9
+        },
+        {
+          "slot": "RB",
+          "player": "Jonathan Taylor",
+          "team": "IND",
+          "position": "RB",
+          "points": 49.6
+        },
+        {
+          "slot": "RB",
+          "player": "De'Von Achane",
+          "team": "MIA",
+          "position": "RB",
+          "points": 40.5
+        },
+        {
+          "slot": "WR",
+          "player": "Drake London",
+          "team": "ATL",
+          "position": "WR",
+          "points": 24.4
+        },
+        {
+          "slot": "WR",
+          "player": "Jameson Williams",
+          "team": "DET",
+          "position": "WR",
+          "points": 23.9
+        },
+        {
+          "slot": "TE",
+          "player": "Trey McBride",
+          "team": "ARI",
+          "position": "TE",
+          "points": 27.7
+        },
+        {
+          "slot": "FLEX",
+          "player": "Jahmyr Gibbs",
+          "team": "DET",
+          "position": "RB",
+          "points": 38.2
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "points": 234.4,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Josh Allen",
+          "team": "BUF",
+          "position": "QB",
+          "points": 42.68
+        },
+        {
+          "slot": "RB",
+          "player": "Christian McCaffrey",
+          "team": "SF",
+          "position": "RB",
+          "points": 35.1
+        },
+        {
+          "slot": "RB",
+          "player": "TreVeyon Henderson",
+          "team": "NE",
+          "position": "RB",
+          "points": 32.3
+        },
+        {
+          "slot": "WR",
+          "player": "Michael Wilson",
+          "team": "ARI",
+          "position": "WR",
+          "points": 33.5
+        },
+        {
+          "slot": "WR",
+          "player": "Tetairoa McMillan",
+          "team": "CAR",
+          "position": "WR",
+          "points": 33.0
+        },
+        {
+          "slot": "TE",
+          "player": "Trey McBride",
+          "team": "ARI",
+          "position": "TE",
+          "points": 27.5
+        },
+        {
+          "slot": "FLEX",
+          "player": "Bijan Robinson",
+          "team": "ATL",
+          "position": "RB",
+          "points": 30.3
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "points": 236.9,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Jameis Winston",
+          "team": "NYG",
+          "position": "QB",
+          "points": 32.24
+        },
+        {
+          "slot": "RB",
+          "player": "Jahmyr Gibbs",
+          "team": "DET",
+          "position": "RB",
+          "points": 55.4
+        },
+        {
+          "slot": "RB",
+          "player": "Christian McCaffrey",
+          "team": "SF",
+          "position": "RB",
+          "points": 27.2
+        },
+        {
+          "slot": "WR",
+          "player": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "position": "WR",
+          "points": 37.1
+        },
+        {
+          "slot": "WR",
+          "player": "Wan'Dale Robinson",
+          "team": "NYG",
+          "position": "WR",
+          "points": 30.6
+        },
+        {
+          "slot": "TE",
+          "player": "Hunter Henry",
+          "team": "NE",
+          "position": "TE",
+          "points": 24.5
+        },
+        {
+          "slot": "FLEX",
+          "player": "Amon-Ra St. Brown",
+          "team": "DET",
+          "position": "WR",
+          "points": 29.9
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "points": 194.7,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Patrick Mahomes",
+          "team": "KC",
+          "position": "QB",
+          "points": 29.44
+        },
+        {
+          "slot": "RB",
+          "player": "Bijan Robinson",
+          "team": "ATL",
+          "position": "RB",
+          "points": 30.3
+        },
+        {
+          "slot": "RB",
+          "player": "RJ Harvey",
+          "team": "DEN",
+          "position": "RB",
+          "points": 21.2
+        },
+        {
+          "slot": "WR",
+          "player": "A.J. Brown",
+          "team": "PHI",
+          "position": "WR",
+          "points": 35.2
+        },
+        {
+          "slot": "WR",
+          "player": "Rashee Rice",
+          "team": "KC",
+          "position": "WR",
+          "points": 29.4
+        },
+        {
+          "slot": "TE",
+          "player": "Brock Bowers",
+          "team": "LV",
+          "position": "TE",
+          "points": 22.3
+        },
+        {
+          "slot": "FLEX",
+          "player": "Jameson Williams",
+          "team": "DET",
+          "position": "WR",
+          "points": 26.9
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "points": 229.3,
+      "lineup": [
+        {
+          "slot": "QB",
+          "player": "Josh Allen",
+          "team": "BUF",
+          "position": "QB",
+          "points": 37.84
+        },
+        {
+          "slot": "RB",
+          "player": "Jahmyr Gibbs",
+          "team": "DET",
+          "position": "RB",
+          "points": 37.0
+        },
+        {
+          "slot": "RB",
+          "player": "Tony Pollard",
+          "team": "TEN",
+          "position": "RB",
+          "points": 28.1
+        },
+        {
+          "slot": "WR",
+          "player": "Michael Wilson",
+          "team": "ARI",
+          "position": "WR",
+          "points": 37.2
+        },
+        {
+          "slot": "WR",
+          "player": "Puka Nacua",
+          "team": "LAR",
+          "position": "WR",
+          "points": 35.7
+        },
+        {
+          "slot": "TE",
+          "player": "Harold Fannin",
+          "team": "CLE",
+          "position": "TE",
+          "points": 25.4
+        },
+        {
+          "slot": "FLEX",
+          "player": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "position": "WR",
+          "points": 28.1
+        }
+      ]
+    }
+  ],
+  "avg_best_theoretical_lineup": 222.6
+}

@@ -1,0 +1,511 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import leagueData from '../../public/data/season_stats_dynasty.json';
+
+const { league_name, season, teams, current_week } = leagueData;
+
+// Filter teams
+const activeTeams = teams.filter(t => t.weeks_played > 0);
+const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
+
+// Sort teams by total points (default)
+const sortedTeams = [...teams].sort((a, b) => b.total_points_scored - a.total_points_scored);
+
+// Prepare chart data (All teams)
+const chartTeams = sortedTeams;
+const weeks = chartTeams[0]?.weekly_scores.map(w => w.week) || [];
+
+// Summary Stats
+const avgPPG = teams.reduce((sum, t) => sum + t.avg_points_per_game, 0) / teams.length;
+const highestEfficiency = Math.max(...teams.map(t => t.efficiency_rate));
+const totalBenchPoints = teams.reduce((sum, t) => sum + t.points_left_on_bench, 0);
+const maxFAAB = 100; // Dynasty usually has  budget, but let's assume 100 or check config. Using 100 as default.
+const mostFAABRemaining = Math.max(...teams.map(t => maxFAAB - t.faab_spent));
+const bestTheoreticalAvg = Math.max(...teams.map(t => t.total_optimal_points / t.weeks_played));
+
+// Awards (Qualified Teams: >= 5 weeks)
+const highestScorer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.total_points_scored > current.total_points_scored) ? prev : current) : null;
+const bestManager = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.efficiency_rate > current.efficiency_rate) ? prev : current) : null;
+const mostConsistent = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.consistency_score > current.consistency_score) ? prev : current) : null;
+const benchWarmer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.points_left_on_bench > current.points_left_on_bench) ? prev : current) : null;
+const waiverWizard = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.points_per_faab > current.points_per_faab) ? prev : current) : null;
+const validWaiverWizard = waiverWizard && waiverWizard.points_per_faab > 0 ? waiverWizard : null;
+
+const boomOrBust = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.consistency_score < current.consistency_score) ? prev : current) : null;
+const mostAverage = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => 
+    (Math.abs(prev.avg_points_per_game - avgPPG) < Math.abs(current.avg_points_per_game - avgPPG)) ? prev : current
+) : null;
+const livingOnEdge = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.avg_safety_margin < current.avg_safety_margin) ? prev : current) : null;
+
+const dangerZone = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.close_calls > current.close_calls) ? prev : current) : null;
+const validDangerZone = dangerZone && dangerZone.close_calls > 0 ? dangerZone : null;
+
+// Awards (Active Teams: > 0 weeks)
+const highestAvgScore = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.avg_points_per_game > current.avg_points_per_game) ? prev : current) : null;
+
+// Weekly Awards (Exclude current week if in progress)
+let highestWeeklyScore = { score: -1, owner: '', week: 0 };
+let lowestWeeklyScore = { score: 9999, owner: '', week: 0 };
+
+activeTeams.forEach(t => {
+    t.weekly_scores.forEach(w => {
+        // Skip current week for awards
+        if (w.week >= current_week) return;
+
+        if (w.points > highestWeeklyScore.score) {
+            highestWeeklyScore = { score: w.points, owner: t.owner_name, week: w.week };
+        }
+        if (w.points < lowestWeeklyScore.score && w.points > 0) {
+            lowestWeeklyScore = { score: w.points, owner: t.owner_name, week: w.week };
+        }
+    });
+});
+
+// Luck Awards
+const luckiest = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.luck_factor > current.luck_factor) ? prev : current) : null;
+const validLuckiest = luckiest && luckiest.luck_factor > 0.5 ? luckiest : null;
+
+const unluckiest = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.luck_factor < current.luck_factor) ? prev : current) : null;
+const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest : null;
+---
+
+<BaseLayout title={`${league_name} - Season Stats`}>
+  <div class="page-header">
+    <h1>🏆 {league_name}</h1>
+    <p class="subtitle">{season} Season Statistics</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-title">League Average PPG</div>
+      <div class="stat-value">{avgPPG.toFixed(1)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Highest Efficiency</div>
+      <div class="stat-value">{highestEfficiency.toFixed(1)}%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Total Bench Points</div>
+      <div class="stat-value">{totalBenchPoints.toFixed(0)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Most FAAB Remaining</div>
+      <div class="stat-value">${mostFAABRemaining}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Best Theoretical Avg</div>
+      <div class="stat-value">{bestTheoreticalAvg.toFixed(1)}</div>
+    </div>
+  </div>
+
+
+
+  <div class="table-container">
+    <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
+    <table class="stats-table" id="statsTable">
+      <thead>
+        <tr>
+          <th style="text-align: left;" onclick="sortTable(0)" title="Team name">Team</th>
+          <th onclick="sortTable(1)" title="Win-Loss record">W-L</th>
+          <th onclick="sortTable(2)" title="Total points scored across all weeks">Total Points</th>
+          <th onclick="sortTable(3)" title="Average points per game">Avg PPG</th>
+          <th onclick="sortTable(4)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
+          <th onclick="sortTable(5)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
+          <th onclick="sortTable(6)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
+          <th onclick="sortTable(7)" title="Expected wins based on points for/against ratio">Pythag W-L</th>
+          <th onclick="sortTable(8)" title="Actual wins minus expected wins (positive = lucky)">Luck</th>
+          <th onclick="sortTable(9)" title="Record if playing against all teams each week">All-Play</th>
+          <th onclick="sortTable(10)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
+          <th onclick="sortTable(11)" title="FAAB dollars spent on waivers">FAAB Used</th>
+          <th onclick="sortTable(12)" title="Points per FAAB dollar spent">Pt/$</th>
+          <th onclick="sortTable(13)" title="Trend: Last 3 weeks avg vs season avg (▲ improving, ▼ declining)">Trend</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {sortedTeams.map((team, index) => (
+          <tr>
+            <td style="font-weight: 600; color: #2d3748;">{team.owner_name}</td>
+            <td style="text-align: center;" data-value={team.wins}>{team.wins}-{team.losses}</td>
+            <td style="text-align: center;" data-value={team.total_points_scored}>{team.total_points_scored.toFixed(1)}</td>
+            <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game}>{team.avg_points_per_game.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.efficiency_rate}>{team.efficiency_rate.toFixed(1)}%</td>
+            <td style="text-align: center;" data-value={team.total_bench_points}>{team.total_bench_points.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.points_left_on_bench}>{team.points_left_on_bench.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.pythagorean_wins}>{team.pythagorean_wins.toFixed(1)}-{(team.weeks_played - team.pythagorean_wins).toFixed(1)}</td>
+            <td style={`text-align: center; color: ${team.luck_factor > 0 ? 'green' : 'red'}; font-weight: bold;`} data-value={team.luck_factor}>{team.luck_factor > 0 ? '+' : ''}{team.luck_factor.toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.all_play_wins}>{team.all_play_wins}-{team.all_play_losses} ({((team.all_play_wins / (team.all_play_wins + team.all_play_losses)) || 0).toFixed(3)})</td>
+            <td style="text-align: center;" data-value={team.consistency_score}>{team.consistency_score.toFixed(2)}</td>
+            <td style="text-align: center;" data-value={team.faab_spent}>${team.faab_spent}</td>
+            <td style="text-align: center;" data-value={team.points_per_faab}>{team.points_per_faab.toFixed(2)}</td>
+            <td style={`text-align: center; color: ${team.trend > 0 ? 'green' : 'red'};`} data-value={team.trend}>
+              {team.trend > 0 ? '▲' : '▼'} {Math.abs(team.trend).toFixed(1)}%
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="awards-section">
+    <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
+    <div class="awards-grid">
+      {highestScorer && (
+      <div class="award-card">
+        <div class="award-icon">🏆</div>
+        <div class="award-title">Highest Scorer</div>
+        <div class="award-winner">{highestScorer.owner_name}</div>
+        <div class="award-value">{highestScorer.total_points_scored.toFixed(1)} points</div>
+      </div>
+      )}
+      {highestWeeklyScore && (
+      <div class="award-card">
+        <div class="award-icon">🔥</div>
+        <div class="award-title">Highest Weekly Score</div>
+        <div class="award-winner">{highestWeeklyScore.owner}</div>
+        <div class="award-value">{highestWeeklyScore.score.toFixed(1)} pts (Week {highestWeeklyScore.week})</div>
+      </div>
+      )}
+      {lowestWeeklyScore && (
+      <div class="award-card">
+        <div class="award-icon">💩</div>
+        <div class="award-title">Lowest Weekly Score</div>
+        <div class="award-winner">{lowestWeeklyScore.owner}</div>
+        <div class="award-value">{lowestWeeklyScore.score.toFixed(1)} pts (Week {lowestWeeklyScore.week})</div>
+      </div>
+      )}
+      {highestAvgScore && (
+      <div class="award-card">
+        <div class="award-icon">⭐</div>
+        <div class="award-title">Highest Average Score</div>
+        <div class="award-winner">{highestAvgScore.owner_name}</div>
+        <div class="award-value">{highestAvgScore.avg_points_per_game.toFixed(1)} ppg</div>
+      </div>
+      )}
+      {bestManager && (
+      <div class="award-card">
+        <div class="award-icon">🎯</div>
+        <div class="award-title">Best Manager</div>
+        <div class="award-winner">{bestManager.owner_name}</div>
+        <div class="award-value">{bestManager.efficiency_rate.toFixed(1)}% efficiency</div>
+      </div>
+      )}
+      {validLuckiest && (
+      <div class="award-card">
+        <div class="award-icon">🍀</div>
+        <div class="award-title">Luckiest Team</div>
+        <div class="award-winner">{validLuckiest.owner_name}</div>
+        <div class="award-value">+{validLuckiest.luck_factor.toFixed(1)} wins above exp</div>
+      </div>
+      )}
+      {validUnluckiest && (
+      <div class="award-card">
+        <div class="award-icon">😢</div>
+        <div class="award-title">Unluckiest Team</div>
+        <div class="award-winner">{validUnluckiest.owner_name}</div>
+        <div class="award-value">{validUnluckiest.luck_factor.toFixed(1)} wins below exp</div>
+      </div>
+      )}
+      {boomOrBust && (
+      <div class="award-card">
+        <div class="award-icon">💥</div>
+        <div class="award-title">Boom or Bust</div>
+        <div class="award-winner">{boomOrBust.owner_name}</div>
+        <div class="award-value">{boomOrBust.consistency_score.toFixed(2)} consistency</div>
+      </div>
+      )}
+      {mostAverage && (
+      <div class="award-card">
+        <div class="award-icon">😐</div>
+        <div class="award-title">Most Average Team</div>
+        <div class="award-winner">{mostAverage.owner_name}</div>
+        <div class="award-value">{mostAverage.avg_points_per_game.toFixed(1)} ppg</div>
+      </div>
+      )}
+      {mostConsistent && (
+      <div class="award-card">
+        <div class="award-icon">📊</div>
+        <div class="award-title">Most Consistent</div>
+        <div class="award-winner">{mostConsistent.owner_name}</div>
+        <div class="award-value">{mostConsistent.consistency_score.toFixed(2)} score</div>
+      </div>
+      )}
+      {validWaiverWizard && (
+      <div class="award-card">
+        <div class="award-icon">🔮</div>
+        <div class="award-title">Waiver Wire Wizard</div>
+        <div class="award-winner">{validWaiverWizard.owner_name}</div>
+        <div class="award-value">{validWaiverWizard.points_per_faab.toFixed(2)} Pt/$</div>
+      </div>
+      )}
+      {benchWarmer && (
+      <div class="award-card">
+        <div class="award-icon">🪑</div>
+        <div class="award-title">Bench Warmer</div>
+        <div class="award-winner">{benchWarmer.owner_name}</div>
+        <div class="award-value">{benchWarmer.points_left_on_bench.toFixed(1)} pts</div>
+      </div>
+      )}
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
+    <canvas id="leagueChart"></canvas>
+  </div>
+
+  <script is:inline>
+    function sortTable(columnIndex) {
+      const table = document.getElementById('statsTable');
+      const tbody = document.getElementById('tableBody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+      // Determine sort direction
+      const currentSort = table.getAttribute('data-sort-col');
+      const currentDir = table.getAttribute('data-sort-dir') || 'desc';
+      const newDir = (currentSort == columnIndex && currentDir === 'desc') ? 'asc' : 'desc';
+      
+      table.setAttribute('data-sort-col', columnIndex);
+      table.setAttribute('data-sort-dir', newDir);
+      
+      // Sort rows
+      rows.sort((a, b) => {
+        let aVal, bVal;
+        
+        if (columnIndex === 0) {
+          // Team name - sort alphabetically
+          aVal = a.cells[columnIndex].textContent.trim().toLowerCase();
+          bVal = b.cells[columnIndex].textContent.trim().toLowerCase();
+          return newDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        } else {
+          // Numeric columns - use data-value attribute
+          aVal = parseFloat(a.cells[columnIndex].getAttribute('data-value')) || 0;
+          bVal = parseFloat(b.cells[columnIndex].getAttribute('data-value')) || 0;
+          return newDir === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+      });
+      
+      // Re-append sorted rows
+      rows.forEach(row => tbody.appendChild(row));
+    }
+  </script>
+  
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script define:vars={{ chartTeams, weeks }}>
+    const ctx = document.getElementById('leagueChart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (Chart.getChart(ctx)) {
+      Chart.getChart(ctx).destroy();
+    }
+
+    const colors = [
+      'rgba(54, 162, 235, 1)',
+      'rgba(255, 99, 132, 1)',
+      'rgba(75, 192, 192, 1)',
+      'rgba(255, 159, 64, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 205, 86, 1)',
+      'rgba(201, 203, 207, 1)',
+      'rgba(255, 105, 180, 1)',
+      'rgba(0, 128, 128, 1)',
+      'rgba(165, 42, 42, 1)',
+      'rgba(0, 0, 128, 1)',
+      'rgba(128, 128, 0, 1)'
+    ];
+
+    const datasets = chartTeams.map((team, idx) => {
+      const color = colors[idx % colors.length];
+      
+      return {
+        label: team.owner_name,
+        data: team.weekly_scores.map(w => w.points),
+        borderColor: color,
+        backgroundColor: color.replace('1)', '0.1)'),
+        borderWidth: 2,
+        tension: 0.4,
+        fill: false
+      };
+    });
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: weeks.map(w => `Week ${w}`),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+                usePointStyle: true,
+                boxWidth: 10
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Week'
+            },
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              minRotation: 45
+            }
+          },
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Points Scored'
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+  <style>
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: white;
+    }
+    .page-header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .subtitle {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .stat-title {
+      font-size: 0.9em;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #2d3748;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      height: 400px;
+    }
+    
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    th:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    }
+    th:after {
+      content: ' ⇅';
+      opacity: 0.5;
+      font-size: 0.8em;
+    }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .awards-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .awards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .award-card {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 2px solid #f39c12;
+      text-align: center;
+    }
+    .award-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    .award-title {
+      font-size: 1em;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    .award-winner {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #8e44ad;
+      margin-bottom: 5px;
+    }
+    .award-value {
+      font-size: 0.9em;
+      color: #555;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header h1 { font-size: 2em; }
+      th, td { padding: 8px; font-size: 0.9em; }
+      .stat-value { font-size: 1.4em; }
+    }
+  </style>
+</BaseLayout>
