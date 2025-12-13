@@ -156,7 +156,7 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     <!-- Recommended Lineup -->
     <section class="recommended-section">
       <h2>💡 Recommended Starters (Week {current_week})</h2>
-      <p class="section-subtitle">Based on projected points and season averages • Projected Total: <strong style="color: #4CAF50; font-size: 1.2em;">{totalProjectedPoints.toFixed(1)}</strong> pts</p>
+      <p class="section-subtitle">Based on projected points and season averages<br class="mobile-break" /><span class="projected-total">Projected Total: <strong style="color: #4CAF50; font-size: 1.2em;">{totalProjectedPoints.toFixed(1)}</strong> pts</span></p>
       
       <div class="recommended-grid">
         {recommendedLineup.map(player => {
@@ -901,20 +901,166 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
         padding: 10px;
       }
 
-      .recommended-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      .page-header {
+        padding: 20px 15px;
       }
 
-      .charts-grid, .charts-grid-2x2 {
-        grid-template-columns: 1fr;
+      .page-header h1 {
+        font-size: 1.8em;
       }
 
-      table {
+      .page-header p {
+        font-size: 0.95em;
+      }
+
+      .recommended-section,
+      .charts-section,
+      .roster-section {
+        padding: 20px 15px;
+      }
+
+      .section-subtitle {
         font-size: 0.9em;
       }
 
+      .recommended-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .recommended-card {
+        padding: 12px;
+      }
+
+      .player-name {
+        font-size: 1em;
+      }
+
+      .player-stats {
+        gap: 8px;
+      }
+
+      .stat-label {
+        font-size: 0.65em;
+      }
+
+      .stat-value {
+        font-size: 0.95em;
+      }
+
+      .charts-grid,
+      .charts-grid-2x2 {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .charts-grid-2x2 .chart-card {
+        min-height: 350px;
+      }
+
+      .charts-grid-2x2 canvas {
+        max-height: 300px;
+      }
+
+      .chart-card {
+        padding: 15px;
+      }
+
+      .chart-card h3 {
+        font-size: 1em;
+        margin-bottom: 10px;
+      }
+
+      /* Make tables scrollable on mobile */
+      .position-table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        min-width: 600px;
+        font-size: 0.85em;
+      }
+
       th, td {
-        padding: 8px;
+        padding: 8px 6px;
+        white-space: nowrap;
+      }
+
+      th {
+        font-size: 0.8em;
+      }
+
+      td a {
+        display: block;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .injury-tag {
+        font-size: 0.75em;
+        padding: 1px 4px;
+      }
+
+      .injury-badge {
+        padding: 2px 6px;
+        font-size: 0.65em;
+      }
+
+      .mobile-break {
+        display: block;
+        margin: 5px 0;
+      }
+
+      .projected-total {
+        display: block;
+        margin-top: 8px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-break {
+        display: none;
+      }
+    }
+
+    /* Additional mobile improvements for very small screens */
+    @media (max-width: 480px) {
+      .page-header h1 {
+        font-size: 1.5em;
+      }
+
+      .recommended-section h2,
+      .charts-section h2,
+      .roster-section h2 {
+        font-size: 1.3em;
+      }
+
+      .recommended-card {
+        padding: 10px;
+      }
+
+      .position-badge {
+        font-size: 0.7em;
+        padding: 3px 6px;
+      }
+
+      .player-stats {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .stat-item {
+        min-width: 45%;
+      }
+
+      table {
+        font-size: 0.75em;
+      }
+
+      th, td {
+        padding: 6px 4px;
       }
     }
   </style>
