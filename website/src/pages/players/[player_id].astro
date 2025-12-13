@@ -199,9 +199,158 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
     </div>
   </div>
 
-  <script define:vars={{ weeksList, pointsList, avgLine, oppAvgList }}>
-    const ctx = document.getElementById('weeklyChart').getContext('2d');
-    new Chart(ctx, {
+  <script define:vars={{ weeksList, pointsList, avgLine, oppAvgList, player, position }}>
+    let currentChart = null;
+    let playerData = player;
+    
+    // Calculate fantasy points from raw stats
+    function calculateFantasyPoints(rawStats, scoring) {
+      let points = 0;
+      
+      // Offensive stats
+      points += (rawStats.passing_yards || 0) * (scoring.passing_yards || 0);
+      points += (rawStats.passing_tds || 0) * (scoring.passing_tds || 0);
+      points += (rawStats.passing_2pt || 0) * (scoring.passing_2pt || 0);
+      points += (rawStats.interceptions || 0) * (scoring.interceptions || 0);
+      points += (rawStats.rushing_yards || 0) * (scoring.rushing_yards || 0);
+      points += (rawStats.rushing_tds || 0) * (scoring.rushing_tds || 0);
+      points += (rawStats.rushing_2pt || 0) * (scoring.rushing_2pt || 0);
+      points += (rawStats.receptions || 0) * (scoring.receptions || 0);
+      points += (rawStats.receiving_yards || 0) * (scoring.receiving_yards || 0);
+      points += (rawStats.receiving_tds || 0) * (scoring.receiving_tds || 0);
+      points += (rawStats.receiving_2pt || 0) * (scoring.receiving_2pt || 0);
+      points += (rawStats.fumbles_lost || 0) * (scoring.fumbles_lost || 0);
+      
+      // Kicker stats (distance-based)
+      if (rawStats.fg_0_19 !== undefined || rawStats.fg_made !== undefined) {
+        points += (rawStats.fg_0_19 || 0) * (scoring.fg_0_19 || 0);
+        points += (rawStats.fg_20_29 || 0) * (scoring.fg_20_29 || 0);
+        points += (rawStats.fg_30_39 || 0) * (scoring.fg_30_39 || 0);
+        points += (rawStats.fg_40_49 || 0) * (scoring.fg_40_49 || 0);
+        points += (rawStats.fg_50_59 || 0) * (scoring.fg_50_59 || 0);
+        points += (rawStats.fg_60_plus || 0) * (scoring.fg_60_plus || 0);
+        points += (rawStats.fg_missed || 0) * (scoring.fg_missed || 0);
+        points += (rawStats.pat_made || 0) * (scoring.pat_made || 0);
+        points += (rawStats.pat_missed || 0) * (scoring.pat_missed || 0);
+      }
+      
+      return points;
+    }
+    
+    function recalculateStats(scoring) {
+      const weeklyPoints = playerData.weekly_points || playerData.weekly_stats || [];
+      const recalcWeeklyPoints = [];
+      let totalPoints = 0;
+      
+      weeklyPoints.forEach(week => {
+        const rawStats = week.raw_stats || {};
+        const points = calculateFantasyPoints(rawStats, scoring);
+        recalcWeeklyPoints.push(points);
+        totalPoints += points;
+      });
+      
+      const games = recalcWeeklyPoints.length;
+      const avgPpg = games > 0 ? totalPoints / games : 0;
+      
+      // Calculate std dev and consistency
+      let stdDev = 0;
+      let consistency = 0;
+      if (games > 1) {
+        const variance = recalcWeeklyPoints.reduce((sum, pts) => sum + Math.pow(pts - avgPpg, 2), 0) / games;
+        stdDev = Math.sqrt(variance);
+        consistency = stdDev > 0 ? avgPpg / stdDev : 0;
+      }
+      
+      // Calculate % above avg
+      const aboveAvgCount = recalcWeeklyPoints.filter(p => p > avgPpg).length;
+      const pctAboveAvg = games > 0 ? (aboveAvgCount / games) * 100 : 0;
+      
+      // Calculate trend (last 4 weeks)
+      const last4 = recalcWeeklyPoints.slice(-4);
+      let trendPct = 0;
+      let trendDir = '-';
+      if (last4.length > 0) {
+        const last4Avg = last4.reduce((sum, p) => sum + p, 0) / last4.length;
+        const diff = last4Avg - avgPpg;
+        trendPct = avgPpg > 0 ? (diff / avgPpg) * 100 : 0;
+        trendDir = diff > 0 ? '▲' : (diff < 0 ? '▼' : '-');
+      }
+      
+      // Update UI
+      updateStatsUI({
+        totalPoints,
+        avgPpg,
+        consistency,
+        stdDev,
+        pctAboveAvg,
+        trendPct,
+        trendDir,
+        weeklyPoints: recalcWeeklyPoints
+      });
+      
+      // Update chart
+      updateChart(recalcWeeklyPoints, avgPpg);
+    }
+    
+    function updateStatsUI(stats) {
+      // Update stat cards
+      const totalEl = document.querySelector('.meta-item .meta-value');
+      if (totalEl && totalEl.textContent.includes('.')) {
+        document.querySelectorAll('.meta-item').forEach(item => {
+          const label = item.querySelector('.meta-label')?.textContent;
+          const valueEl = item.querySelector('.meta-value');
+          if (!valueEl) return;
+          
+          if (label === 'Total Points') valueEl.textContent = stats.totalPoints.toFixed(1);
+          else if (label === 'Average PPG') valueEl.textContent = stats.avgPpg.toFixed(1);
+          else if (label === 'Consistency') valueEl.textContent = stats.consistency.toFixed(2);
+          else if (label === 'Std Dev') valueEl.textContent = stats.stdDev.toFixed(1);
+          else if (label === '% > Avg') valueEl.textContent = stats.pctAboveAvg.toFixed(0) + '%';
+          else if (label === 'Trend (4wk)') {
+            valueEl.textContent = stats.trendDir + ' ' + Math.abs(stats.trendPct).toFixed(1) + '%';
+            valueEl.style.color = stats.trendPct > 0 ? 'green' : (stats.trendPct < 0 ? 'red' : 'inherit');
+          }
+        });
+      }
+      
+      // Update weekly table
+      const tbody = document.querySelector('.weekly-table tbody');
+      if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach((row, idx) => {
+          if (idx < stats.weeklyPoints.length) {
+            const pts = stats.weeklyPoints[idx];
+            const ptsCell = row.cells[row.cells.length - 2]; // Fantasy Points column
+            const vsAvgCell = row.cells[row.cells.length - 1]; // vs Average column
+            
+            if (ptsCell) {
+              const emoji = ptsCell.textContent.includes('🏆') ? ' 🏆' : (ptsCell.textContent.includes('💔') ? ' 💔' : '');
+              ptsCell.textContent = pts.toFixed(2) + emoji;
+            }
+            
+            if (vsAvgCell) {
+              const diff = pts - stats.avgPpg;
+              vsAvgCell.textContent = (diff > 0 ? '+' : '') + diff.toFixed(2);
+              vsAvgCell.style.color = diff > 0 ? 'green' : 'red';
+            }
+          }
+        });
+      }
+    }
+    
+    function updateChart(weeklyPoints, avgPpg) {
+      if (currentChart) {
+        currentChart.data.datasets[0].data = weeklyPoints;
+        currentChart.data.datasets[2].data = new Array(weeklyPoints.length).fill(avgPpg);
+        currentChart.update();
+      }
+    }
+    
+    function initChart() {
+      const ctx = document.getElementById('weeklyChart');
+      if (!ctx) return;
+      
+      currentChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: weeksList,
@@ -266,6 +415,23 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
           }
         }
       }
+    });
+    }
+    
+    // Initialize chart on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initChart);
+    } else {
+      initChart();
+    }
+    
+    // Listen for scoring changes
+    window.addEventListener('scoringLoaded', (e) => {
+      recalculateStats(e.detail);
+    });
+    
+    window.addEventListener('scoringChanged', (e) => {
+      recalculateStats(e.detail);
     });
   </script>
 
