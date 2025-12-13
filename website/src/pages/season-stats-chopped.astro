@@ -159,7 +159,7 @@ teams.forEach(t => {
           <tr>
             <td style="text-align: center;" data-value={index + 1}>{index + 1}</td>
             <td style="font-weight: 600;">
-              <a href={`/users/chopped-${team.owner_id}`} style="color: #667eea; text-decoration: none;">
+              <a href={`/users/chopped-${team.owner_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`} style="color: #667eea; text-decoration: none;">
                 {team.owner_name}
               </a>
             </td>

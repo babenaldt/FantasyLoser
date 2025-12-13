@@ -11,11 +11,20 @@ export async function getStaticPaths() {
   
   const paths = [];
   
+  // Helper function to create URL-friendly slug from user name
+  const slugify = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+  
   // Create paths for dynasty users
   dynastyUsers.forEach(user => {
+    const slug = slugify(user.user_name);
     paths.push({
       params: { 
-        user_id: `dynasty-${user.user_id}` 
+        user_id: `dynasty-${slug}` 
       },
       props: { 
         user: user,
@@ -27,9 +36,10 @@ export async function getStaticPaths() {
   
   // Create paths for chopped users
   choppedUsers.forEach(user => {
+    const slug = slugify(user.user_name);
     paths.push({
       params: { 
-        user_id: `chopped-${user.user_id}` 
+        user_id: `chopped-${slug}` 
       },
       props: { 
         user: user,

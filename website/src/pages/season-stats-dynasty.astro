@@ -125,7 +125,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
         {sortedTeams.map((team, index) => (
           <tr>
             <td style="font-weight: 600;">
-              <a href={`/users/dynasty-${team.owner_id}`} style="color: #667eea; text-decoration: none;">
+              <a href={`/users/dynasty-${team.owner_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`} style="color: #667eea; text-decoration: none;">
                 {team.owner_name}
               </a>
             </td>
