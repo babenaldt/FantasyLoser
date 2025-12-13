@@ -70,7 +70,7 @@ const topPlayers = {
               <th style="cursor: pointer;" data-sort="games">Games</th>
               <th style="cursor: pointer;" data-sort="total">Total Pts</th>
               <th style="cursor: pointer;" data-sort="avg">Avg PPG</th>
-              {(position === 'QB' || position === 'RB' || position === 'WR' || position === 'TE') && (
+              {(position === 'ALL' || position === 'QB' || position === 'RB' || position === 'WR' || position === 'TE') && (
                 <>
                   <th style="cursor: pointer;" data-sort="consistency" title="Consistency Score (Mean / Std Dev)">Consist</th>
                   <th style="cursor: pointer;" data-sort="std_dev" title="Standard Deviation">Std Dev</th>
@@ -466,6 +466,20 @@ const topPlayers = {
         
         if (position === 'ALL') {
           posCol = `<td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${player.position}</td>`;
+          
+          // Common advanced stats for QB, RB, WR, TE in ALL view
+          if (['QB', 'RB', 'WR', 'TE'].includes(player.position)) {
+               const trendColor = player.calculated_trend_dir === '▲' ? 'green' : (player.calculated_trend_dir === '▼' ? 'red' : 'black');
+               const vsPosColor = (player.calculated_vs_pos || 0) > 0 ? 'green' : ((player.calculated_vs_pos || 0) < 0 ? 'red' : 'black');
+               
+               extraCols = `
+                  <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_consistency || 0).toFixed(2)}</td>
+                  <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_std_dev || 0).toFixed(1)}</td>
+                  <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_pct_above_avg || 0).toFixed(0)}%</td>
+                  <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${trendColor};">${player.calculated_trend_dir} ${(Math.abs(player.calculated_trend_pct || 0)).toFixed(1)}%</td>
+                  <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsPosColor};">${(player.calculated_vs_pos || 0) > 0 ? '+' : ''}${(player.calculated_vs_pos || 0).toFixed(1)}</td>
+               `;
+          }
         } else {
             // Common advanced stats for QB, RB, WR, TE
             if (['QB', 'RB', 'WR', 'TE'].includes(player.position)) {
