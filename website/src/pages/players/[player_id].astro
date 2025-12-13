@@ -49,6 +49,7 @@ const weeklyData = rawWeeklyData.map(w => ({
   points: w.points,
   opponent: w.opponent || '-',
   opp_avg_allowed: w.opp_avg_allowed || 0,
+  projected_points: w.projected_points || null,
   hasPlayed: w.points !== null && w.points !== undefined
 })).sort((a, b) => a.week - b.week);
 
@@ -176,12 +177,13 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
               {position !== 'K' && <th>Opponent</th>}
               {position !== 'K' && <th>Opp Avg Allowed</th>}
               <th>Fantasy Points</th>
+              {position !== 'K' && <th>Projected</th>}
               <th>vs Average</th>
             </tr>
           </thead>
           <tbody>
             {weeklyData.map(w => (
-              <tr class={w.week === bestWeekNum ? 'best-week' : (w.week === worstWeekNum ? 'worst-week' : '')}>
+              <tr class={w.week === bestWeekNum ? 'best-week' : (w.week === worstWeekNum ? 'worst-week' : '')} data-week={w.week}>
                 <td>Week {w.week}</td>
                 {position !== 'K' && <td>{w.opponent}</td>}
                 {position !== 'K' && <td>{w.opp_avg_allowed > 0 ? w.opp_avg_allowed.toFixed(1) : '-'}</td>}
@@ -194,6 +196,11 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
                     </>
                   ) : '-'}
                 </td>
+                {position !== 'K' && (
+                  <td style={{fontWeight: 'bold', color: '#667eea'}}>
+                    {w.projected_points && w.projected_points > 0 ? w.projected_points.toFixed(1) : '-'}
+                  </td>
+                )}
                 <td style={{color: w.hasPlayed && w.points > avg_ppg ? 'green' : (w.hasPlayed && w.points < avg_ppg ? 'red' : 'inherit')}}>
                   {w.hasPlayed ? `${w.points > avg_ppg ? '+' : ''}${(w.points - avg_ppg).toFixed(2)}` : '-'}
                 </td>
@@ -330,8 +337,13 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
         rows.forEach((row, idx) => {
           if (idx < stats.weeklyPoints.length) {
             const pts = stats.weeklyPoints[idx];
-            const ptsCell = row.cells[row.cells.length - 2]; // Fantasy Points column
-            const vsAvgCell = row.cells[row.cells.length - 1]; // vs Average column
+            // Fantasy Points column - varies by position (K has no Opponent/OppAvg/Projected cols)
+            const isKicker = position === 'K';
+            const ptsColIndex = isKicker ? 1 : 3; // K: week, pts, vsAvg | Others: week, opp, oppAvg, pts, proj, vsAvg
+            const vsAvgColIndex = row.cells.length - 1;
+            
+            const ptsCell = row.cells[ptsColIndex];
+            const vsAvgCell = row.cells[vsAvgColIndex];
             
             if (ptsCell) {
               if (pts === null) {

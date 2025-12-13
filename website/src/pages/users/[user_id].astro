@@ -73,9 +73,19 @@ const rosterSettings = isDynasty ? {
 };
 
 // Calculate recommended starters based on league settings
+// Use average of projected points and season average when projection available
 function getRecommendedStarters(players, count) {
   return [...players]
-    .sort((a, b) => b.avg_ppg - a.avg_ppg)
+    .sort((a, b) => {
+      // Average projection with season average if projection exists and > 0
+      const aScore = (a.projected_points && a.projected_points > 0) 
+        ? (a.projected_points + a.avg_ppg) / 2 
+        : a.avg_ppg;
+      const bScore = (b.projected_points && b.projected_points > 0) 
+        ? (b.projected_points + b.avg_ppg) / 2 
+        : b.avg_ppg;
+      return bScore - aScore;
+    })
     .slice(0, count);
 }
 
@@ -103,6 +113,14 @@ const recommendedLineup = [
   ...recommendedSuperflex,
   ...recommendedK
 ];
+
+// Calculate total projected points for recommended lineup using averaged scores
+const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
+  const score = (player.projected_points && player.projected_points > 0) 
+    ? (player.projected_points + player.avg_ppg) / 2 
+    : player.avg_ppg;
+  return sum + score;
+}, 0);
 ---
 
 <BaseLayout title={`${user.user_name} - Week ${current_week} Lineup Advisor`}>
@@ -120,12 +138,21 @@ const recommendedLineup = [
     <!-- Recommended Lineup -->
     <section class="recommended-section">
       <h2>💡 Recommended Starters (Week {current_week})</h2>
-      <p class="section-subtitle">Based on season average PPG and matchup difficulty</p>
+      <p class="section-subtitle">Based on projected points and season averages • Projected Total: <strong style="color: #4CAF50; font-size: 1.2em;">{totalProjectedPoints.toFixed(1)}</strong> pts</p>
       
       <div class="recommended-grid">
-        {recommendedLineup.map(player => (
+        {recommendedLineup.map(player => {
+          const proj = player.projected_points || 0;
+          const hasProjection = proj > 0;
+          const diff = hasProjection ? proj - player.avg_ppg : 0;
+          return (
           <a href={`/players/${player.player_id}`} class="recommended-card">
             <div class="position-badge {player.position.toLowerCase()}">{player.position}</div>
+            {player.injury_status && (
+              <div class="injury-badge" title={player.injury_notes || ''}>
+                {player.injury_status}
+              </div>
+            )}
             <div class="player-info">
               <div class="player-name">{player.player_name}</div>
               <div class="player-team">{player.team} vs {player.opponent}</div>
@@ -134,6 +161,12 @@ const recommendedLineup = [
               <div class="stat-item">
                 <span class="stat-label">Avg</span>
                 <span class="stat-value">{player.avg_ppg.toFixed(1)}</span>
+              </div>
+              <div class="stat-item" style={{borderLeft: '2px solid #4CAF50', paddingLeft: '8px'}}>
+                <span class="stat-label">Proj</span>
+                <span class="stat-value" style={{fontWeight: 'bold', color: hasProjection ? (diff > 2 ? '#4CAF50' : diff < -2 ? '#f44336' : '#fff') : '#999'}}>
+                  {hasProjection ? proj.toFixed(1) : player.avg_ppg.toFixed(1)}
+                </span>
               </div>
               <div class="stat-item">
                 <span class="stat-label">Opp</span>
@@ -147,7 +180,7 @@ const recommendedLineup = [
               </div>
             </div>
           </a>
-        ))}
+        )})}
       </div>
     </section>
 
@@ -187,28 +220,44 @@ const recommendedLineup = [
             <thead>
               <tr>
                 <th>Player</th>
+                <th>Status</th>
                 <th>Team</th>
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
+                <th>Projected</th>
                 <th>Opp Avg</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
             </thead>
             <tbody>
-              {qbs.map(player => (
+              {qbs.map(player => {
+                const proj = player.projected_points || 0;
+                const diff = proj - player.avg_ppg;
+                const diffIndicator = Math.abs(diff) < 1 ? '' : (diff > 0 ? '↑' : '↓');
+                return (
                 <tr>
                   <td><a href={`/players/${player.player_id}`}>{player.player_name}</a></td>
+                  <td>
+                    {player.injury_status ? (
+                      <span class="injury-tag" title={player.injury_notes || ''}>{player.injury_status}</span>
+                    ) : (
+                      <span style="color: #4CAF50;">✓</span>
+                    )}
+                  </td>
                   <td>{player.team}</td>
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
+                  <td style={{fontWeight: 'bold', color: diff > 2 ? 'green' : (diff < -2 ? 'red' : 'inherit')}}>
+                    {proj > 0 ? proj.toFixed(1) : '-'} {diffIndicator}
+                  </td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
                   <td>{player.consistency.toFixed(2)}</td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
@@ -221,28 +270,44 @@ const recommendedLineup = [
             <thead>
               <tr>
                 <th>Player</th>
+                <th>Status</th>
                 <th>Team</th>
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
+                <th>Projected</th>
                 <th>Opp Avg</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
             </thead>
             <tbody>
-              {rbs.map(player => (
+              {rbs.map(player => {
+                const proj = player.projected_points || 0;
+                const diff = proj - player.avg_ppg;
+                const diffIndicator = Math.abs(diff) < 1 ? '' : (diff > 0 ? '↑' : '↓');
+                return (
                 <tr>
                   <td><a href={`/players/${player.player_id}`}>{player.player_name}</a></td>
+                  <td>
+                    {player.injury_status ? (
+                      <span class="injury-tag" title={player.injury_notes || ''}>{player.injury_status}</span>
+                    ) : (
+                      <span style="color: #4CAF50;">✓</span>
+                    )}
+                  </td>
                   <td>{player.team}</td>
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
+                  <td style={{fontWeight: 'bold', color: diff > 2 ? 'green' : (diff < -2 ? 'red' : 'inherit')}}>
+                    {proj > 0 ? proj.toFixed(1) : '-'} {diffIndicator}
+                  </td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
                   <td>{player.consistency.toFixed(2)}</td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
@@ -255,28 +320,44 @@ const recommendedLineup = [
             <thead>
               <tr>
                 <th>Player</th>
+                <th>Status</th>
                 <th>Team</th>
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
+                <th>Projected</th>
                 <th>Opp Avg</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
             </thead>
             <tbody>
-              {wrs.map(player => (
+              {wrs.map(player => {
+                const proj = player.projected_points || 0;
+                const diff = proj - player.avg_ppg;
+                const diffIndicator = Math.abs(diff) < 1 ? '' : (diff > 0 ? '↑' : '↓');
+                return (
                 <tr>
                   <td><a href={`/players/${player.player_id}`}>{player.player_name}</a></td>
+                  <td>
+                    {player.injury_status ? (
+                      <span class="injury-tag" title={player.injury_notes || ''}>{player.injury_status}</span>
+                    ) : (
+                      <span style="color: #4CAF50;">✓</span>
+                    )}
+                  </td>
                   <td>{player.team}</td>
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
+                  <td style={{fontWeight: 'bold', color: diff > 2 ? 'green' : (diff < -2 ? 'red' : 'inherit')}}>
+                    {proj > 0 ? proj.toFixed(1) : '-'} {diffIndicator}
+                  </td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
                   <td>{player.consistency.toFixed(2)}</td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
@@ -289,28 +370,44 @@ const recommendedLineup = [
             <thead>
               <tr>
                 <th>Player</th>
+                <th>Status</th>
                 <th>Team</th>
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
+                <th>Projected</th>
                 <th>Opp Avg</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
             </thead>
             <tbody>
-              {tes.map(player => (
+              {tes.map(player => {
+                const proj = player.projected_points || 0;
+                const diff = proj - player.avg_ppg;
+                const diffIndicator = Math.abs(diff) < 1 ? '' : (diff > 0 ? '↑' : '↓');
+                return (
                 <tr>
                   <td><a href={`/players/${player.player_id}`}>{player.player_name}</a></td>
+                  <td>
+                    {player.injury_status ? (
+                      <span class="injury-tag" title={player.injury_notes || ''}>{player.injury_status}</span>
+                    ) : (
+                      <span style="color: #4CAF50;">✓</span>
+                    )}
+                  </td>
                   <td>{player.team}</td>
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
+                  <td style={{fontWeight: 'bold', color: diff > 2 ? 'green' : (diff < -2 ? 'red' : 'inherit')}}>
+                    {proj > 0 ? proj.toFixed(1) : '-'} {diffIndicator}
+                  </td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
                   <td>{player.consistency.toFixed(2)}</td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
@@ -602,6 +699,34 @@ const recommendedLineup = [
       font-weight: bold;
       background: rgba(255, 255, 255, 0.2);
       width: fit-content;
+    }
+
+    .injury-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      font-weight: bold;
+      background: #f44336;
+      color: white;
+      cursor: help;
+    }
+
+    .injury-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: bold;
+      background: #ffebee;
+      color: #c62828;
+      cursor: help;
+    }
+
+    .recommended-card {
+      position: relative;
     }
 
     .player-info {
