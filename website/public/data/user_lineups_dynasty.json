@@ -71,6 +71,22 @@
           "player_id": "00-0039868"
         },
         {
+          "player_name": "Marvin Harrison Jr.",
+          "team": "ARI",
+          "position": "WR",
+          "opponent": "HOU",
+          "opp_avg_allowed": 13.5,
+          "avg_ppg": 12.540000000000003,
+          "total_points": 125.40000000000002,
+          "games_played": 10,
+          "consistency": 2.0466094625721007,
+          "std_dev": 6.127207085342119,
+          "trend_dir": "\u25bc",
+          "trend_pct": 10.526315789473681,
+          "vs_position_avg": 5.2374584665604145,
+          "player_id": "00-0039849"
+        },
+        {
           "player_name": "Brashard Smith",
           "team": "KC",
           "position": "RB",
@@ -343,6 +359,22 @@
           "player_id": "00-0037525"
         },
         {
+          "player_name": "Brenton Strange",
+          "team": "JAX",
+          "position": "TE",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 9.7,
+          "avg_ppg": 9.2375,
+          "total_points": 73.9,
+          "games_played": 8,
+          "consistency": 2.1985258299436574,
+          "std_dev": 4.201679086134154,
+          "trend_dir": "-",
+          "trend_pct": 9.71428571428571,
+          "vs_position_avg": 3.6828817848817863,
+          "player_id": "00-0038935"
+        },
+        {
           "player_name": "Tyjae Spears",
           "team": "TEN",
           "position": "RB",
@@ -364,6 +396,22 @@
       "user_id": "865700190626136064",
       "user_name": "NLadocsi",
       "players": [
+        {
+          "player_name": "Chris Rodriguez Jr.",
+          "team": "WAS",
+          "position": "RB",
+          "opponent": "NYG",
+          "opp_avg_allowed": 20.7,
+          "avg_ppg": 6.28,
+          "total_points": 62.800000000000004,
+          "games_played": 10,
+          "consistency": 1.5848392939855962,
+          "std_dev": 3.962546880199372,
+          "trend_dir": "-",
+          "trend_pct": 10.526315789473689,
+          "vs_position_avg": -0.7826584182398166,
+          "player_id": "00-0038611"
+        },
         {
           "player_name": "Michael Wilson",
           "team": "ARI",
@@ -491,6 +539,22 @@
           "trend_pct": 52.85714285714287,
           "vs_position_avg": 5.048452692871296,
           "player_id": "00-0039391"
+        },
+        {
+          "player_name": "Tyrone Tracy Jr.",
+          "team": "NYG",
+          "position": "RB",
+          "opponent": "WAS",
+          "opp_avg_allowed": 17.6,
+          "avg_ppg": 8.336363636363636,
+          "total_points": 91.7,
+          "games_played": 11,
+          "consistency": 1.6626719796889824,
+          "std_dev": 5.013835403615226,
+          "trend_dir": "\u25bc",
+          "trend_pct": 21.92307692307692,
+          "vs_position_avg": 1.273705218123819,
+          "player_id": "00-0039384"
         },
         {
           "player_name": "Cam Skattebo",
@@ -803,6 +867,22 @@
           "player_id": "00-0039793"
         },
         {
+          "player_name": "Brian Thomas Jr.",
+          "team": "JAX",
+          "position": "WR",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 15.6,
+          "avg_ppg": 10.209999999999999,
+          "total_points": 102.1,
+          "games_played": 10,
+          "consistency": 2.025109028688721,
+          "std_dev": 5.041703856612145,
+          "trend_dir": "-",
+          "trend_pct": 13.013698630136988,
+          "vs_position_avg": 2.907458466560411,
+          "player_id": "00-0039893"
+        },
+        {
           "player_name": "Gunnar Helm",
           "team": "TEN",
           "position": "TE",
@@ -897,6 +977,22 @@
           "trend_pct": 33.48837209302326,
           "vs_position_avg": 7.745033889452488,
           "player_id": "00-0032764"
+        },
+        {
+          "player_name": "Chris Godwin Jr.",
+          "team": "TB",
+          "position": "WR",
+          "opponent": "ATL",
+          "opp_avg_allowed": 18.4,
+          "avg_ppg": 8.233333333333333,
+          "total_points": 49.4,
+          "games_played": 6,
+          "consistency": 1.9704715187516655,
+          "std_dev": 4.178356933851711,
+          "trend_dir": "\u25b2",
+          "trend_pct": 78.83211678832114,
+          "vs_position_avg": 0.9307917998937443,
+          "player_id": "00-0033921"
         },
         {
           "player_name": "James Conner",
@@ -1113,6 +1209,22 @@
           "player_id": "00-0040126"
         },
         {
+          "player_name": "Luther Burden III",
+          "team": "CHI",
+          "position": "WR",
+          "opponent": "CLE",
+          "opp_avg_allowed": 13.3,
+          "avg_ppg": 6.516666666666667,
+          "total_points": 78.2,
+          "games_played": 12,
+          "consistency": 1.171051925339447,
+          "std_dev": 5.56479736351376,
+          "trend_dir": "\u25b2",
+          "trend_pct": 25.67567567567568,
+          "vs_position_avg": -0.7858748667729216,
+          "player_id": "00-0040735"
+        },
+        {
           "player_name": "Trevor Etienne",
           "team": "CAR",
           "position": "RB",
@@ -1225,6 +1337,22 @@
           "player_id": "00-0036613"
         },
         {
+          "player_name": "Travis Etienne",
+          "team": "JAX",
+          "position": "RB",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 19.6,
+          "avg_ppg": 14.599999999999998,
+          "total_points": 189.79999999999998,
+          "games_played": 13,
+          "consistency": 2.607281428077986,
+          "std_dev": 5.599702373043291,
+          "trend_dir": "\u25bc",
+          "trend_pct": 34.08521303258147,
+          "vs_position_avg": 7.537341581760181,
+          "player_id": "00-0036973"
+        },
+        {
           "player_name": "Nico Collins",
           "team": "HOU",
           "position": "WR",
@@ -1319,6 +1447,22 @@
           "trend_pct": 0,
           "vs_position_avg": -10.39128379028379,
           "player_id": "00-0039164"
+        },
+        {
+          "player_name": "Parker Washington",
+          "team": "JAX",
+          "position": "WR",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 15.6,
+          "avg_ppg": 9.930000000000001,
+          "total_points": 99.30000000000001,
+          "games_played": 10,
+          "consistency": 1.9438603010054842,
+          "std_dev": 5.108391788681313,
+          "trend_dir": "\u25b2",
+          "trend_pct": 36.47798742138366,
+          "vs_position_avg": 2.6274584665604133,
+          "player_id": "00-0038606"
         },
         {
           "player_name": "Jaxon Smith-Njigba",
@@ -1485,6 +1629,22 @@
           "trend_pct": 23.17596566523606,
           "vs_position_avg": 0.8891251332270782,
           "player_id": "00-0040130"
+        },
+        {
+          "player_name": "Bhayshul Tuten",
+          "team": "JAX",
+          "position": "RB",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 19.6,
+          "avg_ppg": 5.615384615384615,
+          "total_points": 73.0,
+          "games_played": 13,
+          "consistency": 1.1332136734275045,
+          "std_dev": 4.955274320332184,
+          "trend_dir": "\u25bc",
+          "trend_pct": 37.74834437086093,
+          "vs_position_avg": -1.447273802855202,
+          "player_id": "00-0040719"
         },
         {
           "player_name": "Jaxson Dart",
@@ -1893,6 +2053,22 @@
           "player_id": "00-0035662"
         },
         {
+          "player_name": "Deebo Samuel Sr.",
+          "team": "WAS",
+          "position": "WR",
+          "opponent": "NYG",
+          "opp_avg_allowed": 19.2,
+          "avg_ppg": 13.25,
+          "total_points": 159.0,
+          "games_played": 12,
+          "consistency": 1.8093364889606025,
+          "std_dev": 7.323126505679239,
+          "trend_dir": "\u25bc",
+          "trend_pct": 47.023809523809526,
+          "vs_position_avg": 5.947458466560412,
+          "player_id": "00-0035719"
+        },
+        {
           "player_name": "Terry McLaurin",
           "team": "WAS",
           "position": "WR",
@@ -2019,6 +2195,22 @@
           "trend_pct": 17.56756756756755,
           "vs_position_avg": 0.5787151182151193,
           "player_id": "00-0036754"
+        },
+        {
+          "player_name": "Kenneth Walker III",
+          "team": "SEA",
+          "position": "RB",
+          "opponent": "IND",
+          "opp_avg_allowed": 15.3,
+          "avg_ppg": 10.661538461538461,
+          "total_points": 138.6,
+          "games_played": 13,
+          "consistency": 1.9504515723464833,
+          "std_dev": 5.466189785328604,
+          "trend_dir": "\u25bc",
+          "trend_pct": 57.22891566265061,
+          "vs_position_avg": 3.598880043298644,
+          "player_id": "00-0038134"
         },
         {
           "player_name": "Chase Brown",
@@ -2171,6 +2363,22 @@
           "player_id": "00-0040242"
         },
         {
+          "player_name": "Dont'e Thornton Jr.",
+          "team": "LV",
+          "position": "WR",
+          "opponent": "PHI",
+          "opp_avg_allowed": 16.4,
+          "avg_ppg": 3.383333333333334,
+          "total_points": 20.300000000000004,
+          "games_played": 6,
+          "consistency": 1.7490903352149632,
+          "std_dev": 1.9343388189938873,
+          "trend_dir": "-",
+          "trend_pct": 28.57142857142858,
+          "vs_position_avg": -3.919208200106254,
+          "player_id": "00-0040581"
+        },
+        {
           "player_name": "Davante Adams",
           "team": "LA",
           "position": "WR",
@@ -2297,6 +2505,22 @@
           "trend_pct": 7.87234042553192,
           "vs_position_avg": 12.586347355449302,
           "player_id": "00-0037238"
+        },
+        {
+          "player_name": "Calvin Austin III",
+          "team": "PIT",
+          "position": "WR",
+          "opponent": "MIA",
+          "opp_avg_allowed": 14.3,
+          "avg_ppg": 6.989999999999999,
+          "total_points": 69.89999999999999,
+          "games_played": 10,
+          "consistency": 1.4065623317495222,
+          "std_dev": 4.969562913934741,
+          "trend_dir": "\u25b2",
+          "trend_pct": 138.7755102040816,
+          "vs_position_avg": -0.3125415334395889,
+          "player_id": "00-0037837"
         },
         {
           "player_name": "Wan'Dale Robinson",
@@ -2479,6 +2703,22 @@
           "trend_pct": 36.87500000000002,
           "vs_position_avg": -4.395991751573151,
           "player_id": "00-0040586"
+        },
+        {
+          "player_name": "Ollie Gordon II",
+          "team": "MIA",
+          "position": "RB",
+          "opponent": "PIT",
+          "opp_avg_allowed": 13.9,
+          "avg_ppg": 4.781818181818182,
+          "total_points": 52.60000000000001,
+          "games_played": 11,
+          "consistency": 1.0233637344093958,
+          "std_dev": 4.672647682378414,
+          "trend_dir": "\u25bc",
+          "trend_pct": 29.838709677419363,
+          "vs_position_avg": -2.2808402364216347,
+          "player_id": "00-0040198"
         },
         {
           "player_name": "Shedeur Sanders",
@@ -2855,6 +3095,22 @@
           "player_id": "00-0040202"
         },
         {
+          "player_name": "Oronde Gadsden II",
+          "team": "LAC",
+          "position": "TE",
+          "opponent": "KC",
+          "opp_avg_allowed": 7.8,
+          "avg_ppg": 9.554545454545455,
+          "total_points": 105.1,
+          "games_played": 11,
+          "consistency": 1.1239029685429056,
+          "std_dev": 8.50121916390392,
+          "trend_dir": "\u25bc",
+          "trend_pct": 48.076923076923066,
+          "vs_position_avg": 3.9999272394272403,
+          "player_id": "00-0040189"
+        },
+        {
           "player_name": "Kaleb Johnson",
           "team": "PIT",
           "position": "RB",
@@ -2869,6 +3125,38 @@
           "trend_pct": 61.111111111111114,
           "vs_position_avg": -5.987658418239817,
           "player_id": "00-0040142"
+        },
+        {
+          "player_name": "Harold Fannin Jr.",
+          "team": "CLE",
+          "position": "TE",
+          "opponent": "CHI",
+          "opp_avg_allowed": 10.5,
+          "avg_ppg": 11.223076923076924,
+          "total_points": 145.9,
+          "games_played": 13,
+          "consistency": 1.8739796864027447,
+          "std_dev": 5.988899988889702,
+          "trend_dir": "\u25b2",
+          "trend_pct": 197.69230769230774,
+          "vs_position_avg": 5.66845870795871,
+          "player_id": "00-0040663"
+        },
+        {
+          "player_name": "Travis Hunter",
+          "team": "JAX",
+          "position": "WR",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 15.6,
+          "avg_ppg": 9.114285714285716,
+          "total_points": 63.800000000000004,
+          "games_played": 7,
+          "consistency": 1.304464376687725,
+          "std_dev": 6.986994721487576,
+          "trend_dir": "\u25b2",
+          "trend_pct": 78.3132530120482,
+          "vs_position_avg": 1.8117441808461274,
+          "player_id": "00-0040718"
         },
         {
           "player_name": "Tyler Shough",
@@ -3031,6 +3319,22 @@
           "player_id": "00-0036442"
         },
         {
+          "player_name": "Trevor Lawrence",
+          "team": "JAX",
+          "position": "QB",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 16.3,
+          "avg_ppg": 18.792307692307695,
+          "total_points": 244.3,
+          "games_played": 13,
+          "consistency": 3.1672312584113462,
+          "std_dev": 5.933355084950046,
+          "trend_dir": "-",
+          "trend_pct": 2.703984819734347,
+          "vs_position_avg": 6.141023902023905,
+          "player_id": "00-0036971"
+        },
+        {
           "player_name": "Pat Freiermuth",
           "team": "PIT",
           "position": "TE",
@@ -3063,6 +3367,22 @@
           "player_id": "00-0037744"
         },
         {
+          "player_name": "Marvin Mims Jr.",
+          "team": "DEN",
+          "position": "WR",
+          "opponent": "GB",
+          "opp_avg_allowed": 15.3,
+          "avg_ppg": 6.218181818181819,
+          "total_points": 68.4,
+          "games_played": 11,
+          "consistency": 0.9477830545633519,
+          "std_dev": 6.560764922144092,
+          "trend_dir": "\u25b2",
+          "trend_pct": 170.00000000000003,
+          "vs_position_avg": -1.0843597152577695,
+          "player_id": "00-0038976"
+        },
+        {
           "player_name": "Aaron Rodgers",
           "team": "PIT",
           "position": "QB",
@@ -3084,6 +3404,22 @@
       "user_id": "865705907659632640",
       "user_name": "Taubitz",
       "players": [
+        {
+          "player_name": "Michael Penix Jr.",
+          "team": "ATL",
+          "position": "QB",
+          "opponent": "TB",
+          "opp_avg_allowed": 21.9,
+          "avg_ppg": 14.475555555555555,
+          "total_points": 130.28,
+          "games_played": 9,
+          "consistency": 2.1200719824995953,
+          "std_dev": 6.827860409951112,
+          "trend_dir": "\u25bc",
+          "trend_pct": 43.53704705246078,
+          "vs_position_avg": 1.8242717652717655,
+          "player_id": "00-0039917"
+        },
         {
           "player_name": "Bucky Irving",
           "team": "TB",

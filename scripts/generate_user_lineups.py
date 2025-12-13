@@ -104,12 +104,20 @@ def generate_user_lineups():
                     # Normalize team codes
                     if team == 'LAR':
                         team = 'LA'
-                    elif team == 'JAX':
-                        team = 'JAC'
+                    # Note: Sleeper uses JAX, player_stats uses JAX (not JAC)
                     
                     # Get full player stats
                     player_key = (player_name, team)
                     full_stats = players_by_name_team.get(player_key)
+                    
+                    # If no match, try with common suffixes (Jr, Sr, II, III, IV)
+                    if not full_stats:
+                        for suffix in [' Jr', ' Sr', ' II', ' III', ' IV', ' Jr.', ' Sr.']:
+                            alt_key = (player_name + suffix, team)
+                            if alt_key in players_by_name_team:
+                                full_stats = players_by_name_team[alt_key]
+                                player_name = player_name + suffix  # Use the full name from player_stats
+                                break
                     
                     if not full_stats or position not in ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']:
                         continue
