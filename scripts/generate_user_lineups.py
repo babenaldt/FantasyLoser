@@ -1,8 +1,33 @@
 """Generate user lineup advisor data."""
 
 import json
+import requests
 from core_data import OUTPUT_DIR, ASTRO_DATA_DIR, SleeperAPI, ensure_directories
 from nfl_week_helper import get_current_nfl_week
+
+
+def get_sleeper_projections(week):
+    """Fetch weekly projections from Sleeper API."""
+    try:
+        url = f"https://api.sleeper.com/projections/nfl/2025/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            projections = response.json()
+            # Index by player_id for quick lookup
+            proj_by_player = {}
+            for proj in projections:
+                player_id = proj.get('player_id')
+                stats = proj.get('stats', {})
+                if player_id and stats:
+                    proj_by_player[player_id] = {
+                        'pts_ppr': stats.get('pts_ppr', 0),
+                        'pts_half_ppr': stats.get('pts_half_ppr', 0),
+                        'pts_std': stats.get('pts_std', 0),
+                    }
+            return proj_by_player
+    except Exception as e:
+        print(f"    Warning: Could not fetch Sleeper projections: {e}")
+    return {}
 
 
 def generate_user_lineups():
@@ -41,6 +66,11 @@ def generate_user_lineups():
     except Exception as e:
         print(f"  Error loading defense stats: {e}")
         defense_stats = {}
+    
+    # Load Sleeper projections
+    print("  Fetching Sleeper projections...")
+    sleeper_projections = get_sleeper_projections(current_week)
+    print(f"  Loaded projections for {len(sleeper_projections)} players")
     
     # Process both leagues
     leagues = [
@@ -129,6 +159,14 @@ def generate_user_lineups():
                     opponent = week_matchup['opponent'] if week_matchup else 'Unknown'
                     opp_avg_allowed = week_matchup['opp_avg_allowed'] if week_matchup else 0
                     
+                    # Get Sleeper projection
+                    projection = sleeper_projections.get(sleeper_id, {})
+                    proj_ppr = projection.get('pts_ppr', 0)
+                    
+                    # Get injury status from Sleeper
+                    injury_status = player_info.get('injury_status', None)
+                    injury_notes = player_info.get('injury_notes', None)
+                    
                     user_players_data.append({
                         'player_name': player_name,
                         'team': team,
@@ -136,6 +174,9 @@ def generate_user_lineups():
                         'opponent': opponent,
                         'opp_avg_allowed': opp_avg_allowed,
                         'avg_ppg': full_stats.get('avg_points_per_game', 0),
+                        'projected_points': proj_ppr,
+                        'injury_status': injury_status,
+                        'injury_notes': injury_notes,
                         'total_points': full_stats.get('total_points', 0),
                         'games_played': full_stats.get('games_played', 0),
                         'consistency': full_stats.get('consistency', 0),

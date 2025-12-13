@@ -3,6 +3,7 @@
 import json
 import nflreadpy as nfl
 import statistics
+import requests
 from datetime import datetime
 from core_data import (
     ensure_directories, save_json, calculate_fantasy_points,
@@ -12,10 +13,41 @@ from core_data import (
 import os
 
 
+def fetch_all_weekly_projections():
+    """Fetch Sleeper projections for all 18 weeks and index by (player_id, week)."""
+    print("  Fetching weekly projections from Sleeper API...")
+    projections = {}  # {player_id: {week: pts_ppr}}
+    
+    for week in range(1, 19):
+        try:
+            url = f"https://api.sleeper.com/projections/nfl/2025/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                week_projections = response.json()
+                for proj in week_projections:
+                    player_id = proj.get('player_id')
+                    stats = proj.get('stats', {})
+                    pts_ppr = stats.get('pts_ppr', 0)
+                    
+                    if player_id and pts_ppr:
+                        if player_id not in projections:
+                            projections[player_id] = {}
+                        projections[player_id][week] = pts_ppr
+        except Exception as e:
+            print(f"    Warning: Could not fetch projections for week {week}: {e}")
+    
+    total_player_weeks = sum(len(weeks) for weeks in projections.values())
+    print(f"  Loaded projections for {len(projections)} players across all weeks ({total_player_weeks} player-weeks)")
+    return projections
+
+
 def generate_player_stats_json():
     """Generate player statistics and save to JSON."""
     print("\nGenerating Player Statistics...")
     ensure_directories()
+    
+    # Fetch weekly projections first
+    weekly_projections = fetch_all_weekly_projections()
     
     # Load NFL data
     print("  Loading NFL weekly player stats...")
@@ -209,8 +241,31 @@ def generate_player_stats_json():
         print(f"  Mapped {chopped_mapped} Chopped roster spots by name+team")
         print(f"  Total unique players with ownership: {len(player_ownership)}")
         
+        # Create reverse lookup: (name, team) -> sleeper_id for projections
+        # Store BOTH Sleeper team code and NFL team code for lookups
+        print("  Building Sleeper ID lookup for projections...")
+        player_to_sleeper_id = {}
+        for sleeper_id, player_data in sleeper_players.items():
+            if not player_data:
+                continue
+            first = (player_data.get('first_name') or '').strip()
+            last = (player_data.get('last_name') or '').strip()
+            team = (player_data.get('team') or '').strip()
+            
+            if first and last and team:
+                full_name = f"{first} {last}"
+                # Store with Sleeper team code
+                player_to_sleeper_id[(full_name, team)] = sleeper_id
+                # Also store with NFL normalized team code
+                nfl_team = normalize_team(team)
+                if nfl_team != team:
+                    player_to_sleeper_id[(full_name, nfl_team)] = sleeper_id
+        
+        print(f"  Mapped {len(player_to_sleeper_id)} player+team combinations to Sleeper IDs")
+        
     except Exception as e:
         print(f"  Error loading ownership data: {e}")
+        player_to_sleeper_id = {}
 
     # Load Defense Stats for Opponent Points Allowed
     print("  Loading defense stats for opponent matchups...")
@@ -292,11 +347,20 @@ def generate_player_stats_json():
                 'offense_pct': snap_pct,
             }
             
+            # Get projection for this week if available
+            player_name = row.get('player_display_name', 'Unknown')
+            team = row.get('team', 'FA')
+            sleeper_id = player_to_sleeper_id.get((player_name, team))
+            projected_points = None
+            if sleeper_id and sleeper_id in weekly_projections:
+                projected_points = weekly_projections[sleeper_id].get(week)
+            
             player_stats[player_id]['weekly_points'].append({
                 'week': week,
                 'points': round(pts, 2),
                 'opponent': opponent,
                 'opp_avg_allowed': round(opp_avg_allowed, 1),
+                'projected_points': projected_points,
                 'raw_stats': raw_stats
             })
     
@@ -332,11 +396,20 @@ def generate_player_stats_json():
                     else:
                         opp_avg_allowed = defense_map.get(opponent, {}).get(stats['position'], 0)
                     
+                    # Get projection for future week
+                    player_name = stats['player_name']
+                    team = stats['team']
+                    sleeper_id = player_to_sleeper_id.get((player_name, team))
+                    projected_points = None
+                    if sleeper_id and sleeper_id in weekly_projections:
+                        projected_points = weekly_projections[sleeper_id].get(week)
+                    
                     full_schedule.append({
                         'week': week,
                         'points': None,  # null for unplayed games
                         'opponent': opponent,
                         'opp_avg_allowed': round(opp_avg_allowed, 1),
+                        'projected_points': projected_points,
                         'raw_stats': None
                     })
             
