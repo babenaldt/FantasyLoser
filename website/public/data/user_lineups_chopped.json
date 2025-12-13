@@ -253,6 +253,22 @@
           "player_id": "00-0036259"
         },
         {
+          "player_name": "Travis Etienne",
+          "team": "JAX",
+          "position": "RB",
+          "opponent": "NYJ",
+          "opp_avg_allowed": 19.6,
+          "avg_ppg": 14.599999999999998,
+          "total_points": 189.79999999999998,
+          "games_played": 13,
+          "consistency": 2.607281428077986,
+          "std_dev": 5.599702373043291,
+          "trend_dir": "\u25bc",
+          "trend_pct": 34.08521303258147,
+          "vs_position_avg": 7.537341581760181,
+          "player_id": "00-0036973"
+        },
+        {
           "player_name": "Ja'Marr Chase",
           "team": "CIN",
           "position": "WR",
