@@ -44,6 +44,22 @@ export async function getStaticPaths() {
 
 const { user, league, current_week } = Astro.props;
 
+// Helper function to check if a player is available to play this week
+function isPlayerAvailable(player) {
+  // Exclude players with injury statuses that mean they won't play
+  const unavailableStatuses = ['Out', 'IR', 'Doubtful', 'Suspended'];
+  if (player.injury_status && unavailableStatuses.includes(player.injury_status)) {
+    return false;
+  }
+  
+  // Exclude players on bye week (opponent is 'BYE')
+  if (player.opponent === 'BYE') {
+    return false;
+  }
+  
+  return true;
+}
+
 // Group players by position
 const qbs = user.players.filter(p => p.position === 'QB');
 const rbs = user.players.filter(p => p.position === 'RB');
@@ -74,8 +90,10 @@ const rosterSettings = isDynasty ? {
 
 // Calculate recommended starters based on league settings
 // Use average of projected points and season average when projection available
+// Only recommend players who are available to play this week
 function getRecommendedStarters(players, count) {
   return [...players]
+    .filter(p => isPlayerAvailable(p)) // Only include available players
     .sort((a, b) => {
       // Average projection with season average if projection exists and > 0
       const aScore = (a.projected_points && a.projected_points > 0) 
