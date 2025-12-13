@@ -111,16 +111,15 @@ const { title, description = "Fantasy Football Statistics and Analysis" } = Astr
   </head>
   <body>
     <nav class="nav-bar">
-      <div class="nav-title">🏈 Fantasy Tool</div>
+      <div class="nav-title">🏈 Fantasy Loser</div>
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/player-stats">Player Stats</a>
         <a href="/defense-stats">Defense Stats</a>
         <a href="/season-stats-chopped">Chopped Stats</a>
         <a href="/season-stats-dynasty">Dynasty Stats</a>
-        <button id="settingsBtn" class="settings-btn" title="Scoring Settings">
-          ⚙️
-        </button>
+        <a href="/stats-guide">Stats Guide</a>
+        <a href="#" id="settingsBtn" class="settings-link">⚙️ Scoring Settings</a>
       </div>
     </nav>
 
@@ -278,23 +277,8 @@ const { title, description = "Fantasy Football Statistics and Analysis" } = Astr
     </div>
 
     <style>
-      .settings-btn {
-        background: #667eea;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .settings-btn:hover {
-        background: #764ba2;
-        transform: rotate(90deg);
+      .settings-link {
+        /* Inherits styles from .nav-links a */
       }
 
       .modal {

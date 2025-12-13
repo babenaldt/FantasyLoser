@@ -1,0 +1,382 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Stats Guide - Fantasy Football">
+  <div class="stats-guide">
+    <div class="guide-container">
+      <div class="guide-header">
+        <h1>📚 Stats Guide</h1>
+        <p>Complete explanation of all statistics and metrics used in the Fantasy Tool</p>
+      </div>
+
+    <div class="guide-content">
+      <!-- Basic Stats Section -->
+      <section class="stat-section">
+        <h2>📊 Basic Statistics</h2>
+        
+        <div class="stat-card">
+          <h3>Total Points</h3>
+          <p>The cumulative fantasy points scored by a player across all games played in the season. Calculated based on the current scoring settings (PPR, Half-PPR, or Standard).</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Avg PPG (Points Per Game)</h3>
+          <p>Average fantasy points scored per game. Calculated by dividing total points by games played. This metric helps compare players who have played different numbers of games.</p>
+          <p class="formula">Formula: Total Points ÷ Games Played</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Games Played</h3>
+          <p>The number of games where the player recorded fantasy points. Bye weeks and games where a player did not participate are excluded.</p>
+        </div>
+      </section>
+
+      <!-- Advanced Stats Section -->
+      <section class="stat-section">
+        <h2>🎯 Advanced Metrics</h2>
+        
+        <div class="stat-card">
+          <h3>Consistency Score</h3>
+          <p>Measures how reliably a player performs around their average. Higher values indicate more consistent performance.</p>
+          <p class="formula">Range: 0-100 (100 = perfectly consistent)</p>
+          <p class="insight">💡 <strong>Why it matters:</strong> Consistent players are safer floor plays, while inconsistent players are boom-or-bust options.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Standard Deviation</h3>
+          <p>Statistical measure of how much a player's weekly scores vary from their average. Lower values indicate more predictable scoring.</p>
+          <p class="insight">💡 <strong>Interpretation:</strong> A player with 5.0 std dev and 20.0 avg PPG typically scores between 15-25 points (68% of games).</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>vs Position Avg</h3>
+          <p>Shows how a player's average compares to the average of all players at their position. Positive values mean above-average performance.</p>
+          <p class="formula">Formula: Player Avg PPG - Position Average PPG</p>
+          <p class="insight">💡 <strong>Color coding:</strong> Green = above average, Red = below average</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>vs Opp Avg</h3>
+          <p>Average difference between the player's actual points and the opponent's average points allowed at that position. Shows if a player typically beats their matchup expectations.</p>
+          <p class="formula">Formula: Average of (Player Points - Opponent Avg Allowed) across all games</p>
+          <p class="insight">💡 <strong>Why it matters:</strong> Positive values indicate players who consistently exceed matchup expectations, while negative values suggest they underperform relative to their competition.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Trend</h3>
+          <p>Shows recent performance momentum by comparing the last 2 games to the previous 2 games. Helps identify players heating up or cooling down.</p>
+          <p class="formula">Calculation: (Last 2 Games Avg - Previous 2 Games Avg) ÷ Previous 2 Games Avg × 100</p>
+          <p class="insight">💡 <strong>Indicators:</strong></p>
+          <ul>
+            <li><strong>▲ Trending Up:</strong> Recent performance improving by more than 1 point per game</li>
+            <li><strong>▼ Trending Down:</strong> Recent performance declining by more than 1 point per game</li>
+            <li><strong>- Stable:</strong> Performance within 1 point of recent average</li>
+          </ul>
+          <p class="insight">💡 <strong>Why 2 games?</strong> The NFL regular season is short (17 games), so a 2-game window provides quick response to recent form without overreacting to single-game variance.</p>
+        </div>
+      </section>
+
+      <!-- NFL Stats Section -->
+      <section class="stat-section">
+        <h2>🏈 NFL Statistics</h2>
+        
+        <div class="stat-card">
+          <h3>Snap Count %</h3>
+          <p>Average percentage of offensive snaps the player participated in. Higher snap counts typically correlate with more opportunities.</p>
+          <p class="insight">💡 <strong>Benchmarks:</strong></p>
+          <ul>
+            <li><strong>90%+:</strong> Workhorse player with guaranteed volume</li>
+            <li><strong>60-89%:</strong> Solid contributor with consistent opportunities</li>
+            <li><strong>Below 60%:</strong> Limited role or committee situation</li>
+          </ul>
+        </div>
+
+        <div class="stat-card">
+          <h3>Position-Specific Stats</h3>
+          <p><strong>Quarterbacks:</strong> Pass yards, TDs, INTs, rushing yards, rushing TDs</p>
+          <p><strong>Running Backs:</strong> Rush attempts, rush yards, rush TDs, receptions, receiving yards, receiving TDs</p>
+          <p><strong>Wide Receivers/Tight Ends:</strong> Targets, receptions, receiving yards, receiving TDs, rush attempts</p>
+          <p><strong>Kickers:</strong> Field goals made/attempted, extra points, longest FG</p>
+          <p><strong>Defenses:</strong> Sacks, interceptions, fumble recoveries, defensive TDs, points allowed</p>
+        </div>
+      </section>
+
+      <!-- Ownership Section -->
+      <section class="stat-section">
+        <h2>👥 League Ownership</h2>
+        
+        <div class="stat-card">
+          <h3>Dynasty Owner</h3>
+          <p>Shows which team in the Dynasty league roster owns this player. Displays "Free Agent" if unowned.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Chopped Owner</h3>
+          <p>Shows which team in the Chopped league roster owns this player. Displays "Free Agent" if unowned.</p>
+        </div>
+      </section>
+
+      <!-- Chart Section -->
+      <section class="stat-section">
+        <h2>📈 Weekly Performance Chart</h2>
+        
+        <div class="stat-card">
+          <h3>Understanding the Chart</h3>
+          <p><strong>Blue Line:</strong> Actual fantasy points scored each week</p>
+          <p><strong>Red Dashed Line:</strong> Season average (helps identify above/below average weeks)</p>
+          <p><strong>Orange Line:</strong> Opponent's average points allowed at that position (shows matchup difficulty)</p>
+          <p class="insight">💡 <strong>How to use:</strong> Look for trends, identify boom/bust weeks, and see how players perform against tough vs. easy matchups.</p>
+        </div>
+      </section>
+
+      <!-- Scoring Settings Section -->
+      <section class="stat-section">
+        <h2>⚙️ Scoring Settings</h2>
+        
+        <div class="stat-card">
+          <h3>Dynamic Scoring Recalculation</h3>
+          <p>All fantasy points are calculated dynamically based on your selected scoring format. You can switch between:</p>
+          <ul>
+            <li><strong>PPR (Points Per Reception):</strong> Full point for each reception</li>
+            <li><strong>Half-PPR:</strong> 0.5 points per reception</li>
+            <li><strong>Standard:</strong> No points for receptions</li>
+            <li><strong>Custom:</strong> Adjust individual stat values to match your league's unique scoring</li>
+          </ul>
+          <p class="insight">💡 <strong>Pro Tip:</strong> Use custom scoring to exactly match your league settings for the most accurate rankings and analysis.</p>
+        </div>
+      </section>
+
+      <!-- Compare Feature Section -->
+      <section class="stat-section">
+        <h2>🔍 Player Search & Compare</h2>
+        
+        <div class="stat-card">
+          <h3>Search Feature</h3>
+          <p>Type any player name to quickly find and view their stats. Search results appear instantly as you type.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Player Comparison</h3>
+          <p>Select up to 5 players to compare side-by-side. The comparison highlights:</p>
+          <ul>
+            <li><strong>Best value:</strong> Highest/best stat in green</li>
+            <li><strong>Worst value:</strong> Lowest/worst stat in red</li>
+            <li><strong>Standard Deviation:</strong> Lower is better (more consistent)</li>
+          </ul>
+          <p class="insight">💡 <strong>Use cases:</strong> Trade evaluations, start/sit decisions, waiver wire pickups, draft preparation</p>
+        </div>
+      </section>
+
+      <!-- How to Use Section -->
+      <section class="stat-section">
+        <h2>💡 How to Use This Tool</h2>
+        
+        <div class="stat-card">
+          <h3>For Weekly Lineup Decisions</h3>
+          <ul>
+            <li>Check <strong>vs Opp Avg</strong> to see if a player exceeds matchup expectations</li>
+            <li>Review <strong>Trend</strong> to identify hot/cold players</li>
+            <li>Compare <strong>Consistency</strong> when deciding between a safe floor vs. upside play</li>
+            <li>Look at <strong>Snap Count %</strong> for injury/role concerns</li>
+          </ul>
+        </div>
+
+        <div class="stat-card">
+          <h3>For Trade Evaluations</h3>
+          <ul>
+            <li>Use <strong>Player Compare</strong> to evaluate side-by-side value</li>
+            <li>Check <strong>vs Position Avg</strong> to identify positional advantages</li>
+            <li>Review <strong>Weekly Chart</strong> to understand scoring patterns</li>
+            <li>Consider <strong>Standard Deviation</strong> for risk assessment</li>
+          </ul>
+        </div>
+
+        <div class="stat-card">
+          <h3>For Waiver Wire Decisions</h3>
+          <ul>
+            <li>Sort by <strong>Trend</strong> to find emerging players</li>
+            <li>Filter by <strong>Free Agent</strong> in your league</li>
+            <li>Check <strong>Snap Count %</strong> to verify opportunity increase</li>
+            <li>Compare to players you're considering dropping</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Data Updates Section -->
+      <section class="stat-section">
+        <h2>🔄 Data Updates</h2>
+        
+        <div class="stat-card">
+          <h3>Automated Updates</h3>
+          <p>All data is automatically updated nightly at 3:00 AM EST via GitHub Actions. This includes:</p>
+          <ul>
+            <li>Weekly NFL statistics from nfl_data_py</li>
+            <li>League ownership from Sleeper API</li>
+            <li>Opponent averages and defensive rankings</li>
+            <li>Calculated metrics (trends, consistency, etc.)</li>
+          </ul>
+          <p class="insight">💡 Data reflects the most recent complete week of NFL games.</p>
+        </div>
+      </section>
+
+      <div class="back-link-container">
+        <a href="/player-stats" class="back-link">← Back to Player Stats</a>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <style>
+    .stats-guide {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .guide-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .guide-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .guide-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #2d3748;
+    }
+
+    .guide-header p {
+      font-size: 1.2em;
+      color: #718096;
+    }
+
+    .guide-content {
+      padding: 20px;
+    }
+
+    .stat-section {
+      margin-bottom: 50px;
+    }
+
+    .stat-section h2 {
+      font-size: 1.8em;
+      color: #667eea;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #667eea;
+    }
+
+    .stat-card h3 {
+      font-size: 1.4em;
+      color: #2d3748;
+      margin-bottom: 12px;
+    }
+
+    .stat-card p {
+      color: #4a5568;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .stat-card ul {
+      margin: 10px 0 10px 20px;
+      color: #4a5568;
+    }
+
+    .stat-card li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .formula {
+      background: #f7fafc;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      color: #2d3748;
+      border-left: 3px solid #46b980;
+      margin: 10px 0;
+    }
+
+    .insight {
+      background: #fffbeb;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 3px solid #f59e0b;
+      margin: 10px 0;
+      color: #78350f;
+    }
+
+    .insight strong {
+      color: #92400e;
+    }
+
+    .back-link-container {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .back-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .back-link:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .stats-guide {
+        padding: 10px;
+      }
+
+      .guide-container {
+        padding: 20px;
+      }
+
+      .guide-header h1 {
+        font-size: 2em;
+      }
+
+      .stat-section h2 {
+        font-size: 1.5em;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-card h3 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</BaseLayout>
