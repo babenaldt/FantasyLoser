@@ -378,11 +378,20 @@ const recommendedLineup = [
               callbacks: {
                 label: function(context) {
                   const point = context.raw;
+                  const diff = point.x - point.y;
+                  let matchupText = '';
+                  if (diff > 3) {
+                    matchupText = 'Favorable Matchup ✓';
+                  } else if (diff < -3) {
+                    matchupText = 'Tough Matchup ✗';
+                  } else {
+                    matchupText = 'Average Matchup';
+                  }
                   return [
                     point.player,
                     `Player Avg: ${point.y.toFixed(1)} pts`,
                     `Opp Avg Allowed: ${point.x.toFixed(1)} pts`,
-                    `Advantage: ${(point.y - point.x).toFixed(1)} pts`
+                    matchupText
                   ];
                 }
               }
