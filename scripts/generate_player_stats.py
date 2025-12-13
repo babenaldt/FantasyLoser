@@ -28,6 +28,23 @@ def generate_player_stats_json():
     except Exception as e:
         print(f"  Error loading NFL data: {e}")
         return
+    
+    # Load NFL Schedule for full season matchups
+    print("  Loading NFL schedule...")
+    schedule_lookup = {}  # (team, week) -> opponent
+    try:
+        schedules = nfl.load_schedules(season)
+        for row in schedules.iter_rows(named=True):
+            week = row.get('week')
+            home_team = row.get('home_team')
+            away_team = row.get('away_team')
+            if week and home_team and away_team:
+                schedule_lookup[(home_team, week)] = away_team
+                schedule_lookup[(away_team, week)] = home_team
+        print(f"  Loaded schedule for {len(schedule_lookup)} team-week matchups")
+    except Exception as e:
+        print(f"  Error loading schedule: {e}")
+        schedule_lookup = {}
 
     # Load Snap Counts
     print("  Loading snap counts...")
@@ -294,7 +311,37 @@ def generate_player_stats_json():
         if stats['games_played'] > 0:
             # Sort weekly points by week
             stats['weekly_points'].sort(key=lambda x: x['week'])
-            points_list = [wp['points'] for wp in stats['weekly_points']]
+            
+            # Expand to full 18-week schedule
+            player_team = stats['team']
+            played_weeks_dict = {wp['week']: wp for wp in stats['weekly_points']}
+            full_schedule = []
+            
+            for week in range(1, 19):  # Weeks 1-18
+                if week in played_weeks_dict:
+                    # Use actual data
+                    full_schedule.append(played_weeks_dict[week])
+                else:
+                    # Create placeholder for future/bye weeks
+                    opponent = schedule_lookup.get((player_team, week))
+                    
+                    # If no opponent in schedule, it's a bye week
+                    if opponent is None:
+                        opponent = 'BYE'
+                        opp_avg_allowed = 0
+                    else:
+                        opp_avg_allowed = defense_map.get(opponent, {}).get(stats['position'], 0)
+                    
+                    full_schedule.append({
+                        'week': week,
+                        'points': None,  # null for unplayed games
+                        'opponent': opponent,
+                        'opp_avg_allowed': round(opp_avg_allowed, 1),
+                        'raw_stats': None
+                    })
+            
+            stats['weekly_points'] = full_schedule
+            points_list = [wp['points'] for wp in stats['weekly_points'] if wp['points'] is not None]
             
             # Basic Averages
             avg_ppg = stats['total_points'] / stats['games_played']
@@ -320,8 +367,8 @@ def generate_player_stats_json():
             above_avg_count = sum(1 for p in points_list if p > avg_ppg)
             stats['pct_above_avg'] = (above_avg_count / len(points_list)) * 100
             
-            # Snap Count Average
-            snap_counts = [wp['raw_stats'].get('offense_pct', 0) for wp in stats['weekly_points']]
+            # Snap Count Average - only from played weeks
+            snap_counts = [wp['raw_stats'].get('offense_pct', 0) for wp in stats['weekly_points'] if wp['raw_stats'] is not None]
             avg_snap_pct = sum(snap_counts) / len(snap_counts) if snap_counts else 0
             stats['avg_snap_pct'] = round(avg_snap_pct * 100, 1)
             
@@ -340,8 +387,8 @@ def generate_player_stats_json():
             stats['dynasty_owner'] = ownership.get('dynasty_owner', 'Free Agent')
             stats['chopped_owner'] = ownership.get('chopped_owner', 'Free Agent')
 
-            # Trend - Compare last 2 games to previous 2 games (excludes bye weeks)
-            played_weeks = [w for w in stats['weekly_points'] if w['points'] > 0]
+            # Trend - Compare last 2 games to previous 2 games (excludes bye weeks and future games)
+            played_weeks = [w for w in stats['weekly_points'] if w['points'] is not None and w['points'] > 0]
             if len(played_weeks) >= 4:
                 # Last 2 games vs previous 2 games
                 last_2 = played_weeks[-2:]
