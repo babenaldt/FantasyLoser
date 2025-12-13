@@ -11,6 +11,7 @@ on:
     paths:
       - 'website/**'
       - 'scripts/**'
+      - 'requirements.txt'
       - '.github/workflows/deploy.yml'
   
   # Nightly updates at 3 AM EST (8 AM UTC)
@@ -90,7 +91,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: fantasy-tool
+          projectName: fantasyloser
           directory: website/dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
