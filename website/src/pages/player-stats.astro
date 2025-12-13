@@ -38,6 +38,25 @@ const topPlayers = {
     <p>Top fantasy football players by position for the 2025 season</p>
   </div>
 
+  <!-- Search and Compare Controls -->
+  <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 300px;">
+      <input 
+        type="text" 
+        id="playerSearch" 
+        placeholder="🔍 Search for a player..." 
+        style="width: 100%; padding: 12px 16px; border: 2px solid #667eea; border-radius: 8px; font-size: 16px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);"
+      />
+      <div id="searchResults" style="display: none; position: absolute; background: white; border: 2px solid #667eea; border-radius: 8px; margin-top: 4px; max-height: 300px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 500px;"></div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <button id="compareBtn" style="padding: 12px 24px; background: #46b980; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(70, 185, 128, 0.3); transition: all 0.3s;">
+        Compare Players (<span id="compareCount">0</span>)
+      </button>
+      <button id="clearCompare" style="padding: 12px 16px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; display: none;">Clear</button>
+    </div>
+  </div>
+
   <!-- Position Tabs -->
   <div class="position-tabs">
     <button class="tab-btn active" data-position="ALL">All Players</button>
@@ -47,6 +66,17 @@ const topPlayers = {
     <button class="tab-btn" data-position="TE">Tight Ends</button>
     <button class="tab-btn" data-position="K">Kickers</button>
     <button class="tab-btn" data-position="DEF">Defense</button>
+  </div>
+
+  <!-- Comparison Modal -->
+  <div id="compareModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto;">
+    <div style="background: white; margin: 40px auto; max-width: 1200px; border-radius: 12px; padding: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #667eea; margin: 0;">Player Comparison</h2>
+        <button id="closeModal" style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 18px;">✕</button>
+      </div>
+      <div id="comparisonContent"></div>
+    </div>
   </div>
 
   <!-- Charts Container -->
@@ -74,7 +104,6 @@ const topPlayers = {
                 <>
                   <th style="cursor: pointer;" data-sort="consistency" title="Consistency Score (Mean / Std Dev)">Consist</th>
                   <th style="cursor: pointer;" data-sort="std_dev" title="Standard Deviation">Std Dev</th>
-                  <th style="cursor: pointer;" data-sort="pct_above_avg" title="% Games Above Average">% > Avg</th>
                   <th style="cursor: pointer;" data-sort="trend" title="Trend (Last 4 Weeks vs Season Avg)">Trend</th>
                   <th style="cursor: pointer;" data-sort="vs_pos" title="Points vs Position Average">vs Pos</th>
                 </>
@@ -475,7 +504,6 @@ const topPlayers = {
                extraCols = `
                   <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_consistency || 0).toFixed(2)}</td>
                   <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_std_dev || 0).toFixed(1)}</td>
-                  <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_pct_above_avg || 0).toFixed(0)}%</td>
                   <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${trendColor};">${player.calculated_trend_dir} ${(Math.abs(player.calculated_trend_pct || 0)).toFixed(1)}%</td>
                   <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsPosColor};">${(player.calculated_vs_pos || 0) > 0 ? '+' : ''}${(player.calculated_vs_pos || 0).toFixed(1)}</td>
                `;
@@ -489,7 +517,6 @@ const topPlayers = {
                  extraCols = `
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_consistency || 0).toFixed(2)}</td>
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_std_dev || 0).toFixed(1)}</td>
-                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_pct_above_avg || 0).toFixed(0)}%</td>
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${trendColor};">${player.calculated_trend_dir} ${(Math.abs(player.calculated_trend_pct || 0)).toFixed(1)}%</td>
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsPosColor};">${(player.calculated_vs_pos || 0) > 0 ? '+' : ''}${(player.calculated_vs_pos || 0).toFixed(1)}</td>
                  `;
@@ -621,10 +648,27 @@ const topPlayers = {
         }
 
         // Get top 5 players for current position from the initialized playerData
-        const top5 = playerData
-          .filter(p => p.position === currentPosition)
-          .sort((a, b) => b.calculated_total - a.calculated_total)
-          .slice(0, 5);
+        let top5;
+        if (currentPosition === 'ALL') {
+          // Combine all player types for ALL position
+          const allData = [...playerData, ...kickerData, ...dstData];
+          top5 = allData
+            .sort((a, b) => b.calculated_total - a.calculated_total)
+            .slice(0, 5);
+        } else if (currentPosition === 'K') {
+          top5 = kickerData
+            .sort((a, b) => b.calculated_total - a.calculated_total)
+            .slice(0, 5);
+        } else if (currentPosition === 'DEF') {
+          top5 = dstData
+            .sort((a, b) => b.calculated_total - a.calculated_total)
+            .slice(0, 5);
+        } else {
+          top5 = playerData
+            .filter(p => p.position === currentPosition)
+            .sort((a, b) => b.calculated_total - a.calculated_total)
+            .slice(0, 5);
+        }
         const isMobile = window.innerWidth < 768;
         
         // Get all weeks
@@ -714,6 +758,86 @@ const topPlayers = {
         });
       }
     }
+    
+    // ===== COLUMN SORTING FUNCTIONALITY =====
+    let currentSort = { position: null, column: null, direction: 'desc' };
+
+    function sortTable(position, column) {
+      const table = document.querySelector(`.position-table[data-position="${position}"] .stats-table tbody`);
+      if (!table) return;
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      
+      // Toggle direction if clicking same column
+      if (currentSort.position === position && currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.direction = 'desc';
+      }
+      
+      currentSort.position = position;
+      currentSort.column = column;
+
+      // Get column index
+      const headers = Array.from(document.querySelector(`.position-table[data-position="${position}"] thead tr`).querySelectorAll('th'));
+      const columnIndex = headers.findIndex(th => th.dataset.sort === column);
+      
+      if (columnIndex === -1) return;
+
+      // Sort rows
+      rows.sort((a, b) => {
+        let aVal = a.cells[columnIndex]?.textContent.trim() || '';
+        let bVal = b.cells[columnIndex]?.textContent.trim() || '';
+
+        // Handle special cases
+        if (column === 'name') {
+          // Text sorting
+          return currentSort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        } else if (column === 'trend') {
+          // Extract numeric value from trend (e.g., "▲ 5.2%" -> 5.2)
+          aVal = parseFloat(aVal.replace(/[▲▼%]/g, '').trim()) || 0;
+          bVal = parseFloat(bVal.replace(/[▲▼%]/g, '').trim()) || 0;
+          // Consider direction
+          if (a.cells[columnIndex]?.textContent.includes('▼')) aVal = -aVal;
+          if (b.cells[columnIndex]?.textContent.includes('▼')) bVal = -bVal;
+        } else if (column === 'fg_pct' || column === 'xp_pct') {
+          // Extract percentage
+          aVal = parseFloat(aVal.replace('%', '')) || 0;
+          bVal = parseFloat(bVal.replace('%', '')) || 0;
+        } else {
+          // Numeric sorting (remove % and + signs)
+          aVal = parseFloat(aVal.replace(/[%+]/g, '')) || 0;
+          bVal = parseFloat(bVal.replace(/[%+]/g, '')) || 0;
+        }
+
+        return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+
+      // Re-append rows in sorted order
+      rows.forEach(row => table.appendChild(row));
+
+      // Update rank column
+      rows.forEach((row, idx) => {
+        row.cells[0].textContent = idx + 1;
+      });
+
+      // Update sort indicators in headers
+      headers.forEach(th => {
+        th.textContent = th.textContent.replace(/\s*[↑↓]/, '');
+        if (th.dataset.sort === column) {
+          th.textContent += currentSort.direction === 'asc' ? ' ↑' : ' ↓';
+        }
+      });
+    }
+
+    // Add click handlers to all sortable headers
+    document.querySelectorAll('.stats-table th[data-sort]').forEach(th => {
+      th.addEventListener('click', function() {
+        const position = this.closest('.position-table').dataset.position;
+        const column = this.dataset.sort;
+        sortTable(position, column);
+      });
+    });
     
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -841,5 +965,327 @@ const topPlayers = {
         initChart();
       }
     });
+
+    // ===== PLAYER SEARCH FUNCTIONALITY =====
+    const searchInput = document.getElementById('playerSearch');
+    const searchResults = document.getElementById('searchResults');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function(e) {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim().toLowerCase();
+      
+      if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+      }
+
+      searchTimeout = setTimeout(() => {
+        const allData = [...playerData, ...kickerData, ...dstData];
+        const matches = allData.filter(p => {
+          const name = p.player_name || p.team || '';
+          return name.toLowerCase().includes(query);
+        }).slice(0, 10);
+
+        if (matches.length === 0) {
+          searchResults.innerHTML = '<div style="padding: 12px; color: #999;">No players found</div>';
+          searchResults.style.display = 'block';
+          return;
+        }
+
+        searchResults.innerHTML = matches.map(p => {
+          const name = p.player_name || p.team;
+          const pos = p.position || 'DEF';
+          const team = p.team;
+          const pts = p.calculated_total?.toFixed(1) || p.total_points?.toFixed(1) || '0.0';
+          
+          return `
+            <div class="search-result-item" data-player-id="${p.player_id}" style="padding: 12px; border-bottom: 1px solid #ecf0f1; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: #667eea;">${name}</strong>
+                <span style="color: #999; margin-left: 8px;">${pos} - ${team}</span>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <span style="color: #46b980; font-weight: 600;">${pts} pts</span>
+                <button class="add-compare-btn" data-player='${JSON.stringify(p)}' style="padding: 4px 12px; background: #667eea; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">+ Compare</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        searchResults.style.display = 'block';
+
+        // Add click handlers for search results
+        document.querySelectorAll('.search-result-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('add-compare-btn')) {
+              const playerId = this.dataset.playerId;
+              window.location.href = `/players/${playerId}`;
+            }
+          });
+        });
+
+        // Add to compare handlers
+        document.querySelectorAll('.add-compare-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const player = JSON.parse(this.dataset.player);
+            addToCompare(player);
+          });
+        });
+      }, 300);
+    });
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    // ===== PLAYER COMPARISON FUNCTIONALITY =====
+    let compareList = [];
+    const compareBtn = document.getElementById('compareBtn');
+    const compareCount = document.getElementById('compareCount');
+    const clearCompareBtn = document.getElementById('clearCompare');
+    const compareModal = document.getElementById('compareModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const comparisonContent = document.getElementById('comparisonContent');
+
+    function addToCompare(player) {
+      if (compareList.find(p => p.player_id === player.player_id)) {
+        alert('Player already added to comparison');
+        return;
+      }
+      if (compareList.length >= 5) {
+        alert('Maximum 5 players can be compared at once');
+        return;
+      }
+      compareList.push(player);
+      updateCompareUI();
+    }
+
+    function updateCompareUI() {
+      compareCount.textContent = compareList.length;
+      clearCompareBtn.style.display = compareList.length > 0 ? 'block' : 'none';
+      compareBtn.style.background = compareList.length > 0 ? '#46b980' : '#ccc';
+      compareBtn.disabled = compareList.length < 2;
+    }
+
+    compareBtn.addEventListener('click', function() {
+      if (compareList.length < 2) {
+        alert('Please select at least 2 players to compare');
+        return;
+      }
+      showComparisonModal();
+    });
+
+    clearCompareBtn.addEventListener('click', function() {
+      compareList = [];
+      updateCompareUI();
+    });
+
+    closeModalBtn.addEventListener('click', function() {
+      compareModal.style.display = 'none';
+    });
+
+    compareModal.addEventListener('click', function(e) {
+      if (e.target === compareModal) {
+        compareModal.style.display = 'none';
+      }
+    });
+
+    function showComparisonModal() {
+      const stats = [
+        { key: 'calculated_total', label: 'Total Points', format: (v) => v?.toFixed(1) || '0.0' },
+        { key: 'calculated_avg', label: 'Avg PPG', format: (v) => v?.toFixed(1) || '0.0' },
+        { key: 'games_played', label: 'Games Played', format: (v) => v || 0 },
+        { key: 'calculated_consistency', label: 'Consistency', format: (v) => v?.toFixed(2) || '-' },
+        { key: 'calculated_std_dev', label: 'Std Dev', format: (v) => v?.toFixed(1) || '-' },
+        { key: 'calculated_pct_above_avg', label: '% Above Avg', format: (v) => v?.toFixed(0) + '%' || '-' },
+        { key: 'calculated_trend_pct', label: 'Trend %', format: (v) => (v > 0 ? '+' : '') + v?.toFixed(1) + '%' || '-' },
+        { key: 'calculated_vs_pos', label: 'vs Position Avg', format: (v) => (v > 0 ? '+' : '') + v?.toFixed(1) || '-' },
+      ];
+
+      let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;">';
+      
+      // Header row
+      html += '<thead><tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">';
+      html += '<th style="padding: 15px; text-align: left; position: sticky; left: 0; background: #667eea;">Stat</th>';
+      compareList.forEach(p => {
+        const name = p.player_name || p.team;
+        const pos = p.position || 'DEF';
+        const team = p.team;
+        html += `<th style="padding: 15px; text-align: center;">
+          <div style="font-weight: 600;">${name}</div>
+          <div style="font-size: 12px; opacity: 0.9;">${pos} - ${team}</div>
+        </th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      // Data rows
+      stats.forEach((stat, idx) => {
+        const bgColor = idx % 2 === 0 ? '#f8f9fa' : 'white';
+        html += `<tr style="background: ${bgColor};">`;
+        html += `<td style="padding: 12px; font-weight: 600; position: sticky; left: 0; background: ${bgColor};">${stat.label}</td>`;
+        
+        const values = compareList.map(p => {
+          const val = p[stat.key];
+          return val !== undefined && val !== null ? parseFloat(val) : null;
+        });
+        
+        const maxVal = Math.max(...values.filter(v => v !== null));
+        const minVal = Math.min(...values.filter(v => v !== null));
+        
+        // For std_dev, lower is better (more consistent)
+        const isLowerBetter = stat.key === 'calculated_std_dev';
+        
+        compareList.forEach(p => {
+          const val = p[stat.key];
+          const numVal = val !== undefined && val !== null ? parseFloat(val) : null;
+          let style = 'padding: 12px; text-align: center;';
+          
+          if (numVal !== null && values.filter(v => v !== null).length > 1) {
+            const isBest = isLowerBetter ? (numVal === minVal) : (numVal === maxVal);
+            const isWorst = isLowerBetter ? (numVal === maxVal) : (numVal === minVal);
+            
+            if (isBest && maxVal !== minVal) {
+              style += ' background: rgba(70, 185, 128, 0.2); font-weight: 600; color: #27ae60;';
+            } else if (isWorst && maxVal !== minVal) {
+              style += ' color: #999;';
+            }
+          }
+          
+          html += `<td style="${style}">${stat.format(val)}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+
+      // Weekly performance chart comparison
+      html += '<div style="margin-top: 30px;"><h3 style="color: #667eea; margin-bottom: 15px;">Weekly Performance Comparison</h3>';
+      html += '<canvas id="compareChart" style="max-height: 400px;"></canvas></div>';
+
+      comparisonContent.innerHTML = html;
+      compareModal.style.display = 'block';
+
+      // Render comparison chart
+      setTimeout(() => renderCompareChart(), 100);
+    }
+
+    function renderCompareChart() {
+      const ctx = document.getElementById('compareChart');
+      if (!ctx) return;
+
+      const allWeeks = new Set();
+      compareList.forEach(p => {
+        const weeklyData = p.weekly_points || p.weekly_stats || [];
+        weeklyData.forEach(w => allWeeks.add(w.week));
+      });
+      const weeks = Array.from(allWeeks).sort((a, b) => a - b);
+
+      const colors = [
+        'rgba(102, 126, 234, 0.7)',
+        'rgba(231, 76, 60, 0.7)',
+        'rgba(46, 204, 113, 0.7)',
+        'rgba(243, 156, 18, 0.7)',
+        'rgba(155, 89, 182, 0.7)'
+      ];
+
+      const datasets = compareList.map((player, idx) => {
+        const weeklyData = player.weekly_points || player.weekly_stats || [];
+        const data = weeks.map(week => {
+          const weekData = weeklyData.find(w => w.week === week);
+          return weekData ? (weekData.calculated_points || weekData.points || 0) : 0;
+        });
+
+        return {
+          label: player.player_name || player.team,
+          data: data,
+          borderColor: colors[idx],
+          backgroundColor: colors[idx].replace('0.7', '0.3'),
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4
+        };
+      });
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: weeks.map(w => `Week ${w}`),
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: true, position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(1)} pts`
+              }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Fantasy Points' } },
+            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+          }
+        }
+      });
+    }
+
+    // Add compare buttons to table rows
+    function addCompareButtonsToTable() {
+      document.querySelectorAll('.stats-table tbody tr').forEach(row => {
+        if (row.querySelector('.compare-cell')) return; // Already has button
+        
+        const playerName = row.cells[1]?.textContent?.trim();
+        if (!playerName) return;
+
+        const allData = [...playerData, ...kickerData, ...dstData];
+        const player = allData.find(p => (p.player_name || p.team) === playerName);
+        
+        if (player) {
+          const compareCell = document.createElement('td');
+          compareCell.className = 'compare-cell';
+          compareCell.style.cssText = 'text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;';
+          
+          const btn = document.createElement('button');
+          btn.textContent = '+ Compare';
+          btn.style.cssText = 'padding: 6px 12px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;';
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addToCompare(player);
+          });
+          
+          compareCell.appendChild(btn);
+          row.appendChild(compareCell);
+        }
+      });
+    }
+
+    // Add header for compare column
+    document.querySelectorAll('.stats-table thead tr').forEach(headerRow => {
+      if (!headerRow.querySelector('.compare-header')) {
+        const th = document.createElement('th');
+        th.className = 'compare-header';
+        th.textContent = 'Compare';
+        th.style.cssText = 'padding: 15px 10px; text-align: center; font-weight: 600;';
+        headerRow.appendChild(th);
+      }
+    });
+
+    // Initialize compare buttons when tables are refreshed
+    const originalRefreshTable = window.refreshTable;
+    window.refreshTable = function(...args) {
+      originalRefreshTable.apply(this, args);
+      setTimeout(addCompareButtonsToTable, 100);
+    };
+
+    // Initial add of compare buttons
+    setTimeout(addCompareButtonsToTable, 500);
+
   </script>
 </BaseLayout>
