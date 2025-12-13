@@ -52,22 +52,47 @@ const tes = user.players.filter(p => p.position === 'TE');
 const flex = [...rbs, ...wrs, ...tes];
 const kickers = user.players.filter(p => p.position === 'K');
 
-// Calculate recommended starters (simple heuristic: highest avg_ppg for current matchup)
+// League-specific roster settings
+const isDynasty = league === 'Dynasty';
+const rosterSettings = isDynasty ? {
+  qb: 1,
+  rb: 2,
+  wr: 3,
+  te: 1,
+  flex: 1,
+  superflex: 1,
+  k: 0
+} : {
+  qb: 1,
+  rb: 2,
+  wr: 2,
+  te: 1,
+  flex: 1,
+  superflex: 0,
+  k: 0
+};
+
+// Calculate recommended starters based on league settings
 function getRecommendedStarters(players, count) {
   return [...players]
     .sort((a, b) => b.avg_ppg - a.avg_ppg)
     .slice(0, count);
 }
 
-const recommendedQB = getRecommendedStarters(qbs, 1);
-const recommendedRB = getRecommendedStarters(rbs, 2);
-const recommendedWR = getRecommendedStarters(wrs, 2);
-const recommendedTE = getRecommendedStarters(tes, 1);
+const recommendedQB = getRecommendedStarters(qbs, rosterSettings.qb);
+const recommendedRB = getRecommendedStarters(rbs, rosterSettings.rb);
+const recommendedWR = getRecommendedStarters(wrs, rosterSettings.wr);
+const recommendedTE = getRecommendedStarters(tes, rosterSettings.te);
+const usedPlayers = [...recommendedQB, ...recommendedRB, ...recommendedWR, ...recommendedTE];
 const recommendedFlex = getRecommendedStarters(
-  flex.filter(p => !recommendedRB.includes(p) && !recommendedWR.includes(p) && !recommendedTE.includes(p)),
-  1
+  flex.filter(p => !usedPlayers.includes(p)),
+  rosterSettings.flex
 );
-const recommendedK = getRecommendedStarters(kickers, 1);
+const recommendedSuperflex = rosterSettings.superflex > 0 ? getRecommendedStarters(
+  [...qbs, ...rbs, ...wrs, ...tes].filter(p => !usedPlayers.includes(p) && !recommendedFlex.includes(p)),
+  rosterSettings.superflex
+) : [];
+const recommendedK = rosterSettings.k > 0 ? getRecommendedStarters(kickers, rosterSettings.k) : [];
 
 const recommendedLineup = [
   ...recommendedQB,
@@ -75,6 +100,7 @@ const recommendedLineup = [
   ...recommendedWR,
   ...recommendedTE,
   ...recommendedFlex,
+  ...recommendedSuperflex,
   ...recommendedK
 ];
 ---
@@ -128,9 +154,9 @@ const recommendedLineup = [
     <!-- Position Scatter Plots -->
     <section class="charts-section">
       <h2>📊 Matchup Analysis by Position</h2>
-      <p class="section-subtitle">Player Average vs Opponent Average Allowed</p>
+      <p class="section-subtitle">Player Average vs Opponent Average Allowed - Hover for player names</p>
       
-      <div class="charts-grid">
+      <div class="charts-grid-2x2">
         <div class="chart-card">
           <h3>Quarterbacks</h3>
           <canvas id="qbChart"></canvas>
@@ -165,7 +191,6 @@ const recommendedLineup = [
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
                 <th>Opp Avg</th>
-                <th>Matchup Diff</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
@@ -178,9 +203,6 @@ const recommendedLineup = [
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
-                  <td style={{color: (player.avg_ppg - player.opp_avg_allowed) > 0 ? 'green' : 'red'}}>
-                    {(player.avg_ppg - player.opp_avg_allowed) > 0 ? '+' : ''}{(player.avg_ppg - player.opp_avg_allowed).toFixed(1)}
-                  </td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
@@ -203,7 +225,6 @@ const recommendedLineup = [
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
                 <th>Opp Avg</th>
-                <th>Matchup Diff</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
@@ -216,9 +237,6 @@ const recommendedLineup = [
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
-                  <td style={{color: (player.avg_ppg - player.opp_avg_allowed) > 0 ? 'green' : 'red'}}>
-                    {(player.avg_ppg - player.opp_avg_allowed) > 0 ? '+' : ''}{(player.avg_ppg - player.opp_avg_allowed).toFixed(1)}
-                  </td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
@@ -241,7 +259,6 @@ const recommendedLineup = [
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
                 <th>Opp Avg</th>
-                <th>Matchup Diff</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
@@ -254,9 +271,6 @@ const recommendedLineup = [
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
-                  <td style={{color: (player.avg_ppg - player.opp_avg_allowed) > 0 ? 'green' : 'red'}}>
-                    {(player.avg_ppg - player.opp_avg_allowed) > 0 ? '+' : ''}{(player.avg_ppg - player.opp_avg_allowed).toFixed(1)}
-                  </td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
@@ -279,7 +293,6 @@ const recommendedLineup = [
                 <th>Week {current_week} Opp</th>
                 <th>Avg PPG</th>
                 <th>Opp Avg</th>
-                <th>Matchup Diff</th>
                 <th>Trend</th>
                 <th>Consistency</th>
               </tr>
@@ -292,9 +305,6 @@ const recommendedLineup = [
                   <td>{player.opponent}</td>
                   <td style="font-weight: bold;">{player.avg_ppg.toFixed(1)}</td>
                   <td>{player.opp_avg_allowed.toFixed(1)}</td>
-                  <td style={{color: (player.avg_ppg - player.opp_avg_allowed) > 0 ? 'green' : 'red'}}>
-                    {(player.avg_ppg - player.opp_avg_allowed) > 0 ? '+' : ''}{(player.avg_ppg - player.opp_avg_allowed).toFixed(1)}
-                  </td>
                   <td style={{color: player.trend_dir === '▲' ? 'green' : (player.trend_dir === '▼' ? 'red' : 'inherit')}}>
                     {player.trend_dir} {player.trend_pct.toFixed(0)}%
                   </td>
@@ -341,14 +351,38 @@ const recommendedLineup = [
   </div>
 
   <script define:vars={{ qbs, rbs, wrs, tes }}>
+    // Position benchmark values - using same value for both axes to create quadrants
+    const positionBenchmarks = {
+      QB: 19.3,
+      RB: 15.3,
+      WR: 14.8,
+      TE: 11.2
+    };
+
+    // Generate distinct colors for players
+    const colors = [
+      '#667eea', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6',
+      '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+    ];
+
     function createScatterChart(canvasId, players, positionName) {
       const ctx = document.getElementById(canvasId);
       if (!ctx) return;
 
-      const data = players.map(p => ({
-        x: p.opp_avg_allowed,
-        y: p.avg_ppg,
-        player: p.player_name
+      // Assign each player a unique color and create dataset
+      // FLIPPED: x = player avg, y = opponent avg
+      const datasets = players.map((p, index) => ({
+        label: p.player_name,
+        data: [{
+          x: p.avg_ppg,
+          y: p.opp_avg_allowed,
+          player: p.player_name
+        }],
+        backgroundColor: colors[index % colors.length],
+        borderColor: colors[index % colors.length],
+        borderWidth: 2,
+        pointRadius: 10,
+        pointHoverRadius: 12
       }));
 
       // Calculate max values for axis scaling
@@ -356,29 +390,58 @@ const recommendedLineup = [
       const maxPlayerAvg = Math.max(...players.map(p => p.avg_ppg), 10);
       const axisMax = Math.max(maxOppAvg, maxPlayerAvg) * 1.1;
 
+      const benchmark = positionBenchmarks[positionName];
+
+      // Create a custom plugin for reference lines
+      const referenceLinePlugin = {
+        id: 'referenceLines',
+        afterDatasetsDraw(chart) {
+          const { ctx, chartArea: { left, right, top, bottom }, scales: { x, y } } = chart;
+          
+          const xPos = x.getPixelForValue(benchmark);
+          const yPos = y.getPixelForValue(benchmark);
+          
+          ctx.save();
+          
+          // Vertical line
+          ctx.beginPath();
+          ctx.setLineDash([10, 5]);
+          ctx.strokeStyle = 'rgba(107, 114, 128, 0.7)';
+          ctx.lineWidth = 2;
+          ctx.moveTo(xPos, top);
+          ctx.lineTo(xPos, bottom);
+          ctx.stroke();
+          
+          // Horizontal line
+          ctx.beginPath();
+          ctx.setLineDash([10, 5]);
+          ctx.strokeStyle = 'rgba(107, 114, 128, 0.7)';
+          ctx.lineWidth = 2;
+          ctx.moveTo(left, yPos);
+          ctx.lineTo(right, yPos);
+          ctx.stroke();
+          
+          ctx.restore();
+        }
+      };
+
       new Chart(ctx, {
         type: 'scatter',
-        data: {
-          datasets: [{
-            label: 'Your Players',
-            data: data,
-            backgroundColor: 'rgba(102, 126, 234, 0.6)',
-            borderColor: '#667eea',
-            borderWidth: 2,
-            pointRadius: 8,
-            pointHoverRadius: 10
-          }]
-        },
+        data: { datasets },
+        plugins: [referenceLinePlugin],
         options: {
           responsive: true,
           maintainAspectRatio: true,
-          aspectRatio: 1.2,
+          aspectRatio: 1,
           plugins: {
             tooltip: {
               callbacks: {
+                title: function(context) {
+                  return context[0].raw.player;
+                },
                 label: function(context) {
                   const point = context.raw;
-                  const diff = point.x - point.y;
+                  const diff = point.y - point.x;
                   let matchupText = '';
                   if (diff > 3) {
                     matchupText = 'Favorable Matchup ✓';
@@ -388,34 +451,20 @@ const recommendedLineup = [
                     matchupText = 'Average Matchup';
                   }
                   return [
-                    point.player,
-                    `Player Avg: ${point.y.toFixed(1)} pts`,
-                    `Opp Avg Allowed: ${point.x.toFixed(1)} pts`,
+                    `Player Avg: ${point.x.toFixed(1)} pts`,
+                    `Opp Avg Allowed: ${point.y.toFixed(1)} pts`,
                     matchupText
                   ];
                 }
               }
             },
             legend: {
-              display: false
-            },
-            annotation: {
-              annotations: {
-                diagonal: {
-                  type: 'line',
-                  xMin: 0,
-                  yMin: 0,
-                  xMax: axisMax,
-                  yMax: axisMax,
-                  borderColor: 'rgba(231, 76, 60, 0.5)',
-                  borderWidth: 2,
-                  borderDash: [5, 5],
-                  label: {
-                    content: 'Equal Performance Line',
-                    enabled: true,
-                    position: 'end'
-                  }
-                }
+              display: true,
+              position: 'bottom',
+              labels: {
+                boxWidth: 10,
+                font: { size: 10 },
+                padding: 8
               }
             }
           },
@@ -423,8 +472,8 @@ const recommendedLineup = [
             x: {
               title: {
                 display: true,
-                text: 'Opponent Avg Points Allowed',
-                font: { size: 12, weight: 'bold' }
+                text: 'Player Avg Points Per Game',
+                font: { size: 13, weight: 'bold' }
               },
               min: 0,
               max: axisMax,
@@ -437,8 +486,8 @@ const recommendedLineup = [
             y: {
               title: {
                 display: true,
-                text: 'Player Avg Points Per Game',
-                font: { size: 12, weight: 'bold' }
+                text: 'Opponent Avg Points Allowed',
+                font: { size: 13, weight: 'bold' }
               },
               min: 0,
               max: axisMax,
@@ -615,6 +664,21 @@ const recommendedLineup = [
       margin-top: 20px;
     }
 
+    .charts-grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .charts-grid-2x2 .chart-card {
+      min-height: 500px;
+    }
+
+    .charts-grid-2x2 canvas {
+      max-height: 450px;
+    }
+
     .chart-card {
       background: #f7fafc;
       padding: 20px;
@@ -698,7 +762,7 @@ const recommendedLineup = [
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       }
 
-      .charts-grid {
+      .charts-grid, .charts-grid-2x2 {
         grid-template-columns: 1fr;
       }
 
@@ -711,4 +775,7 @@ const recommendedLineup = [
       }
     }
   </style>
+
+  <!-- Chart.js -->
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </BaseLayout>
