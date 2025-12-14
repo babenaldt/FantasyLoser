@@ -50,22 +50,17 @@ jobs:
         run: |
           pip install -r requirements.txt
       
-      - name: Generate all data files (quick update)
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_refresh != 'true') }}
+      - name: Generate all data files (quick update only)
         run: |
           echo "Running quick update (current season only from nflverse)..."
           python scripts/generate_data.py --quick
-      
-      - name: Generate all data files (full refresh)
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.full_refresh == 'true') }}
-        run: |
-          echo "Running full refresh (all 6 seasons from nflverse)..."
-          python scripts/generate_data.py --all
       
       - name: Copy data to website
         run: |
           mkdir -p website/public/data
           cp output/*.json website/public/data/
+          # Remove enriched_player_stats.json - too large for Cloudflare (41MB > 26MB limit)
+          rm -f website/public/data/enriched_player_stats.json
       
       - name: Upload data artifacts
         uses: actions/upload-artifact@v4
