@@ -123,18 +123,60 @@ class SimplePlayoffSimulator:
         print("  Loading Sleeper player database...")
         self._sleeper_players = SleeperAPI.get_all_players() or {}
         
+        # Load NFL schedule to check game status
+        # Only use actual points for players whose games are COMPLETE
+        completed_game_teams = set()
+        try:
+            schedules = nfl.load_schedules([self.season])
+            for game in schedules.iter_rows(named=True):
+                game_week = game.get('week')
+                if game_week == week:
+                    # Check if game is complete (has final scores or game_type indicates complete)
+                    home_score = game.get('home_score')
+                    away_score = game.get('away_score')
+                    game_type = game.get('game_type', '')
+                    
+                    # If game has final scores, both teams' players have completed games
+                    if home_score is not None and away_score is not None:
+                        home_team = game.get('home_team')
+                        away_team = game.get('away_team')
+                        if home_team:
+                            completed_game_teams.add(home_team)
+                            # Also add Sleeper variants
+                            if home_team == 'LA':
+                                completed_game_teams.add('LAR')
+                        if away_team:
+                            completed_game_teams.add(away_team)
+                            if away_team == 'LA':
+                                completed_game_teams.add('LAR')
+            
+            print(f"  Found {len(completed_game_teams)} teams with completed games")
+        except Exception as e:
+            print(f"  Warning: Could not load schedule to check game status: {e}")
+            # Fallback: treat all games as potentially complete
+            completed_game_teams = None
+        
         # Load actual player points for this week
-        # Only include players with pts > 0 since Sleeper sets all roster players to 0.0
-        # for games that haven't started yet
+        # Only include players whose games are COMPLETE (have final scores)
         self._actual_player_points = {}
         for m in self._matchups:
             players_points = m.get('players_points', {})
             for pid, pts in players_points.items():
                 if pts is not None and pts > 0:
-                    self._actual_player_points[pid] = pts
+                    # Check if this player's team has completed their game
+                    player_info = self._sleeper_players.get(pid, {})
+                    player_team = player_info.get('team', '')
+                    
+                    # If we couldn't load schedule, accept all non-zero points
+                    # Otherwise, only accept if team's game is complete
+                    if completed_game_teams is None or player_team in completed_game_teams:
+                        self._actual_player_points[pid] = pts
+                    else:
+                        # Game in progress - skip this player's actual points
+                        pass
         
         if self._actual_player_points:
-            print(f"  Found {len(self._actual_player_points)} players with actual week {week} points")
+            print(f"  Found {len(self._actual_player_points)} players with FINAL week {week} points (completed games only)")
         
         # Load 2025 season stats
         print("  Loading 2025 season statistics...")
