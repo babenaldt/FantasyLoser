@@ -181,16 +181,13 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
           {champProbs.filter(t => t.championship_prob > 0).map((team, idx) => {
             const prob = (team.championship_prob * 100);
             const barColor = idx === 0 ? '#48bb78' : idx === 1 ? '#667eea' : '#a0aec0';
-            const showOutside = prob < 15;
             return (
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="min-width: 90px; width: 90px; font-weight: 500; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
-                <div style="flex: 1; min-width: 0; background: #e2e8f0; border-radius: 6px; height: 20px; overflow: visible; position: relative;">
-                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: ${showOutside ? '0' : '5px'};`}>
-                    {!showOutside && <span style="color: white; font-size: 0.75em; font-weight: bold; white-space: nowrap;">{prob.toFixed(1)}%</span>}
-                  </div>
-                  {showOutside && <span style={`position: absolute; left: calc(${prob}% + 5px); top: 50%; transform: translateY(-50%); color: ${barColor}; font-size: 0.75em; font-weight: bold; white-space: nowrap;`}>{prob.toFixed(1)}%</span>}
+                <div style="min-width: 80px; width: 80px; font-weight: 500; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                <div style="flex: 1; min-width: 0; background: #e2e8f0; border-radius: 6px; height: 20px; position: relative;">
+                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; min-width: 2px;`}></div>
                 </div>
+                <div style={`min-width: 45px; text-align: right; color: ${barColor}; font-size: 0.75em; font-weight: bold;`}>{prob.toFixed(1)}%</div>
               </div>
             );
           })}
@@ -205,16 +202,13 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
           {loserProbs.map((team, idx) => {
             const prob = (team.loser_bracket_prob * 100);
             const barColor = idx === 0 ? '#f56565' : idx === 1 ? '#ed8936' : '#a0aec0';
-            const showOutside = prob < 15;
             return (
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="min-width: 90px; width: 90px; font-weight: 500; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
-                <div style="flex: 1; min-width: 0; background: #e2e8f0; border-radius: 6px; height: 20px; overflow: visible; position: relative;">
-                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: ${showOutside ? '0' : '5px'};`}>
-                    {!showOutside && <span style="color: white; font-size: 0.75em; font-weight: bold; white-space: nowrap;">{prob.toFixed(1)}%</span>}
-                  </div>
-                  {showOutside && <span style={`position: absolute; left: calc(${prob}% + 5px); top: 50%; transform: translateY(-50%); color: ${barColor}; font-size: 0.75em; font-weight: bold; white-space: nowrap;`}>{prob.toFixed(1)}%</span>}
+                <div style="min-width: 80px; width: 80px; font-weight: 500; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                <div style="flex: 1; min-width: 0; background: #e2e8f0; border-radius: 6px; height: 20px; position: relative;">
+                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; min-width: 2px;`}></div>
                 </div>
+                <div style={`min-width: 45px; text-align: right; color: ${barColor}; font-size: 0.75em; font-weight: bold;`}>{prob.toFixed(1)}%</div>
               </div>
             );
           })}
