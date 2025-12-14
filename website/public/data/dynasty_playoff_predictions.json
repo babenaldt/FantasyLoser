@@ -10,20 +10,20 @@
       "user_name_1": "agrusa17",
       "user_name_2": "B-Ray",
       "current_lineup": {
-        "projected_1": 121.5,
-        "projected_2": 137.1,
-        "std_1": 19.1,
-        "std_2": 21.1,
-        "win_prob_1": 0.311,
-        "win_prob_2": 0.689
+        "projected_1": 131.0,
+        "projected_2": 127.3,
+        "std_1": 14.0,
+        "std_2": 18.6,
+        "win_prob_1": 0.559,
+        "win_prob_2": 0.441
       },
       "optimal_lineup": {
-        "projected_1": 122.6,
-        "projected_2": 138.4,
-        "std_1": 20.4,
-        "std_2": 20.5,
-        "win_prob_1": 0.319,
-        "win_prob_2": 0.681
+        "projected_1": 132.0,
+        "projected_2": 138.1,
+        "std_1": 13.9,
+        "std_2": 19.2,
+        "win_prob_1": 0.406,
+        "win_prob_2": 0.594
       }
     },
     {
@@ -32,20 +32,20 @@
       "user_name_1": "SeanRabenaldt",
       "user_name_2": "BTThomp",
       "current_lineup": {
-        "projected_1": 149.5,
-        "projected_2": 145.5,
-        "std_1": 23.0,
-        "std_2": 20.9,
-        "win_prob_1": 0.541,
-        "win_prob_2": 0.459
+        "projected_1": 179.4,
+        "projected_2": 139.4,
+        "std_1": 13.2,
+        "std_2": 13.5,
+        "win_prob_1": 0.955,
+        "win_prob_2": 0.045
       },
       "optimal_lineup": {
-        "projected_1": 149.8,
-        "projected_2": 153.8,
-        "std_1": 21.1,
-        "std_2": 22.4,
-        "win_prob_1": 0.449,
-        "win_prob_2": 0.551
+        "projected_1": 186.7,
+        "projected_2": 166.7,
+        "std_1": 13.3,
+        "std_2": 17.9,
+        "win_prob_1": 0.788,
+        "win_prob_2": 0.212
       }
     },
     {
@@ -54,20 +54,20 @@
       "user_name_1": "Sangha",
       "user_name_2": "dbyrd55",
       "current_lineup": {
-        "projected_1": 126.8,
-        "projected_2": 114.1,
-        "std_1": 22.5,
-        "std_2": 20.2,
-        "win_prob_1": 0.649,
-        "win_prob_2": 0.351
+        "projected_1": 139.6,
+        "projected_2": 118.1,
+        "std_1": 10.3,
+        "std_2": 11.0,
+        "win_prob_1": 0.888,
+        "win_prob_2": 0.112
       },
       "optimal_lineup": {
-        "projected_1": 129.0,
-        "projected_2": 115.2,
-        "std_1": 22.8,
-        "std_2": 19.4,
-        "win_prob_1": 0.653,
-        "win_prob_2": 0.347
+        "projected_1": 148.7,
+        "projected_2": 161.1,
+        "std_1": 14.1,
+        "std_2": 13.3,
+        "win_prob_1": 0.281,
+        "win_prob_2": 0.719
       }
     },
     {
@@ -76,165 +76,165 @@
       "user_name_1": "McInally",
       "user_name_2": "Taubitz",
       "current_lineup": {
-        "projected_1": 161.4,
-        "projected_2": 120.8,
-        "std_1": 22.0,
-        "std_2": 17.8,
-        "win_prob_1": 0.898,
-        "win_prob_2": 0.102
+        "projected_1": 171.8,
+        "projected_2": 119.9,
+        "std_1": 12.4,
+        "std_2": 4.7,
+        "win_prob_1": 0.997,
+        "win_prob_2": 0.003
       },
       "optimal_lineup": {
-        "projected_1": 164.7,
-        "projected_2": 141.2,
-        "std_1": 22.8,
-        "std_2": 19.7,
-        "win_prob_1": 0.754,
-        "win_prob_2": 0.246
+        "projected_1": 172.4,
+        "projected_2": 151.3,
+        "std_1": 14.3,
+        "std_2": 8.3,
+        "win_prob_1": 0.867,
+        "win_prob_2": 0.133
       }
     }
   ],
   "team_predictions": [
     {
-      "roster_id": 7,
-      "user_name": "emiliosolay",
-      "current_projected": 162.2,
-      "optimal_projected": 167.9,
-      "current_std": 25.0,
-      "optimal_std": 25.1,
-      "improvement_points": 5.7
+      "roster_id": 4,
+      "user_name": "SeanRabenaldt",
+      "current_projected": 179.4,
+      "optimal_projected": 186.7,
+      "current_std": 13.2,
+      "optimal_std": 13.3,
+      "improvement_points": 7.2
     },
     {
       "roster_id": 8,
       "user_name": "McInally",
-      "current_projected": 161.4,
-      "optimal_projected": 164.7,
-      "current_std": 22.0,
-      "optimal_std": 22.8,
-      "improvement_points": 3.3
+      "current_projected": 171.8,
+      "optimal_projected": 172.4,
+      "current_std": 12.4,
+      "optimal_std": 14.3,
+      "improvement_points": 0.7
     },
     {
-      "roster_id": 4,
-      "user_name": "SeanRabenaldt",
-      "current_projected": 149.5,
-      "optimal_projected": 149.8,
-      "current_std": 23.0,
-      "optimal_std": 21.1,
-      "improvement_points": 0.3
-    },
-    {
-      "roster_id": 5,
-      "user_name": "BTThomp",
-      "current_projected": 145.5,
-      "optimal_projected": 153.8,
-      "current_std": 20.9,
-      "optimal_std": 22.4,
-      "improvement_points": 8.2
-    },
-    {
-      "roster_id": 3,
-      "user_name": "B-Ray",
-      "current_projected": 137.1,
-      "optimal_projected": 138.4,
-      "current_std": 21.1,
-      "optimal_std": 20.5,
-      "improvement_points": 1.3
+      "roster_id": 7,
+      "user_name": "emiliosolay",
+      "current_projected": 150.8,
+      "optimal_projected": 178.9,
+      "current_std": 20.6,
+      "optimal_std": 19.1,
+      "improvement_points": 28.1
     },
     {
       "roster_id": 6,
       "user_name": "Sangha",
-      "current_projected": 126.8,
-      "optimal_projected": 129.0,
-      "current_std": 22.5,
-      "optimal_std": 22.8,
-      "improvement_points": 2.2
+      "current_projected": 139.6,
+      "optimal_projected": 148.7,
+      "current_std": 10.3,
+      "optimal_std": 14.1,
+      "improvement_points": 9.1
     },
     {
-      "roster_id": 1,
-      "user_name": "agrusa17",
-      "current_projected": 121.5,
-      "optimal_projected": 122.6,
-      "current_std": 19.1,
-      "optimal_std": 20.4,
-      "improvement_points": 1.1
-    },
-    {
-      "roster_id": 10,
-      "user_name": "Taubitz",
-      "current_projected": 120.8,
-      "optimal_projected": 141.2,
-      "current_std": 17.8,
-      "optimal_std": 19.7,
-      "improvement_points": 20.3
+      "roster_id": 5,
+      "user_name": "BTThomp",
+      "current_projected": 139.4,
+      "optimal_projected": 166.7,
+      "current_std": 13.5,
+      "optimal_std": 17.9,
+      "improvement_points": 27.3
     },
     {
       "roster_id": 2,
       "user_name": "NLadocsi",
-      "current_projected": 114.8,
-      "optimal_projected": 120.7,
-      "current_std": 23.4,
-      "optimal_std": 24.8,
-      "improvement_points": 5.9
+      "current_projected": 132.3,
+      "optimal_projected": 135.4,
+      "current_std": 14.3,
+      "optimal_std": 15.3,
+      "improvement_points": 3.1
+    },
+    {
+      "roster_id": 1,
+      "user_name": "agrusa17",
+      "current_projected": 131.0,
+      "optimal_projected": 132.0,
+      "current_std": 14.0,
+      "optimal_std": 13.9,
+      "improvement_points": 1.0
+    },
+    {
+      "roster_id": 3,
+      "user_name": "B-Ray",
+      "current_projected": 127.3,
+      "optimal_projected": 138.1,
+      "current_std": 18.6,
+      "optimal_std": 19.2,
+      "improvement_points": 10.8
+    },
+    {
+      "roster_id": 10,
+      "user_name": "Taubitz",
+      "current_projected": 119.9,
+      "optimal_projected": 151.3,
+      "current_std": 4.7,
+      "optimal_std": 8.3,
+      "improvement_points": 31.4
     },
     {
       "roster_id": 9,
       "user_name": "dbyrd55",
-      "current_projected": 114.1,
-      "optimal_projected": 115.2,
-      "current_std": 20.2,
-      "optimal_std": 19.4,
-      "improvement_points": 1.1
+      "current_projected": 118.1,
+      "optimal_projected": 161.1,
+      "current_std": 11.0,
+      "optimal_std": 13.3,
+      "improvement_points": 43.0
     }
   ],
   "playoff_probabilities": {
     "agrusa17": {
       "roster_id": 1,
       "championship_prob": 0.0,
-      "loser_bracket_prob": 0.1713
+      "loser_bracket_prob": 0.3153
     },
     "NLadocsi": {
       "roster_id": 2,
-      "championship_prob": 0.1046,
+      "championship_prob": 0.1123,
       "loser_bracket_prob": 0.0
     },
     "B-Ray": {
       "roster_id": 3,
       "championship_prob": 0.0,
-      "loser_bracket_prob": 0.3064
+      "loser_bracket_prob": 0.207
     },
     "SeanRabenaldt": {
       "roster_id": 4,
-      "championship_prob": 0.1273,
+      "championship_prob": 0.2281,
       "loser_bracket_prob": 0.0
     },
     "BTThomp": {
       "roster_id": 5,
-      "championship_prob": 0.1823,
+      "championship_prob": 0.0144,
       "loser_bracket_prob": 0.0
     },
     "Sangha": {
       "roster_id": 6,
-      "championship_prob": 0.1054,
+      "championship_prob": 0.1625,
       "loser_bracket_prob": 0.0
     },
     "emiliosolay": {
       "roster_id": 7,
-      "championship_prob": 0.4579,
+      "championship_prob": 0.4766,
       "loser_bracket_prob": 0.0
     },
     "McInally": {
       "roster_id": 8,
       "championship_prob": 0.0,
-      "loser_bracket_prob": 0.4444
+      "loser_bracket_prob": 0.4757
     },
     "dbyrd55": {
       "roster_id": 9,
-      "championship_prob": 0.0225,
+      "championship_prob": 0.0061,
       "loser_bracket_prob": 0.0
     },
     "Taubitz": {
       "roster_id": 10,
       "championship_prob": 0.0,
-      "loser_bracket_prob": 0.0779
+      "loser_bracket_prob": 0.002
     }
   }
 }
