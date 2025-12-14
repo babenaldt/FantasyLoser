@@ -1,8 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import leagueData from '../../public/data/season_stats_dynasty.json';
+import playoffData from '../../public/data/dynasty_playoff_predictions.json';
 
 const { league_name, season, teams, current_week } = leagueData;
+
+// Playoff predictions
+const playoffPredictions = playoffData || {};
+const matchups = playoffPredictions.matchups || [];
+const teamPredictions = playoffPredictions.team_predictions || [];
+const playoffProbabilities = playoffPredictions.playoff_probabilities || {};
+const isPlayoffs = playoffPredictions.is_playoffs || false;
+
+// Sort championship probabilities
+const champProbs = Object.entries(playoffProbabilities)
+  .map(([name, data]) => ({ name, ...data }))
+  .sort((a, b) => b.championship_prob - a.championship_prob);
+
+const loserProbs = Object.entries(playoffProbabilities)
+  .map(([name, data]) => ({ name, ...data }))
+  .filter(t => t.loser_bracket_prob > 0)
+  .sort((a, b) => b.loser_bracket_prob - a.loser_bracket_prob);
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
@@ -150,7 +168,64 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
     </table>
   </div>
 
-  <div class="awards-section">
+  {/* Playoff Predictions Section */}
+  {isPlayoffs && Object.keys(playoffProbabilities).length > 0 && (
+  <div class="playoff-section" style="margin-top: 40px;">
+
+    {/* Championship Probabilities */}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+      {/* Winners Bracket */}
+      <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h4 style="text-align: center; color: #48bb78; margin-bottom: 15px;">🏆 Championship Odds</h4>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          {champProbs.filter(t => t.championship_prob > 0).map((team, idx) => {
+            const prob = (team.championship_prob * 100);
+            const barColor = idx === 0 ? '#48bb78' : idx === 1 ? '#667eea' : '#a0aec0';
+            const showOutside = prob < 5;
+            return (
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 100px; font-weight: 500; font-size: 0.9em;">{team.name}</div>
+                <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 20px; overflow: visible; position: relative;">
+                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: ${showOutside ? '0' : '5px'};`}>
+                    {!showOutside && <span style="color: white; font-size: 0.75em; font-weight: bold;">{prob.toFixed(1)}%</span>}
+                  </div>
+                  {showOutside && <span style={`position: absolute; left: ${prob + 1}%; top: 50%; transform: translateY(-50%); color: ${barColor}; font-size: 0.75em; font-weight: bold;`}>{prob.toFixed(1)}%</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Losers Bracket */}
+      {loserProbs.length > 0 && (
+      <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h4 style="text-align: center; color: #f56565; margin-bottom: 15px;">💀 Loser Bracket Odds</h4>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          {loserProbs.map((team, idx) => {
+            const prob = (team.loser_bracket_prob * 100);
+            const barColor = idx === 0 ? '#f56565' : idx === 1 ? '#ed8936' : '#a0aec0';
+            const showOutside = prob < 5;
+            return (
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 100px; font-weight: 500; font-size: 0.9em;">{team.name}</div>
+                <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 20px; overflow: visible; position: relative;">
+                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: ${showOutside ? '0' : '5px'};`}>
+                    {!showOutside && <span style="color: white; font-size: 0.75em; font-weight: bold;">{prob.toFixed(1)}%</span>}
+                  </div>
+                  {showOutside && <span style={`position: absolute; left: ${prob + 1}%; top: 50%; transform: translateY(-50%); color: ${barColor}; font-size: 0.75em; font-weight: bold;`}>{prob.toFixed(1)}%</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      )}
+    </div>
+  </div>
+  )}
+
+  <div class="awards-section" style="margin-top: 40px;">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
       {highestScorer && (
