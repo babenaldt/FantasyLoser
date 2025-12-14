@@ -1,0 +1,316 @@
+{
+  "generated_at": "2025-12-14T02:09:53.489244",
+  "season": 2024,
+  "weeks": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "overall_metrics": {
+    "count": 2221,
+    "mae": 4.79839929538694,
+    "rmse": 6.606438653989012,
+    "correlation": 0.6469874094852901,
+    "mean_bias": -0.26513590982222474,
+    "median_abs_error": 3.390762918615632
+  },
+  "calibration": {
+    "interval_50_coverage": 0.48266546600630345,
+    "interval_50_expected": 0.5,
+    "interval_68_coverage": 0.6429536244934714,
+    "interval_68_expected": 0.68,
+    "interval_80_coverage": 0.7591175146330482,
+    "interval_80_expected": 0.8,
+    "interval_90_coverage": 0.8527690229626295,
+    "interval_90_expected": 0.9,
+    "interval_95_coverage": 0.9036470058532192,
+    "interval_95_expected": 0.95
+  },
+  "position_metrics": {
+    "QB": {
+      "count": 330,
+      "mae": 6.876489611822528,
+      "rmse": 8.953963028410248,
+      "correlation": 0.3633737130088252,
+      "mean_bias": -1.6709453222422814
+    },
+    "RB": {
+      "count": 562,
+      "mae": 4.648343061171438,
+      "rmse": 6.224591436564905,
+      "correlation": 0.6515837741709264,
+      "mean_bias": 0.16342677339068398
+    },
+    "WR": {
+      "count": 1139,
+      "mae": 4.695833637185036,
+      "rmse": 6.354298308506489,
+      "correlation": 0.5823241148682137,
+      "mean_bias": -0.06696687463320881
+    },
+    "TE": {
+      "count": 190,
+      "mae": 2.247789210636079,
+      "rmse": 3.7793469621996025,
+      "correlation": 0.31235910424154734,
+      "mean_bias": -0.27908145165025144
+    }
+  },
+  "sleeper_comparison": {
+    "matched_count": 2091,
+    "v7_mae": 4.96299680918387,
+    "sleeper_mae": 4.583663318986131,
+    "v7_rmse": 6.773511718338006,
+    "sleeper_rmse": 6.42835518299044,
+    "v7_correlation": 0.6295864806543294,
+    "sleeper_correlation": 0.6764016000162848,
+    "v7_wins": 884,
+    "sleeper_wins": 1207,
+    "ties": 0,
+    "v7_win_rate": 0.42276422764227645,
+    "QB_v7_mae": 6.873615393024629,
+    "QB_sleeper_mae": 6.070914634146342,
+    "QB_v7_win_rate": 0.42378048780487804,
+    "RB_v7_mae": 4.704325424515089,
+    "RB_sleeper_mae": 4.294171220400728,
+    "RB_v7_win_rate": 0.40255009107468126,
+    "WR_v7_mae": 4.815401269261302,
+    "WR_sleeper_mae": 4.549122807017545,
+    "WR_v7_win_rate": 0.433056325023084,
+    "TE_v7_mae": 2.4834064612413704,
+    "TE_sleeper_mae": 2.358625954198473,
+    "TE_v7_win_rate": 0.4198473282442748
+  },
+  "error_analysis": {
+    "by_experience": {
+      "1-3 games": {
+        "count": 122,
+        "mae": 3.2275125619672993,
+        "mean_bias": -0.3474399817833691
+      },
+      "4-6 games": {
+        "count": 239,
+        "mae": 3.6513255762342203,
+        "mean_bias": -0.49001763427498257
+      },
+      "7-10 games": {
+        "count": 869,
+        "mae": 4.710697328826696,
+        "mean_bias": 0.1214743887564799
+      },
+      "11+ games": {
+        "count": 991,
+        "mae": 5.345333512637745,
+        "mean_bias": -0.5397842655653383
+      }
+    },
+    "by_score_range": {
+      "low (<10 pts)": {
+        "count": 1413,
+        "mae": 3.623086719977603,
+        "mean_bias": 2.830447807446622,
+        "pct_underpredicted": 0.2002830856334041
+      },
+      "medium (10-20 pts)": {
+        "count": 557,
+        "mae": 4.532674207775948,
+        "mean_bias": -2.843453101695213,
+        "pct_underpredicted": 0.7199281867145422
+      },
+      "high (20-30 pts)": {
+        "count": 198,
+        "mae": 9.747807629941699,
+        "mean_bias": -9.704183710740521,
+        "pct_underpredicted": 0.9797979797979798
+      },
+      "boom (30+ pts)": {
+        "count": 53,
+        "mae": 20.435053872950586,
+        "mean_bias": -20.435053872950586,
+        "pct_underpredicted": 1.0
+      }
+    },
+    "by_confidence": {
+      "low (<0.5)": {
+        "count": 177,
+        "mae": 3.398878049261365
+      },
+      "medium (0.5-0.8)": {
+        "count": 322,
+        "mae": 3.6590956403373713
+      },
+      "high (0.8+)": {
+        "count": 1722,
+        "mae": 5.155293045381242
+      }
+    },
+    "largest_errors": [
+      {
+        "player": "Player_00-0036900",
+        "position": "WR",
+        "week": 10,
+        "predicted": 15.5,
+        "actual": 55.4,
+        "error": -39.9
+      },
+      {
+        "player": "Player_00-0033357",
+        "position": "QB",
+        "week": 11,
+        "predicted": 11.3,
+        "actual": 43.5,
+        "error": -32.2
+      },
+      {
+        "player": "Player_00-0034857",
+        "position": "QB",
+        "week": 14,
+        "predicted": 21.2,
+        "actual": 51.9,
+        "error": -30.7
+      },
+      {
+        "player": "Player_00-0036963",
+        "position": "QB",
+        "week": 11,
+        "predicted": 8.7,
+        "actual": 38.7,
+        "error": -30.0
+      },
+      {
+        "player": "Player_00-0039165",
+        "position": "RB",
+        "week": 14,
+        "predicted": 8.8,
+        "actual": 38.3,
+        "error": -29.5
+      },
+      {
+        "player": "Player_00-0039139",
+        "position": "RB",
+        "week": 18,
+        "predicted": 17.3,
+        "actual": 46.0,
+        "error": -28.7
+      },
+      {
+        "player": "Player_00-0036963",
+        "position": "QB",
+        "week": 15,
+        "predicted": 8.9,
+        "actual": 37.3,
+        "error": -28.4
+      },
+      {
+        "player": "Player_00-0039337",
+        "position": "QB",
+        "week": 17,
+        "predicted": 7.9,
+        "actual": 36.1,
+        "error": -28.2
+      },
+      {
+        "player": "Player_00-0038994",
+        "position": "WR",
+        "week": 14,
+        "predicted": 11.6,
+        "actual": 39.3,
+        "error": -27.7
+      },
+      {
+        "player": "Player_00-0039075",
+        "position": "WR",
+        "week": 14,
+        "predicted": 14.7,
+        "actual": 41.8,
+        "error": -27.1
+      },
+      {
+        "player": "Player_00-0036407",
+        "position": "WR",
+        "week": 13,
+        "predicted": 11.5,
+        "actual": 38.5,
+        "error": -27.0
+      },
+      {
+        "player": "Player_00-0036900",
+        "position": "WR",
+        "week": 14,
+        "predicted": 18.4,
+        "actual": 45.1,
+        "error": -26.7
+      },
+      {
+        "player": "Player_00-0034844",
+        "position": "RB",
+        "week": 12,
+        "predicted": 19.6,
+        "actual": 46.2,
+        "error": -26.6
+      },
+      {
+        "player": "Player_00-0031381",
+        "position": "WR",
+        "week": 15,
+        "predicted": 15.0,
+        "actual": 40.8,
+        "error": -25.8
+      },
+      {
+        "player": "Player_00-0037238",
+        "position": "WR",
+        "week": 18,
+        "predicted": 15.1,
+        "actual": 40.7,
+        "error": -25.6
+      },
+      {
+        "player": "Player_00-0036223",
+        "position": "RB",
+        "week": 16,
+        "predicted": 14.5,
+        "actual": 39.8,
+        "error": -25.3
+      },
+      {
+        "player": "Player_00-0034348",
+        "position": "QB",
+        "week": 12,
+        "predicted": 5.0,
+        "actual": 29.7,
+        "error": -24.7
+      },
+      {
+        "player": "Player_00-0038976",
+        "position": "WR",
+        "week": 17,
+        "predicted": 5.7,
+        "actual": 30.2,
+        "error": -24.5
+      },
+      {
+        "player": "Player_00-0031503",
+        "position": "QB",
+        "week": 13,
+        "predicted": 12.8,
+        "actual": 37.0,
+        "error": -24.2
+      },
+      {
+        "player": "Player_00-0036410",
+        "position": "WR",
+        "week": 17,
+        "predicted": 16.0,
+        "actual": 40.1,
+        "error": -24.1
+      }
+    ]
+  }
+}

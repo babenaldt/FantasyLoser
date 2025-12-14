@@ -1,8 +1,14 @@
 name: Deploy to Cloudflare Pages
 
 on:
-  # Manual trigger
+  # Manual trigger with option for full refresh
   workflow_dispatch:
+    inputs:
+      full_refresh:
+        description: 'Full refresh of all 6 seasons from nflverse'
+        required: false
+        default: false
+        type: boolean
   
   # Auto-deploy on push to main
   push:
@@ -15,8 +21,15 @@ on:
       - '.github/workflows/deploy.yml'
   
   # Nightly updates at 3 AM EST (8 AM UTC)
+  # Sunday post-game updates (EST times, converted to UTC):
+  #   - After 1pm games: ~4:30pm EST = 21:30 UTC
+  #   - After 4:15pm games: ~8pm EST = 01:00 UTC (Monday)
+  #   - After SNF 8:30pm games: ~midnight EST = 05:00 UTC (Monday)
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 8 * * *'       # Daily 3 AM EST
+    - cron: '30 21 * * 0'     # Sunday 4:30pm EST (after 1pm games)
+    - cron: '0 1 * * 1'       # Monday 8pm EST / Sunday (after 4:15pm games)
+    - cron: '0 5 * * 1'       # Monday midnight EST (after SNF)
 
 jobs:
   generate-data:
@@ -37,8 +50,16 @@ jobs:
         run: |
           pip install -r requirements.txt
       
-      - name: Generate all data files
+      - name: Generate all data files (quick update)
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_refresh != 'true') }}
         run: |
+          echo "Running quick update (current season only from nflverse)..."
+          python scripts/generate_data.py --quick
+      
+      - name: Generate all data files (full refresh)
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.full_refresh == 'true') }}
+        run: |
+          echo "Running full refresh (all 6 seasons from nflverse)..."
           python scripts/generate_data.py --all
       
       - name: Copy data to website
