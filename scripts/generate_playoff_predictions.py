@@ -13,6 +13,7 @@ import requests
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 from scipy.stats import t as t_dist
+import nflreadpy as nfl
 
 from player_score_model_v7 import PlayerScoreModelV7
 from core_data import SleeperAPI, SCORING_PRESETS
@@ -91,10 +92,14 @@ class PlayoffSimulator:
         self._player_predictions = {}
         self._sleeper_to_nflreadr = None
         self._actual_player_points = {}  # Sleeper ID -> actual points for players who have played
+        self._current_week = None  # Track which week's actual points are loaded
+        self._schedule_lookup = {}  # (team, week) -> opponent for NFL matchups
+        self._schedule_lookup = {}  # (team, week) -> opponent for NFL matchups
         
     def _load_data(self, week: int):
         """Load all necessary data from Sleeper API."""
         print("  Loading league data...")
+        self._current_week = week  # Track which week we're analyzing
         self._league = self.api.get_league()
         self._rosters = self.api.get_rosters()
         self._users = self.api.get_users()
@@ -135,6 +140,8 @@ class PlayoffSimulator:
             self._sleeper_to_nflreadr = {}
         
         # Build map of actual player points (for players who have already played this week)
+        # Only include players with pts > 0 since Sleeper sets all roster players to 0.0
+        # for games that haven't started yet
         self._actual_player_points = {}
         for m in self._matchups:
             players_points = m.get('players_points', {})
@@ -144,6 +151,33 @@ class PlayoffSimulator:
         
         if self._actual_player_points:
             print(f"  Found {len(self._actual_player_points)} players with actual week {week} points (already played)")
+        
+        # Load NFL schedules for playoff weeks (15-17) to get opponent matchups
+        if not self._schedule_lookup:
+            try:
+                schedules = nfl.load_schedules([self.season])
+                # Sleeper to nflverse team abbreviation mapping
+                sleeper_to_nflverse = {'LAR': 'LA'}
+                
+                for game in schedules.iter_rows(named=True):
+                    game_week = game.get('week')
+                    if game_week and game_week >= 15 and game_week <= 17:
+                        home_team = game.get('home_team')
+                        away_team = game.get('away_team')
+                        if home_team and away_team:
+                            # Store with nflverse abbreviations
+                            self._schedule_lookup[(home_team, game_week)] = away_team
+                            self._schedule_lookup[(away_team, game_week)] = home_team
+                            
+                            # Also store with Sleeper abbreviations
+                            for sleeper_abbr, nflverse_abbr in sleeper_to_nflverse.items():
+                                if home_team == nflverse_abbr:
+                                    self._schedule_lookup[(sleeper_abbr, game_week)] = away_team
+                                if away_team == nflverse_abbr:
+                                    self._schedule_lookup[(sleeper_abbr, game_week)] = home_team
+                print(f"  Loaded NFL schedule for weeks 15-17")
+            except Exception as e:
+                print(f"  Warning: Could not load NFL schedules: {e}")
         
         print(f"  Loaded {len(self._rosters)} rosters, {len(self._matchups)} matchups")
         
@@ -158,8 +192,9 @@ class PlayoffSimulator:
         if cache_key in self._player_predictions:
             return self._player_predictions[cache_key]
         
-        # Check for actual points first (player already played this week)
-        if use_actual and sleeper_id in self._actual_player_points:
+        # Check for actual points first (player already played THIS SPECIFIC week)
+        # Only use actual points if we're looking at the current week
+        if use_actual and week == self._current_week and sleeper_id in self._actual_player_points:
             actual_pts = self._actual_player_points[sleeper_id]
             result = (actual_pts, 0.0)  # No uncertainty for actual scores
             self._player_predictions[cache_key] = result
@@ -176,7 +211,17 @@ class PlayoffSimulator:
         nflreadr_id = mapping_entry.get('nflreadr_id') if isinstance(mapping_entry, dict) else None
         
         if nflreadr_id:
-            pred = self.model.predict_player_for_week(nflreadr_id, week)
+            # Get opponent team for week-specific defensive matchup
+            # First try Sleeper's opponent field (works for current week)
+            opponent_team = player_info.get('opponent', None)
+            
+            # If not available, look it up from NFL schedule (for future weeks)
+            if not opponent_team:
+                player_team = player_info.get('team', None)
+                if player_team:
+                    opponent_team = self._schedule_lookup.get((player_team, week), None)
+            
+            pred = self.model.predict_player_for_week(nflreadr_id, week, opponent_team=opponent_team)
             if pred and pred.mean > 0:
                 result = (pred.mean, pred.std_dev)
                 self._player_predictions[cache_key] = result
@@ -211,11 +256,23 @@ class PlayoffSimulator:
         if not roster_players:
             return [], 0.0, 0.0
         
-        # Get predictions for all players
+        # Get predictions for all players (filtering injuries for future weeks)
         player_preds = []
         for pid in roster_players:
-            mean, std = self._get_player_prediction(pid, week)
             player_info = self._sleeper_players.get(pid, {})
+            
+            # Check if player already has actual points (game played)
+            has_actual_points = (pid in self._actual_player_points)
+            
+            # Skip inactive/injured players UNLESS they already played this week
+            if not has_actual_points:
+                active = player_info.get('active', True)
+                injury_status = player_info.get('injury_status', None)
+                if not active or injury_status in ['IR', 'Out', 'Doubtful']:
+                    # Player is injured and hasn't played - skip them
+                    continue
+            
+            mean, std = self._get_player_prediction(pid, week)
             position = player_info.get('position', '')
             if mean > 0:
                 player_preds.append({
@@ -539,11 +596,24 @@ class PlayoffSimulator:
                 matchup_week = playoff_start + round_num - 1
                 
                 # Get projections for both teams
-                roster1 = self._roster_map.get(t1, {}).get('players', [])
-                roster2 = self._roster_map.get(t2, {}).get('players', [])
-                
-                _, mean1, std1 = self._build_optimal_lineup(roster1, matchup_week)
-                _, mean2, std2 = self._build_optimal_lineup(roster2, matchup_week)
+                # For current week, use actual lineup; for future weeks, use optimal
+                if matchup_week == current_week:
+                    # Use actual current lineup
+                    matchup1 = next((m for m in self._matchups if m['roster_id'] == t1), None)
+                    matchup2 = next((m for m in self._matchups if m['roster_id'] == t2), None)
+                    
+                    starters1 = matchup1.get('starters', []) if matchup1 else []
+                    starters2 = matchup2.get('starters', []) if matchup2 else []
+                    
+                    mean1, std1 = self._calculate_lineup_projection(starters1, matchup_week)
+                    mean2, std2 = self._calculate_lineup_projection(starters2, matchup_week)
+                else:
+                    # Use optimal lineup for future weeks
+                    roster1 = self._roster_map.get(t1, {}).get('players', [])
+                    roster2 = self._roster_map.get(t2, {}).get('players', [])
+                    
+                    _, mean1, std1 = self._build_optimal_lineup(roster1, matchup_week)
+                    _, mean2, std2 = self._build_optimal_lineup(roster2, matchup_week)
                 
                 # Single simulation for this matchup
                 if std1 <= 0:
@@ -572,7 +642,7 @@ class PlayoffSimulator:
         current_week = get_current_nfl_week()
         
         print(f"\n{'='*80}")
-        print(f"DYNASTY LEAGUE PLAYOFF PREDICTIONS")
+        print(f"DYNASTY LEAGUE PLAYOFF PREDICTIONS (V7 MODEL)")
         print(f"{'='*80}")
         print(f"Week: {current_week}")
         
@@ -587,6 +657,31 @@ class PlayoffSimulator:
         print(f"League: {league_name}")
         print(f"Playoff Start Week: {playoff_start}")
         print(f"Currently in Playoffs: {is_playoffs}")
+        
+        # Show projections for all playoff rounds
+        print(f"\n{'='*80}")
+        print("V7 MODEL: TEAM PROJECTIONS FOR ALL PLAYOFF ROUNDS")
+        print("="*80)
+        
+        for week in range(playoff_start, playoff_start + 3):  # Weeks 15, 16, 17
+            print(f"\n--- WEEK {week} PROJECTIONS ---")
+            team_preds = []
+            for rid, roster_info in self._roster_map.items():
+                players = roster_info['players']
+                _, mean, std = self._build_optimal_lineup(players, week)
+                team_preds.append({
+                    'name': roster_info['user_name'],
+                    'mean': mean,
+                    'std': std
+                })
+            
+            team_preds.sort(key=lambda x: x['mean'], reverse=True)
+            print(f"{'Team':<20} {'Projection':>15} {'95% Range':>20}")
+            print("-" * 60)
+            for tp in team_preds:
+                low = tp['mean'] - 2*tp['std']
+                high = tp['mean'] + 2*tp['std']
+                print(f"{tp['name']:<20} {tp['mean']:>6.1f} ± {tp['std']:>5.1f} pts   [{low:>6.1f} - {high:>6.1f}]")
         
         # Get matchup predictions
         print(f"\n{'='*80}")
