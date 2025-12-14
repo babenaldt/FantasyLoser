@@ -170,24 +170,22 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
 
   {/* Playoff Predictions Section */}
   {isPlayoffs && Object.keys(playoffProbabilities).length > 0 && (
-  <div class="playoff-section" style="margin-top: 40px; padding: 0 10px;">
-
-    {/* Championship Probabilities */}
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+  <div class="playoff-shell" style="margin-top: 32px; padding: 0 8px;">
+    <div class="playoff-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
       {/* Winners Bracket */}
-      <div style="background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h4 style="text-align: center; color: #48bb78; margin-bottom: 15px; font-size: 1.1em;">🏆 Championship Odds</h4>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
+        <div class="card-title champ" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-green);">🏆 Championship Odds</div>
+        <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
           {champProbs.filter(t => t.championship_prob > 0).map((team, idx) => {
             const prob = (team.championship_prob * 100);
-            const barColor = idx === 0 ? '#48bb78' : idx === 1 ? '#667eea' : '#a0aec0';
+            const barColor = idx === 0 ? 'var(--accent-green)' : idx === 1 ? 'var(--accent-indigo)' : 'var(--muted)';
             return (
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="min-width: 80px; width: 80px; font-weight: 500; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
-                <div style="flex: 1; min-width: 0; background: #e2e8f0; border-radius: 6px; height: 20px; position: relative;">
-                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; min-width: 2px;`}></div>
+              <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
+                <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
+                  <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
                 </div>
-                <div style={`min-width: 45px; text-align: right; color: ${barColor}; font-size: 0.75em; font-weight: bold;`}>{prob.toFixed(1)}%</div>
+                <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
               </div>
             );
           })}
@@ -196,19 +194,19 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
 
       {/* Losers Bracket */}
       {loserProbs.length > 0 && (
-      <div style="background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h4 style="text-align: center; color: #f56565; margin-bottom: 15px; font-size: 1.1em;">💀 Loser Bracket Odds</h4>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
+        <div class="card-title loser" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-red);">💀 Loser Bracket Odds</div>
+        <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
           {loserProbs.map((team, idx) => {
             const prob = (team.loser_bracket_prob * 100);
-            const barColor = idx === 0 ? '#f56565' : idx === 1 ? '#ed8936' : '#a0aec0';
+            const barColor = idx === 0 ? 'var(--accent-red)' : idx === 1 ? 'var(--accent-orange)' : 'var(--muted)';
             return (
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="min-width: 80px; width: 80px; font-weight: 500; font-size: 0.85em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
-                <div style="flex: 1; min-width: 0; background: #e2e8f0; border-radius: 6px; height: 20px; position: relative;">
-                  <div style={`background: ${barColor}; height: 100%; width: ${prob}%; border-radius: 6px; min-width: 2px;`}></div>
+              <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
+                <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
+                  <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
                 </div>
-                <div style={`min-width: 45px; text-align: right; color: ${barColor}; font-size: 0.75em; font-weight: bold;`}>{prob.toFixed(1)}%</div>
+                <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
               </div>
             );
           })}
@@ -582,3 +580,92 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
     }
   </style>
 </BaseLayout>
+
+<style>
+  :global(:root) {
+    --accent-green: #2fbf71;
+    --accent-indigo: #546de5;
+    --accent-red: #f56565;
+    --accent-orange: #ed8936;
+    --muted: #cbd5e0;
+  }
+
+  .playoff-shell {
+    margin-top: 32px;
+    padding: 0 8px;
+  }
+
+  .playoff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .playoff-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%);
+    border-radius: 14px;
+    padding: 18px 16px;
+    box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08);
+    border: 1px solid rgba(84, 109, 229, 0.1);
+  }
+
+  .card-title {
+    text-align: center;
+    margin-bottom: 14px;
+    font-size: 1.05em;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #2d3748;
+  }
+  .card-title.champ { color: var(--accent-green); }
+  .card-title.loser { color: var(--accent-red); }
+
+  .bar-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 54px;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .team-name {
+    font-weight: 600;
+    font-size: 0.88em;
+    color: #2f3a4a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bar-track {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    min-width: 3px;
+    transition: width 180ms ease-out;
+  }
+
+  .pct {
+    font-size: 0.82em;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  @media (max-width: 520px) {
+    .bar-row { grid-template-columns: 90px 1fr 52px; }
+    .team-name { font-size: 0.85em; }
+  }
+</style>
