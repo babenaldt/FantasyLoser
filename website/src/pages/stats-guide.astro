@@ -203,20 +203,95 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
       </section>
 
+      <!-- Playoff Predictions Section -->
+      <section class="stat-section">
+        <h2>🏆 Playoff Predictions</h2>
+        
+        <div class="stat-card">
+          <h3>Championship Odds</h3>
+          <p>Probability that each team wins the championship bracket, calculated using Monte Carlo simulation (10,000 iterations). The simulation considers:</p>
+          <ul>
+            <li>Season-average points per game for each player</li>
+            <li>Standard deviation of player performance</li>
+            <li>Defensive matchup adjustments based on points allowed by position</li>
+            <li>Current lineup projections vs optimal lineup possibilities</li>
+            <li>Playoff bracket structure and seeding</li>
+          </ul>
+          <p class="formula">Simulation Method: Student's t-distribution (df=6) for realistic score variance</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Loser Bracket Odds</h3>
+          <p>For teams in the consolation bracket, shows probability of "winning" the loser bracket. Uses the same simulation methodology as championship odds.</p>
+          <p class="insight">💡 <strong>Note:</strong> Only teams that have been eliminated from championship contention will show loser bracket probabilities.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Current vs Optimal Lineup Projections</h3>
+          <p>The simulation calculates two scenarios for each team:</p>
+          <ul>
+            <li><strong>Current Lineup:</strong> Based on the starters currently set by team owners</li>
+            <li><strong>Optimal Lineup:</strong> Best possible lineup from available roster players</li>
+          </ul>
+          <p class="insight">💡 <strong>Why it matters:</strong> Large differences between current and optimal projections indicate lineup optimization opportunities. If your optimal projection is significantly higher, you may need to adjust your starters!</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>How Playoff Odds Are Calculated</h3>
+          <p><strong>Step 1 - Player Projections:</strong> Each player's projection uses their 2025 season average PPG, adjusted for:</p>
+          <ul>
+            <li>Defensive matchup strength (opponent's points allowed vs position)</li>
+            <li>Actual points if their game has already been played</li>
+            <li>Injury status (inactive/IR players excluded from optimal lineups)</li>
+          </ul>
+          <p><strong>Step 2 - Lineup Simulation:</strong> For each of 10,000 simulations:</p>
+          <ul>
+            <li>Generate scores for each player using t-distribution around their projection</li>
+            <li>Sum up total team scores based on starting lineups</li>
+            <li>Determine matchup winners</li>
+            <li>Advance winners through playoff bracket rounds</li>
+          </ul>
+          <p><strong>Step 3 - Probability Calculation:</strong> Championship odds = (# of simulations team won) ÷ 10,000</p>
+          <p class="insight">💡 <strong>Update Timing:</strong> Playoff predictions update automatically after each game window (1pm, 4:15pm, Sunday Night Football) with a 30-minute delay to ensure the Sleeper API has finalized scores.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Live vs Projected Scores</h3>
+          <p>During live game weeks, the system intelligently handles in-progress games:</p>
+          <ul>
+            <li><strong>Completed Games:</strong> Uses actual final scores (variance = 0)</li>
+            <li><strong>Upcoming Games:</strong> Uses season average projection with full variance</li>
+            <li><strong>In-Progress Games:</strong> Excluded from "actual" scores until officially final</li>
+          </ul>
+          <p class="insight">💡 <strong>Why this matters:</strong> As Sunday progresses and more games complete, your odds become more certain as projections are replaced with actual results.</p>
+        </div>
+      </section>
+
       <!-- Data Updates Section -->
       <section class="stat-section">
         <h2>🔄 Data Updates</h2>
         
         <div class="stat-card">
           <h3>Automated Updates</h3>
-          <p>All data is automatically updated nightly at 3:00 AM EST via GitHub Actions. This includes:</p>
+          <p>All data is automatically updated via GitHub Actions:</p>
           <ul>
-            <li>Weekly NFL statistics from nfl_data_py</li>
-            <li>League ownership from Sleeper API</li>
-            <li>Opponent averages and defensive rankings</li>
-            <li>Calculated metrics (trends, consistency, etc.)</li>
+            <li><strong>Nightly at 3:00 AM EST:</strong> Full refresh of weekly stats, ownership, defensive rankings</li>
+            <li><strong>Sundays at 5:00 PM EST:</strong> Playoff odds update after 1pm games complete</li>
+            <li><strong>Sundays at 8:30 PM EST:</strong> Playoff odds update after 4:15pm games complete</li>
+            <li><strong>Sundays at 12:30 AM EST:</strong> Playoff odds update after Sunday Night Football</li>
           </ul>
-          <p class="insight">💡 Data reflects the most recent complete week of NFL games.</p>
+          <p class="insight">💡 Data reflects the most recent complete week of NFL games. The 30-minute delay after game windows ensures the Sleeper API has finalized all scores before recalculating playoff odds.</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Data Sources</h3>
+          <p>This site combines multiple data sources for comprehensive fantasy analysis:</p>
+          <ul>
+            <li><strong>NFL Statistics:</strong> nflreadpy (official NFL data)</li>
+            <li><strong>League Data:</strong> Sleeper API (rosters, matchups, scoring)</li>
+            <li><strong>Player Database:</strong> Sleeper's player pool (names, teams, positions)</li>
+            <li><strong>Defensive Stats:</strong> Calculated from weekly NFL stats (points allowed by position)</li>
+          </ul>
         </div>
       </section>
 
