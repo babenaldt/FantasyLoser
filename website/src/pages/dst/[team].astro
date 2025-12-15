@@ -1,0 +1,457 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const dstData = await import('../../../public/data/dst_stats.json');
+  const teams = dstData.default?.teams || dstData.teams || [];
+
+  return teams.map(team => ({
+    params: { team: team.team },
+    props: { dst: team }
+  }));
+}
+
+const { dst } = Astro.props;
+const { team } = Astro.params;
+
+// Normalize data
+const position = 'DEF';
+const total_points = dst.total_points || 0;
+const avg_ppg = dst.avg_points || 0;
+const games = dst.games_played || 0;
+
+// Aggregate stats
+const stats = dst.aggregate_stats || {};
+
+// Weekly Data
+const weeklyData = (dst.weekly_stats || []).map(w => ({
+  week: w.week,
+  points: w.points || 0,
+  opponent: w.opponent || '-',
+  sacks: w.raw_stats?.def_sack || 0,
+  interceptions: w.raw_stats?.def_int || 0,
+  fumbles: w.raw_stats?.def_fumble_recovery || 0,
+  tds: w.raw_stats?.def_td || 0,
+  pts_allowed: w.raw_stats?.points_allowed || 0,
+  hasPlayed: w.points !== null && w.points !== undefined && w.points > 0
+})).sort((a, b) => a.week - b.week);
+
+// Chart Data - only include played weeks
+const playedWeeks = weeklyData.filter(w => w.hasPlayed);
+const weeksList = playedWeeks.map(w => w.week);
+const pointsList = playedWeeks.map(w => w.points);
+const avgLine = new Array(playedWeeks.length).fill(avg_ppg);
+
+// Best/Worst Weeks
+let bestWeekNum = -1;
+let worstWeekNum = -1;
+if (playedWeeks.length > 0) {
+  const maxPts = Math.max(...playedWeeks.map(w => w.points));
+  const minPts = Math.min(...playedWeeks.map(w => w.points));
+  const bestWeek = playedWeeks.find(w => w.points === maxPts);
+  const worstWeek = playedWeeks.find(w => w.points === minPts);
+  if (bestWeek) bestWeekNum = bestWeek.week;
+  if (worstWeek) worstWeekNum = worstWeek.week;
+}
+---
+
+<BaseLayout title={`${team} DST - Fantasy Stats`}>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <div class="content-wrapper">
+    <div class="container">
+      <a href="/player-stats" class="back-link">← Back to All Players</a>
+      
+      <div class="player-header">
+        <h1 class="player-name">{team} Defense/ST</h1>
+        <span class="position DEF">DEF</span>
+        
+        <div class="player-meta">
+          <div class="meta-item">
+            <span class="meta-label">Games</span>
+            <span class="meta-value">{games}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Total Points</span>
+            <span class="meta-value">{total_points.toFixed(1)}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Avg PPG</span>
+            <span class="meta-value">{avg_ppg.toFixed(1)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Season Stats Cards -->
+      <div class="stats-container">
+        <h2>Season Statistics</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Sacks</div>
+            <div class="stat-value">{(stats.total_sacks || 0).toFixed(1)}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Interceptions</div>
+            <div class="stat-value">{stats.total_interceptions || 0}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Fumble Recoveries</div>
+            <div class="stat-value">{stats.total_fumble_recoveries || 0}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Defensive TDs</div>
+            <div class="stat-value">{stats.total_tds || 0}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Avg Pts Allowed</div>
+            <div class="stat-value">{(stats.avg_points_allowed || 0).toFixed(1)}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Pts Allowed</div>
+            <div class="stat-value">{stats.total_points_allowed || 0}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-section">
+        <h2>Weekly Fantasy Points</h2>
+        <canvas id="weeklyChart"></canvas>
+      </div>
+
+      <!-- Weekly Breakdown Table -->
+      <div class="weekly-table">
+        <h2>Weekly Breakdown</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Opponent</th>
+                <th>Points</th>
+                <th>Sacks</th>
+                <th>INT</th>
+                <th>Fum Rec</th>
+                <th>TD</th>
+                <th>Pts Allowed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {weeklyData.map(week => (
+                <tr class={week.week === bestWeekNum ? 'best-week' : week.week === worstWeekNum ? 'worst-week' : ''}>
+                  <td>{week.week}</td>
+                  <td>vs {week.opponent}</td>
+                  <td class="points-cell"><strong>{week.points.toFixed(1)}</strong></td>
+                  <td>{week.sacks.toFixed(1)}</td>
+                  <td>{week.interceptions}</td>
+                  <td>{week.fumbles}</td>
+                  <td>{week.tds}</td>
+                  <td>{week.pts_allowed}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Related Links -->
+      <div class="related-links">
+        <h3>Related Pages</h3>
+        <a href={`/defense/${team}`} class="link-btn">View {team} Defensive Matchup Stats →</a>
+        <p class="link-desc">See fantasy points allowed by {team} defense to opposing players</p>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .content-wrapper {
+      padding: 40px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .player-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #f0f0f0;
+    }
+
+    .player-name {
+      font-size: 2.5em;
+      color: #2d3748;
+      margin-bottom: 10px;
+    }
+
+    .position {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9em;
+      margin: 10px 0;
+    }
+
+    .position.DEF {
+      background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+      color: white;
+    }
+
+    .player-meta {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      text-align: center;
+    }
+
+    .meta-label {
+      display: block;
+      color: #718096;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .meta-value {
+      display: block;
+      color: #2d3748;
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+
+    .stats-container {
+      margin-bottom: 40px;
+    }
+
+    .stats-container h2 {
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+    }
+
+    .chart-section {
+      margin-bottom: 40px;
+    }
+
+    .chart-section h2 {
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+
+    canvas {
+      max-height: 400px;
+    }
+
+    .weekly-table {
+      margin-bottom: 40px;
+    }
+
+    .weekly-table h2 {
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    tbody tr:hover {
+      background-color: #f7fafc;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .points-cell {
+      color: #667eea;
+    }
+
+    .best-week {
+      background-color: #d4edda !important;
+    }
+
+    .worst-week {
+      background-color: #f8d7da !important;
+    }
+
+    .related-links {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .related-links h3 {
+      color: #2d3748;
+      margin-bottom: 15px;
+    }
+
+    .link-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .link-desc {
+      color: #718096;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .player-name {
+        font-size: 2em;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+
+      .player-meta {
+        gap: 20px;
+      }
+    }
+  </style>
+
+  <script define:vars={{ weeksList, pointsList, avgLine }}>
+    const ctx = document.getElementById('weeklyChart');
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: weeksList.map(w => `Week ${w}`),
+        datasets: [
+          {
+            label: 'Fantasy Points',
+            data: pointsList,
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          },
+          {
+            label: 'Season Average',
+            data: avgLine,
+            borderColor: '#e74c3c',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Fantasy Points'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Week'
+            }
+          }
+        }
+      }
+    });
+  </script>
+</BaseLayout>
