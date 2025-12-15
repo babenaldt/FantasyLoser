@@ -14,6 +14,19 @@ from generate_dst_stats import generate_dst_stats
 from generate_kicker_stats import generate_kicker_stats
 from generate_enriched_stats import generate_enriched_player_stats
 from generate_user_lineups import generate_user_lineups
+from core_data import SleeperAPI, save_json
+
+
+def save_players_database():
+    """Save Sleeper's complete player database for use by other scripts."""
+    print("Saving Sleeper player database...")
+    players = SleeperAPI.get_all_players()
+    if players:
+        save_json(players, "output/players_data.json")
+        save_json(players, "website/public/data/players_data.json")
+        print(f"  ✓ Saved {len(players)} players to database")
+    else:
+        print("  ⚠️ Warning: Could not fetch player database")
 
 
 def generate_all(current_season_only: bool = False):
@@ -31,6 +44,7 @@ def generate_all(current_season_only: bool = False):
     
     try:
         save_scoring_config()
+        save_players_database()  # Save Sleeper player database - needed by season stats
         
         # Generate enriched stats - either full refresh or current season only
         if current_season_only:
