@@ -15,6 +15,7 @@ from scipy.stats import t as t_dist
 import requests
 import nflreadpy as nfl
 import statistics
+import datetime
 
 from core_data import SleeperAPI
 from nfl_week_helper import get_current_nfl_week
@@ -177,6 +178,11 @@ class SimplePlayoffSimulator:
         
         if self._actual_player_points:
             print(f"  Found {len(self._actual_player_points)} players with FINAL week {week} points (completed games only)")
+            # Log a few sample players for debugging
+            sample_players = list(self._actual_player_points.items())[:5]
+            print(f"  Sample actual points: {[(self._sleeper_players.get(pid, {}).get('full_name', pid), pts) for pid, pts in sample_players]}")
+        else:
+            print(f"  WARNING: No actual player points found for week {week}!")
         
         # Load 2025 season stats
         print("  Loading 2025 season statistics...")
@@ -721,6 +727,7 @@ class SimplePlayoffSimulator:
         print(f"SIMPLE SEASON AVERAGE PLAYOFF PREDICTIONS")
         print("="*80)
         print(f"Week: {current_week}")
+        print(f"Current timestamp: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}")
         
         # Initialize
         self._load_data(current_week)
