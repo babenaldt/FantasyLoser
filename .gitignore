@@ -13,6 +13,9 @@ __pycache__/
 output/league_data/
 output/*.json
 
+# Generated website data (dynamically created, not committed)
+website/public/data/*.json
+
 # Website build output
 website/dist/
 website/.astro/
