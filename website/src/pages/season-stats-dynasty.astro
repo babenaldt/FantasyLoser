@@ -77,9 +77,9 @@ activeTeams.forEach(t => {
         if (w.points < lowestWeeklyScore.score && w.points > 0) {
             lowestWeeklyScore = { score: w.points, owner: t.owner_name, week: w.week };
         }
-        // Check for highest points in a loss (negative margin = loss)
-        if (w.margin < 0 && w.points > highestPointsInLoss.score) {
-            highestPointsInLoss = { score: w.points, owner: t.owner_name, week: w.week, margin: w.margin };
+        // Check for highest points in a loss (negative win_loss_margin = loss)
+        if (w.win_loss_margin < 0 && w.points > highestPointsInLoss.score) {
+            highestPointsInLoss = { score: w.points, owner: t.owner_name, week: w.week, margin: w.win_loss_margin };
         }
     });
 });

@@ -269,6 +269,9 @@ def calculate_season_stats(league_id, league_name):
                 
                 # Calculate points against
                 opponent_points = sum(m.get('points', 0) for m in teams if m['roster_id'] != roster_id)
+                
+                # Win/Loss margin (points - opponent_points)
+                win_loss_margin = points - opponent_points if opponent_points > 0 else 0
 
                 # Update weekly temp stats
                 w_stats = this_week_stats[roster_id]
@@ -277,6 +280,7 @@ def calculate_season_stats(league_id, league_name):
                 w_stats['bench'] = bench_pts
                 w_stats['missed'] = missed_pts
                 w_stats['margin'] = margin
+                w_stats['win_loss_margin'] = win_loss_margin
                 w_stats['opponent_points'] = opponent_points
                 w_stats['has_matchup'] = True
                 
