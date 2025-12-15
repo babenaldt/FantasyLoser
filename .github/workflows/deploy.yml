@@ -66,6 +66,22 @@ jobs:
           # Remove enriched_player_stats.json - too large for Cloudflare (41MB > 26MB limit)
           rm -f website/public/data/enriched_player_stats.json
       
+      - name: Verify playoff predictions were generated
+        run: |
+          echo "Listing all JSON files in website/public/data/:"
+          ls -lh website/public/data/*.json
+          echo ""
+          echo "Checking dynasty_playoff_predictions.json:"
+          if [ -f website/public/data/dynasty_playoff_predictions.json ]; then
+            echo "✓ File exists!"
+            echo "Size: $(wc -c < website/public/data/dynasty_playoff_predictions.json) bytes"
+            echo "Preview:"
+            head -n 20 website/public/data/dynasty_playoff_predictions.json
+          else
+            echo "✗ dynasty_playoff_predictions.json NOT FOUND!"
+            exit 1
+          fi
+      
       - name: Upload data artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -90,6 +106,15 @@ jobs:
         with:
           name: fantasy-data
           path: website/public/data/
+      
+      - name: Verify data files
+        run: |
+          echo "Checking for playoff predictions file..."
+          ls -lh website/public/data/dynasty_playoff_predictions.json || echo "File not found!"
+          echo "Last modified:"
+          stat website/public/data/dynasty_playoff_predictions.json || echo "Cannot stat file"
+          echo "First 500 chars of file:"
+          head -c 500 website/public/data/dynasty_playoff_predictions.json || echo "Cannot read file"
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
