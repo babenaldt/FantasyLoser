@@ -62,17 +62,23 @@ def generate_all(current_season_only: bool = False):
 
 def generate_playoff_predictions():
     """Generate playoff predictions for dynasty league using simple season average model."""
+    print("\n" + "="*80)
+    print("GENERATING PLAYOFF PREDICTIONS")
+    print("="*80)
     try:
         from generate_playoff_predictions_simple import main as generate_predictions
         generate_predictions()
+        print("✅ Playoff predictions generated successfully!")
     except ImportError as e:
-        print(f"⚠️ Could not import generate_playoff_predictions_simple: {e}")
-        print("   Skipping playoff predictions...")
-    except Exception as e:
-        print(f"⚠️ Error generating playoff predictions: {e}")
+        print(f"❌ Could not import generate_playoff_predictions_simple: {e}")
         import traceback
         traceback.print_exc()
-        print("   Continuing with other data generation...")
+        raise  # Fail the build
+    except Exception as e:
+        print(f"❌ Error generating playoff predictions: {e}")
+        import traceback
+        traceback.print_exc()
+        raise  # Fail the build
 
 
 def show_help():
