@@ -68,6 +68,11 @@ def generate_playoff_predictions():
     except ImportError as e:
         print(f"⚠️ Could not import generate_playoff_predictions_simple: {e}")
         print("   Skipping playoff predictions...")
+    except Exception as e:
+        print(f"⚠️ Error generating playoff predictions: {e}")
+        import traceback
+        traceback.print_exc()
+        print("   Continuing with other data generation...")
 
 
 def show_help():
