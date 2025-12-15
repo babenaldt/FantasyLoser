@@ -13,6 +13,7 @@ from generate_scoring_config import save_scoring_config
 from generate_dst_stats import generate_dst_stats
 from generate_kicker_stats import generate_kicker_stats
 from generate_enriched_stats import generate_enriched_player_stats
+from generate_user_lineups import generate_user_lineups
 
 
 def generate_all(current_season_only: bool = False):
@@ -45,6 +46,7 @@ def generate_all(current_season_only: bool = False):
         generate_dst_stats()
         generate_kicker_stats()
         generate_season_stats_json()
+        generate_user_lineups()
         
         print("\n" + "=" * 80)
         print("✅ ALL DATA GENERATED SUCCESSFULLY!")
