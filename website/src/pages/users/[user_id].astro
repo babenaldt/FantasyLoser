@@ -5,9 +5,15 @@ export async function getStaticPaths() {
   // Import dynasty and chopped data
   const dynastyData = await import('../../../public/data/user_lineups_dynasty.json');
   const choppedData = await import('../../../public/data/user_lineups_chopped.json');
+  const dynastySeasonData = await import('../../../public/data/season_stats_dynasty.json');
+  const choppedSeasonData = await import('../../../public/data/season_stats_chopped.json');
+  const playerStatsData = await import('../../../public/data/player_stats.json');
   
   const dynastyUsers = dynastyData.default?.users || dynastyData.users || [];
   const choppedUsers = choppedData.default?.users || choppedData.users || [];
+  const dynastyTeams = dynastySeasonData.default?.teams || dynastySeasonData.teams || [];
+  const choppedTeams = choppedSeasonData.default?.teams || choppedSeasonData.teams || [];
+  const allPlayers = playerStatsData.default?.players || playerStatsData.players || [];
   
   const paths = [];
   
@@ -22,6 +28,7 @@ export async function getStaticPaths() {
   // Create paths for dynasty users
   dynastyUsers.forEach(user => {
     const slug = slugify(user.user_name);
+    const teamData = dynastyTeams.find(t => t.owner_name === user.user_name) || null;
     paths.push({
       params: { 
         user_id: `dynasty-${slug}` 
@@ -29,7 +36,10 @@ export async function getStaticPaths() {
       props: { 
         user: user,
         league: 'Dynasty',
-        current_week: dynastyData.default?.current_week || dynastyData.current_week || 15
+        current_week: dynastyData.default?.current_week || dynastyData.current_week || 15,
+        teamData: teamData,
+        allPlayers: allPlayers,
+        allTeams: dynastyTeams
       }
     });
   });
@@ -37,6 +47,7 @@ export async function getStaticPaths() {
   // Create paths for chopped users
   choppedUsers.forEach(user => {
     const slug = slugify(user.user_name);
+    const teamData = choppedTeams.find(t => t.owner_name === user.user_name) || null;
     paths.push({
       params: { 
         user_id: `chopped-${slug}` 
@@ -44,7 +55,10 @@ export async function getStaticPaths() {
       props: { 
         user: user,
         league: 'Chopped',
-        current_week: choppedData.default?.current_week || choppedData.current_week || 15
+        current_week: choppedData.default?.current_week || choppedData.current_week || 15,
+        teamData: teamData,
+        allPlayers: allPlayers,
+        allTeams: choppedTeams
       }
     });
   });
@@ -52,7 +66,30 @@ export async function getStaticPaths() {
   return paths;
 }
 
-const { user, league, current_week } = Astro.props;
+const { user, league, current_week, teamData, allPlayers, allTeams } = Astro.props;
+
+// Create player lookup map for quick access to weekly points
+const playerLookup = {};
+allPlayers.forEach(p => {
+  playerLookup[p.player_id] = p;
+});
+
+// For Chopped league, calculate highest and lowest scores per week
+const weeklyHighLow = {};
+if (league === 'Chopped' && allTeams) {
+  allTeams.forEach(team => {
+    team.weekly_scores.forEach(weekData => {
+      const week = weekData.week;
+      if (!weeklyHighLow[week]) {
+        weeklyHighLow[week] = { highest: 0, lowest: 9999 };
+      }
+      if (weekData.points > 0) {
+        weeklyHighLow[week].highest = Math.max(weeklyHighLow[week].highest, weekData.points);
+        weeklyHighLow[week].lowest = Math.min(weeklyHighLow[week].lowest, weekData.points);
+      }
+    });
+  });
+}
 
 // Helper function to check if a player is available to play this week
 function isPlayerAvailable(player) {
@@ -163,6 +200,7 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
   </div>
 
   <div class="container">
+    {user.players.length > 0 ? (
     <!-- Recommended Lineup -->
     <section class="recommended-section">
       <h2>💡 Recommended Starters (Week {current_week})</h2>
@@ -211,8 +249,20 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
         )})}
       </div>
     </section>
+    ) : (
+    <!-- Eliminated Player Message -->
+    <section class="eliminated-message">
+      <div class="eliminated-card">
+        <div class="eliminated-icon">❌</div>
+        <h2>Team Eliminated</h2>
+        <p>This team was eliminated from the {league} league{teamData?.eliminated_week ? ` in Week ${teamData.eliminated_week}` : ''}.</p>
+        <p>No active roster available for lineup recommendations.</p>
+      </div>
+    </section>
+    )}
 
     <!-- Position Scatter Plots -->
+    {user.players.length > 0 && (
     <section class="charts-section">
       <h2>📊 Matchup Analysis by Position</h2>
       <p class="section-subtitle">Player Average vs Opponent Average Allowed - Hover for player names</p>
@@ -236,8 +286,10 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
         </div>
       </div>
     </section>
+    )}
 
     <!-- Full Roster Tables -->
+    {user.players.length > 0 && (
     <section class="roster-section">
       <h2>📋 Full Roster Stats</h2>
       
@@ -473,6 +525,388 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
         </div>
       )}
     </section>
+    )}
+
+    <!-- Weekly Performance Breakdown -->
+    {teamData && teamData.weekly_scores && teamData.weekly_scores.length > 0 && (
+      <section class="weekly-breakdown-section">
+        <h2>📅 Week-by-Week Performance</h2>
+        <p class="section-subtitle">Complete breakdown of your season performance</p>
+        
+        <div class="weekly-table-wrapper">
+          <table class="weekly-table">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Points</th>
+                <th>{league === 'Chopped' ? 'Highest Score' : 'Opponent Pts'}</th>
+                <th>{league === 'Chopped' ? 'Chopped Score' : 'Result'}</th>
+                <th>Optimal</th>
+                <th>Efficiency</th>
+                <th>Bench Pts</th>
+                <th>Top Performers</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teamData.weekly_scores.map(week => {
+                const efficiency = week.optimal > 0 ? ((week.points / week.optimal) * 100) : 0;
+                
+                // For Chopped league, get highest and lowest scores for this week
+                const highestScore = weeklyHighLow[week.week]?.highest || 0;
+                const lowestScore = weeklyHighLow[week.week]?.lowest || 0;
+                
+                const result = week.win_loss_margin > 0 ? 'W' : week.win_loss_margin < 0 ? 'L' : 'T';
+                const resultClass = week.win_loss_margin > 0 ? 'win' : week.win_loss_margin < 0 ? 'loss' : 'tie';
+                
+                // Get top 3 performers from this team for this week
+                const weekNum = week.week;
+                const topPerformers = user.players
+                  .map(p => {
+                    const playerInfo = playerLookup[p.player_id];
+                    if (!playerInfo || !playerInfo.weekly_points) return null;
+                    const weekData = playerInfo.weekly_points.find(w => w.week === weekNum);
+                    if (!weekData || !weekData.points) return null;
+                    return {
+                      name: p.player_name,
+                      points: weekData.points,
+                      player_id: p.player_id
+                    };
+                  })
+                  .filter(p => p !== null)
+                  .sort((a, b) => b.points - a.points)
+                  .slice(0, 3);
+                
+                return (
+                  <tr class={`week-row ${resultClass}`}>
+                    <td class="week-cell"><strong>{week.week}</strong></td>
+                    <td class="points-cell"><strong>{week.points.toFixed(1)}</strong></td>
+                    <td>{league === 'Chopped' ? highestScore.toFixed(1) : week.opponent_points.toFixed(1)}</td>
+                    <td class={league === 'Chopped' ? 'chopped-score-cell' : `result-cell ${resultClass}`}>
+                      {league === 'Chopped' ? (
+                        <span>{lowestScore.toFixed(1)}</span>
+                      ) : (
+                        <>
+                          <strong>{result}</strong>
+                          <span class="margin">({week.win_loss_margin > 0 ? '+' : ''}{week.win_loss_margin.toFixed(1)})</span>
+                        </>
+                      )}
+                    </td>
+                    <td>{week.optimal.toFixed(1)}</td>
+                    <td>
+                      <span style={{color: efficiency >= 95 ? '#4CAF50' : efficiency >= 90 ? '#ff9800' : '#f44336'}}>
+                        {efficiency.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td>{week.bench.toFixed(1)}</td>
+                    <td class="top-performers-cell">
+                      {topPerformers.length > 0 ? (
+                        <div class="performers-list">
+                          {topPerformers.map(perf => (
+                            <div class="performer">
+                              <a href={`/players/${perf.player_id}`}>{perf.name}</a>
+                              <span class="perf-points">{perf.points.toFixed(1)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span class="no-data">-</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr class="totals-row">
+                <td><strong>Total/Avg</strong></td>
+                <td><strong>{teamData.total_points_scored.toFixed(1)}</strong></td>
+                <td>{teamData.total_points_against.toFixed(1)}</td>
+                <td>{teamData.wins}-{teamData.losses}{teamData.ties > 0 ? `-${teamData.ties}` : ''}</td>
+                <td>{teamData.total_optimal_points.toFixed(1)}</td>
+                <td><strong>{teamData.efficiency_rate.toFixed(1)}%</strong></td>
+                <td>{teamData.total_bench_points.toFixed(1)}</td>
+                <td>-</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="weekly-chart-container">
+          <h3>Points Trend</h3>
+          <canvas id="weeklyPerformanceChart"></canvas>
+        </div>
+      </section>
+    )}
+
+    <!-- Roster Changes Timeline -->
+    {teamData && teamData.weekly_scores && teamData.weekly_scores.length > 0 && (
+      <section class="roster-changes-section">
+        <h2>🔄 Roster Changes Timeline</h2>
+        <p class="section-subtitle">Track your full roster and transactions week by week</p>
+        
+        <div class="roster-timeline">
+          {(() => {
+            // Prioritize weekly_transactions (shows adds/drops) over weekly_rosters (shows full roster)
+            if (user.weekly_transactions && user.weekly_transactions.length > 0) {
+              // Build roster state week by week
+              const rosterByWeek = [];
+              const currentRoster = new Map(); // player_id -> player info
+              
+              // Start with current roster and work backwards to show acquisitions
+              user.players.forEach(p => {
+                currentRoster.set(p.sleeper_id, {
+                  name: p.player_name,
+                  position: p.position,
+                  acquired_week: p.acquired_week,
+                  prev_owner: p.prev_owner,
+                  faab_spent: p.faab_spent,
+                  acquisition_status: p.acquisition_status
+                });
+              });
+              
+              return user.weekly_transactions.map(weekTxn => {
+                const week = weekTxn.week;
+                const adds = weekTxn.adds || [];
+                const drops = weekTxn.drops || [];
+                const hasActivity = adds.length > 0 || drops.length > 0;
+                
+                if (!hasActivity) return null;
+                
+                return (
+                  <div class="roster-week-card-compact">
+                    <div class="week-label">
+                      Week {week}
+                      {adds.length > 0 && <span class="new-badge">+{adds.length}</span>}
+                      {drops.length > 0 && <span class="drop-badge">-{drops.length}</span>}
+                    </div>
+                    
+                    {adds.length > 0 && (
+                      <div class="txn-group adds-group">
+                        <div class="txn-label">➕ Added</div>
+                        {adds.map(player => (
+                          <div class="txn-item">
+                            <span class="pos-badge {player.position.toLowerCase()}">{player.position}</span>
+                            <span class="player-name-compact">{player.player_name}</span>
+                            <span class="txn-details">
+                              {player.prev_owner ? `from ${player.prev_owner} ($${player.faab_spent})` : player.faab_spent > 0 ? `($${player.faab_spent})` : 'Free Agent'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {drops.length > 0 && (
+                      <div class="txn-group drops-group">
+                        <div class="txn-label">➖ Dropped</div>
+                        {drops.map(player => (
+                          <div class="txn-item">
+                            <span class="pos-badge {player.position.toLowerCase()}">{player.position}</span>
+                            <span class="player-name-compact">{player.player_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }).filter(Boolean);
+            }
+            
+            // Fallback to weekly_rosters if available (shows full roster)
+            if (user.weekly_rosters && user.weekly_rosters.length > 0) {
+              return user.weekly_rosters.map(weekRoster => {
+                const week = weekRoster.week;
+                const players = weekRoster.players || [];
+                const newPlayers = players.filter(p => p.is_new);
+                
+                // Get drops for this week from weekly_transactions
+                const weekTxn = user.weekly_transactions?.find(t => t.week === week);
+                const allDrops = weekTxn?.drops || [];
+                
+                // Deduplicate drops by player_id
+                const dropsMap = new Map();
+                allDrops.forEach(drop => {
+                  if (!dropsMap.has(drop.player_id)) {
+                    dropsMap.set(drop.player_id, drop);
+                  }
+                });
+                const drops = Array.from(dropsMap.values());
+                
+                if (players.length === 0 && drops.length === 0) return null;
+                
+                // Group players by position
+                const grouped = {};
+                players.forEach(p => {
+                  if (!grouped[p.position]) grouped[p.position] = [];
+                  grouped[p.position].push(p);
+                });
+                
+                return (
+                  <div class="roster-week-card-compact">
+                    <div class="week-label">
+                      Week {week}
+                      {newPlayers.length > 0 && <span class="new-badge">+{newPlayers.length}</span>}
+                      {drops.length > 0 && <span class="drop-badge">-{drops.length}</span>}
+                    </div>
+                    
+                    <div class="txn-group roster-group">
+                      <div class="txn-label">📋 Full Roster ({players.length})</div>
+                      <div class="roster-players-list">
+                        {['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].map(pos => {
+                          const posPlayers = grouped[pos] || [];
+                          return posPlayers.map(p => {
+                            // Show acquisition info for new players
+                            const showAcquisition = p.is_new;
+                            
+                            return (
+                              <div class="roster-player-row">
+                                <span class="pos-badge {p.position.toLowerCase()}">{p.position}</span>
+                                <span class={showAcquisition ? 'player-name-bold' : 'player-name-normal'}>{p.player_name}</span>
+                                {showAcquisition && (
+                                  <span class="acquisition-info">
+                                    {p.acquisition}
+                                    {p.faab_spent > 0 && ` ($${p.faab_spent})`}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          });
+                        })}
+                      </div>
+                    </div>
+                    
+                    {drops.length > 0 && (
+                      <div class="txn-group drops-group">
+                        <div class="txn-label">➖ Dropped</div>
+                        {drops.map(player => (
+                          <div class="txn-item">
+                            <span class="pos-badge {player.position.toLowerCase()}">{player.position}</span>
+                            <span class="player-name-compact">{player.player_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }).filter(Boolean);
+            }
+            
+            // Fallback to old roster tracking if weekly_transactions not available
+            const weeklyRosters = [];
+            const allSeenPlayers = new Set();
+            
+            teamData.weekly_scores.forEach(weekScore => {
+              const week = weekScore.week;
+              const weekRoster = [];
+              
+              // Get starters from teamData for this week
+              if (teamData && teamData.weekly_scores) {
+                const weekData = teamData.weekly_scores.find(ws => ws.week === week);
+                if (weekData && weekData.starters) {
+                  // starters is an array of player IDs
+                  weekData.starters.forEach(playerId => {
+                    // Find this player in our roster
+                    const rosterPlayer = user.players.find(up => up.sleeper_id === playerId);
+                    if (rosterPlayer) {
+                      const playerKey = `${rosterPlayer.player_name}-${rosterPlayer.team}`;
+                      const isNew = !allSeenPlayers.has(playerKey);
+                      allSeenPlayers.add(playerKey);
+                      
+                      weekRoster.push({
+                        name: rosterPlayer.player_name,
+                        position: rosterPlayer.position,
+                        team: rosterPlayer.team,
+                        player_id: rosterPlayer.player_id,
+                        isNew: isNew,
+                        acquired_week: rosterPlayer.acquired_week,
+                        prev_owner: rosterPlayer.prev_owner,
+                        acquisition_status: rosterPlayer.acquisition_status,
+                        faab_spent: rosterPlayer.faab_spent
+                      });
+                    }
+                  });
+                }
+              }
+              
+              // Sort by position order
+              const posOrder = { 'QB': 1, 'RB': 2, 'WR': 3, 'TE': 4, 'K': 5, 'DEF': 6 };
+              weekRoster.sort((a, b) => {
+                const posA = posOrder[a.position] || 99;
+                const posB = posOrder[b.position] || 99;
+                if (posA !== posB) return posA - posB;
+                return a.name.localeCompare(b.name);
+              });
+              
+              weeklyRosters.push({ week, roster: weekRoster });
+            });
+            
+            return weeklyRosters.map(({ week, roster }) => {
+              const newPlayers = roster.filter(p => p.isNew);
+              const existingPlayers = roster.filter(p => !p.isNew);
+              
+              return (
+                <div class="roster-week-card">
+                  <div class="roster-week-header">
+                    <h3>Week {week}</h3>
+                    <div class="roster-stats">
+                      <span class="roster-count">{roster.length} starters</span>
+                      {newPlayers.length > 0 && (
+                        <span class="new-additions-badge">+{newPlayers.length} new</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {newPlayers.length > 0 && (
+                    <div class="new-acquisitions">
+                      <div class="acquisitions-header">🆕 New Additions</div>
+                      <div class="acquisitions-list">
+                        {newPlayers.map(player => (
+                          <a href={`/players/${player.player_id}`} class="roster-player new-player">
+                            <div class="player-position-badge {player.position.toLowerCase()}">{player.position}</div>
+                            <div class="player-name-info">
+                              <div class="player-name">{player.name}</div>
+                              <div class="player-team">{player.team}</div>
+                              {player.acquisition_status && (
+                                <div style="font-size: 0.7em; color: #9b59b6; font-style: italic; margin-top: 2px;">
+                                  {player.acquisition_status}
+                                  {player.faab_spent > 0 && ` • $${player.faab_spent} FAAB`}
+                                </div>
+                              )}
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div class="roster-composition">
+                    <div class="composition-header">Starters This Week</div>
+                    <div class="position-groups">
+                      {['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].map(pos => {
+                        const posPlayers = roster.filter(p => p.position === pos);
+                        if (posPlayers.length === 0) return null;
+                        return (
+                          <div class="position-group">
+                            <div class="position-label">{pos} ({posPlayers.length})</div>
+                            <div class="position-players">
+                              {posPlayers.map(player => (
+                                <a href={`/players/${player.player_id}`} class="roster-player-chip">
+                                  {player.name}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      </section>
+    )}
   </div>
 
   <script define:vars={{ qbs, rbs, wrs, tes }}>
@@ -634,6 +1068,140 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     if (tes.length > 0) createScatterChart('teChart', tes, 'TE');
   </script>
 
+  <script define:vars={{ teamData, weeklyHighLow, league }}>
+    // Create weekly performance chart
+    if (teamData && teamData.weekly_scores) {
+      const ctx = document.getElementById('weeklyPerformanceChart');
+      if (ctx) {
+        const weeks = teamData.weekly_scores.map(w => w.week);
+        const points = teamData.weekly_scores.map(w => w.points);
+        const optimal = teamData.weekly_scores.map(w => w.optimal);
+        const avgPoints = new Array(weeks.length).fill(teamData.avg_points_per_game);
+
+        const datasets = [
+          {
+            label: 'Your Points',
+            data: points,
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }
+        ];
+
+        // Add different lines based on league type
+        if (league === 'Chopped') {
+          // For Chopped, show highest and lowest (chopped) scores
+          const highestScores = weeks.map(w => weeklyHighLow[w]?.highest || 0);
+          const lowestScores = weeks.map(w => weeklyHighLow[w]?.lowest || 0);
+          
+          datasets.push({
+            label: 'Highest Score',
+            data: highestScores,
+            borderColor: '#ffa726',
+            backgroundColor: 'rgba(255, 167, 38, 0.1)',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            tension: 0.3,
+            fill: false,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          });
+          
+          datasets.push({
+            label: 'Chopped Score (Lowest)',
+            data: lowestScores,
+            borderColor: '#f44336',
+            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            tension: 0.3,
+            fill: false,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          });
+        } else {
+          // For Dynasty, show opponent points
+          const opponentPoints = teamData.weekly_scores.map(w => w.opponent_points);
+          datasets.push({
+            label: 'Opponent Points',
+            data: opponentPoints,
+            borderColor: '#f44336',
+            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          });
+        }
+
+        // Add optimal and average lines
+        datasets.push({
+          label: 'Optimal Points',
+          data: optimal,
+          borderColor: '#4CAF50',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          tension: 0.3,
+          fill: false,
+          pointRadius: 3,
+          pointHoverRadius: 5
+        });
+        
+        datasets.push({
+          label: 'Season Average',
+          data: avgPoints,
+          borderColor: '#ff9800',
+          borderWidth: 1,
+          borderDash: [10, 5],
+          pointRadius: 0,
+          fill: false
+        });
+
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: weeks.map(w => `Week ${w}`),
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top'
+              },
+              tooltip: {
+                mode: 'index',
+                intersect: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Fantasy Points'
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Week'
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  </script>
+
   <style>
     .container {
       max-width: 1400px;
@@ -703,8 +1271,8 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     }
 
     .recommended-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: linear-gradient(135deg, #4c5fd5 0%, #5a3a7d 100%);
+      color: #ffffff !important;
       padding: 15px;
       border-radius: 10px;
       text-decoration: none;
@@ -712,6 +1280,10 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+
+    .recommended-card .stat-label {
+      color: rgba(255, 255, 255, 0.8) !important;
     }
 
     .recommended-card:hover {
@@ -759,17 +1331,27 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
 
     .player-info {
       flex: 1;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 10px;
+      border-radius: 8px;
+      margin: -5px 0;
     }
 
     .player-name {
-      font-weight: bold;
-      font-size: 1.1em;
+      font-weight: 700;
+      font-size: 1.3em;
+      color: #ffffff !important;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      letter-spacing: 0.3px;
     }
 
     .player-team {
-      font-size: 0.9em;
-      opacity: 0.9;
+      font-size: 1em;
+      font-weight: 600;
+      color: #ffffff !important;
+      opacity: 1;
       margin-top: 5px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
     }
 
     .player-stats {
@@ -797,6 +1379,36 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     }
 
     /* Charts Section */
+    .eliminated-message {
+      background: white;
+      padding: 60px 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .eliminated-card {
+      text-align: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .eliminated-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+
+    .eliminated-card h2 {
+      color: #e74c3c;
+      margin-bottom: 15px;
+    }
+
+    .eliminated-card p {
+      color: #718096;
+      font-size: 1.1em;
+      margin-bottom: 10px;
+    }
+
     .charts-section {
       background: white;
       padding: 30px;
@@ -842,6 +1454,390 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
       color: #2d3748;
       margin-bottom: 15px;
       text-align: center;
+    }
+
+    /* Roster Changes Timeline */
+    .roster-changes-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-top: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .new-player-inline {
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .new-indicator {
+      color: #4CAF50;
+      font-weight: bold;
+      margin-left: 2px;
+      cursor: help;
+    }
+
+    .roster-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .roster-week-card-compact {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px;
+      transition: all 0.2s;
+    }
+
+    .roster-week-card-compact:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .week-label {
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 0.95em;
+    }
+
+    .txn-group {
+      margin-bottom: 8px;
+    }
+
+    .txn-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .txn-label {
+      font-size: 0.8em;
+      font-weight: 600;
+      margin-bottom: 6px;
+      opacity: 0.8;
+    }
+
+    .adds-group .txn-label {
+      color: #2e7d32;
+    }
+
+    .drops-group .txn-label {
+      color: #c62828;
+    }
+
+    .txn-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+      font-size: 0.85em;
+    }
+
+    .pos-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: bold;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .player-name-compact {
+      font-weight: 500;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .txn-details {
+      font-size: 0.85em;
+      color: #9b59b6;
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    .new-badge {
+      background: #4CAF50;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .drop-badge {
+      background: #f44336;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .roster-group {
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .roster-group .txn-label {
+      color: #495057;
+      margin-bottom: 8px;
+    }
+
+    .roster-players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .roster-player-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 0.85em;
+    }
+
+    .player-name-normal {
+      flex: 1;
+      color: #495057;
+    }
+
+    .player-name-bold {
+      flex: 1;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .acquisition-info {
+      font-size: 0.9em;
+      color: #9b59b6;
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    .roster-week-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .roster-week-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+    }
+
+    .roster-week-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .roster-week-header h3 {
+      margin: 0;
+      font-size: 1.1em;
+    }
+
+    .roster-stats {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.9em;
+    }
+
+    .roster-count {
+      opacity: 0.9;
+    }
+
+    .add-count {
+      background: #4CAF50;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.85em;
+      margin-right: 5px;
+    }
+
+    .drop-count {
+      background: #f44336;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.85em;
+    }
+
+    .new-additions-badge {
+      background: #4CAF50;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.85em;
+    }
+
+    .new-acquisitions {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      padding: 12px;
+      border-bottom: 2px solid #4CAF50;
+    }
+
+    .dropped-players {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      padding: 12px;
+      border-bottom: 2px solid #f44336;
+    }
+
+    .drops-header {
+      font-weight: bold;
+      color: #c62828;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+
+    .drops-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .roster-player.dropped-player {
+      border-left: 3px solid #f44336;
+      background: white;
+    }
+
+    .acquisitions-header {
+      font-weight: bold;
+      color: #2e7d32;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+
+    .acquisitions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .roster-player {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: white;
+      border-radius: 6px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+    }
+
+    .roster-player.new-player {
+      border-left: 3px solid #4CAF50;
+    }
+
+    .roster-player:hover {
+      transform: translateX(3px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .player-position-badge {
+      font-size: 0.75em;
+      font-weight: bold;
+      padding: 3px 6px;
+      border-radius: 4px;
+      background: #667eea;
+      color: white;
+      min-width: 35px;
+      text-align: center;
+    }
+
+    .player-position-badge.qb { background: #e74c3c; }
+    .player-position-badge.rb { background: #3498db; }
+    .player-position-badge.wr { background: #2ecc71; }
+    .player-position-badge.te { background: #f39c12; }
+    .player-position-badge.k { background: #9b59b6; }
+    .player-position-badge.def { background: #34495e; }
+
+    .player-name-info {
+      flex: 1;
+    }
+
+    .player-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 0.9em;
+    }
+
+    .player-team {
+      font-size: 0.75em;
+      color: #718096;
+    }
+
+    .roster-composition {
+      padding: 12px;
+    }
+
+    .composition-header {
+      font-weight: bold;
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 0.9em;
+    }
+
+    .position-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .position-group {
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .position-label {
+      font-weight: bold;
+      color: #667eea;
+      font-size: 0.85em;
+      margin-bottom: 6px;
+    }
+
+    .position-players {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .roster-player-chip {
+      background: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      text-decoration: none;
+      color: #2d3748;
+      border: 1px solid #dee2e6;
+      transition: all 0.2s;
+    }
+
+    .roster-player-chip:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      transform: scale(1.05);
     }
 
     /* Roster Tables */
@@ -1072,6 +2068,155 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
       th, td {
         padding: 6px 4px;
       }
+    }
+
+    /* Weekly Breakdown Section */
+    .weekly-breakdown-section {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .weekly-breakdown-section h2 {
+      color: #2d3748;
+      margin-bottom: 10px;
+    }
+
+    .weekly-table-wrapper {
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+
+    .weekly-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    .weekly-table thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .weekly-table th {
+      padding: 12px 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    .weekly-table td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .weekly-table tbody tr:hover {
+      background-color: #f7fafc;
+    }
+
+    .week-row.win {
+      background-color: rgba(76, 175, 80, 0.05);
+    }
+
+    .week-row.loss {
+      background-color: rgba(244, 67, 54, 0.05);
+    }
+
+    .week-cell {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .points-cell {
+      font-weight: 700;
+      color: #2d3748;
+      font-size: 1.1em;
+    }
+
+    .result-cell {
+      font-weight: 700;
+    }
+
+    .result-cell.win {
+      color: #4CAF50;
+    }
+
+    .result-cell.loss {
+      color: #f44336;
+    }
+
+    .result-cell .margin {
+      font-size: 0.85em;
+      font-weight: normal;
+      color: #718096;
+      margin-left: 4px;
+    }
+
+    .top-performers-cell {
+      text-align: left;
+      padding: 8px 10px;
+    }
+
+    .performers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .performer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85em;
+    }
+
+    .performer a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .performer a:hover {
+      text-decoration: underline;
+    }
+
+    .perf-points {
+      font-weight: 700;
+      color: #4CAF50;
+      margin-left: 8px;
+    }
+
+    .no-data {
+      color: #a0aec0;
+      font-style: italic;
+    }
+
+    .totals-row {
+      background: #f7fafc;
+      font-weight: 600;
+      border-top: 2px solid #667eea;
+    }
+
+    .totals-row td {
+      padding: 12px 10px;
+      font-size: 0.95em;
+    }
+
+    .weekly-chart-container {
+      margin-top: 30px;
+    }
+
+    .weekly-chart-container h3 {
+      color: #2d3748;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    .weekly-chart-container canvas {
+      max-height: 400px;
     }
   </style>
 

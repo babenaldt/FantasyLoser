@@ -73,7 +73,7 @@ const topPlayers = {
     <div style="background: white; margin: 40px auto; max-width: 1200px; border-radius: 12px; padding: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="color: #667eea; margin: 0;">Player Comparison</h2>
-        <button id="closeModal" style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 18px;">✕</button>
+        <button id="closeModal" style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 18px; position: relative; z-index: 10;">✕</button>
       </div>
       <div id="comparisonContent"></div>
     </div>
@@ -1147,12 +1147,19 @@ const topPlayers = {
           });
         });
 
-        // Add to compare handlers
-        document.querySelectorAll('.add-compare-btn').forEach(btn => {
+        // Add to compare handlers using event delegation
+        searchResults.querySelectorAll('.add-compare-btn').forEach(btn => {
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             const player = JSON.parse(this.dataset.player);
             addToCompare(player);
+            this.textContent = '✓ Added';
+            this.style.background = '#46b980';
+            setTimeout(() => {
+              searchResults.style.display = 'none';
+              searchInput.value = '';
+            }, 500);
           });
         });
       }, 300);
