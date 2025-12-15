@@ -64,6 +64,7 @@ const highestAvgScore = activeTeams.length ? activeTeams.reduce((prev, current) 
 // Weekly Awards (Exclude current week if in progress)
 let highestWeeklyScore = { score: -1, owner: '', week: 0 };
 let lowestWeeklyScore = { score: 9999, owner: '', week: 0 };
+let highestPointsInLoss = { score: -1, owner: '', week: 0, margin: 0 };
 
 activeTeams.forEach(t => {
     t.weekly_scores.forEach(w => {
@@ -76,8 +77,15 @@ activeTeams.forEach(t => {
         if (w.points < lowestWeeklyScore.score && w.points > 0) {
             lowestWeeklyScore = { score: w.points, owner: t.owner_name, week: w.week };
         }
+        // Check for highest points in a loss (negative margin = loss)
+        if (w.margin < 0 && w.points > highestPointsInLoss.score) {
+            highestPointsInLoss = { score: w.points, owner: t.owner_name, week: w.week, margin: w.margin };
+        }
     });
 });
+
+// Validate highest points in loss award
+const validHighestPointsInLoss = highestPointsInLoss.score > 0 ? highestPointsInLoss : null;
 
 // Luck Awards
 const luckiest = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.luck_factor > current.luck_factor) ? prev : current) : null;
@@ -242,6 +250,14 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
         <div class="award-title">Lowest Weekly Score</div>
         <div class="award-winner">{lowestWeeklyScore.owner}</div>
         <div class="award-value">{lowestWeeklyScore.score.toFixed(1)} pts (Week {lowestWeeklyScore.week})</div>
+      </div>
+      )}
+      {validHighestPointsInLoss && (
+      <div class="award-card">
+        <div class="award-icon">😤</div>
+        <div class="award-title">Highest Points in a Loss</div>
+        <div class="award-winner">{validHighestPointsInLoss.owner}</div>
+        <div class="award-value">{validHighestPointsInLoss.score.toFixed(1)} pts (Week {validHighestPointsInLoss.week}, Lost by {Math.abs(validHighestPointsInLoss.margin).toFixed(1)})</div>
       </div>
       )}
       {highestAvgScore && (
