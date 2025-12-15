@@ -283,6 +283,7 @@ def calculate_season_stats(league_id, league_name):
                 w_stats['win_loss_margin'] = win_loss_margin
                 w_stats['opponent_points'] = opponent_points
                 w_stats['has_matchup'] = True
+                w_stats['starters'] = matchup.get('starters', [])  # Save starter player IDs
                 
                 # Update running totals (will be corrected later for Chopped)
                 stats = team_stats[roster_id]
