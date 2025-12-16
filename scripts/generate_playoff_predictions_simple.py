@@ -679,9 +679,21 @@ class SimplePlayoffSimulator:
         playoff_start = self._league.get('settings', {}).get('playoff_week_start', 15)
         
         # Finalize any completed matchups before simulating
-        print(f"\nChecking for completed matchups in week {current_week}...")
-        self._finalize_completed_matchups(self._winners_bracket, current_week, playoff_start)
-        self._finalize_completed_matchups(self._losers_bracket, current_week, playoff_start)
+        # Check both current week AND previous week (in case we're between weeks)
+        print(f"\nChecking for completed matchups...")
+        
+        # If we're past playoff start and have no actual points for current week,
+        # check the previous week for completed matchups
+        if current_week > playoff_start and len(self._actual_player_points) == 0:
+            print(f"  No data for week {current_week} yet, checking previous week {current_week - 1}...")
+            self._load_data(current_week - 1)
+            self._finalize_completed_matchups(self._winners_bracket, current_week - 1, playoff_start)
+            self._finalize_completed_matchups(self._losers_bracket, current_week - 1, playoff_start)
+            # Reload current week data for projections
+            self._load_data(current_week)
+        else:
+            self._finalize_completed_matchups(self._winners_bracket, current_week, playoff_start)
+            self._finalize_completed_matchups(self._losers_bracket, current_week, playoff_start)
         
         championship_wins = defaultdict(int)
         loser_wins = defaultdict(int)
