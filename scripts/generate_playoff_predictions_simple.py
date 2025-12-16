@@ -159,10 +159,19 @@ class SimplePlayoffSimulator:
         
         # Load actual player points for this week
         # Only include players whose games are COMPLETE (have final scores)
+        print(f"\n📍 Loading actual player points for Week {week}...")
+        print(f"  Completed game teams filter: {'DISABLED (accepting all)' if completed_game_teams is None else f'{len(completed_game_teams)} teams'}")
+        if completed_game_teams:
+            print(f"  Completed teams: {sorted(completed_game_teams)}")
+        
         self._actual_player_points = {}
+        total_players_checked = 0
+        skipped_in_progress = 0
+        
         for m in self._matchups:
             players_points = m.get('players_points', {})
             for pid, pts in players_points.items():
+                total_players_checked += 1
                 if pts is not None and pts > 0:
                     # Check if this player's team has completed their game
                     player_info = self._sleeper_players.get(pid, {})
@@ -174,15 +183,18 @@ class SimplePlayoffSimulator:
                         self._actual_player_points[pid] = pts
                     else:
                         # Game in progress - skip this player's actual points
-                        pass
+                        skipped_in_progress += 1
+        
+        print(f"  Checked {total_players_checked} player slots, found {len(self._actual_player_points)} with final points")
+        if skipped_in_progress > 0:
+            print(f"  Skipped {skipped_in_progress} players (games in progress)")
         
         if self._actual_player_points:
-            print(f"  Found {len(self._actual_player_points)} players with FINAL week {week} points (completed games only)")
             # Log a few sample players for debugging
             sample_players = list(self._actual_player_points.items())[:5]
             print(f"  Sample actual points: {[(self._sleeper_players.get(pid, {}).get('full_name', pid), pts) for pid, pts in sample_players]}")
         else:
-            print(f"  WARNING: No actual player points found for week {week}!")
+            print(f"  ⚠️ WARNING: No actual player points found for week {week}!")
         
         # Load 2025 season stats
         print("  Loading 2025 season statistics...")
@@ -590,6 +602,9 @@ class SimplePlayoffSimulator:
     
     def _finalize_completed_matchups(self, bracket: List[dict], current_week: int, playoff_start: int):
         """Check if matchups are complete and mark winners if all players have played."""
+        print(f"\n🔍 FINALIZATION CHECK: Week {current_week}, Playoff Start Week {playoff_start}")
+        print(f"  Actual player points available: {len(self._actual_player_points)}")
+        
         for matchup in bracket:
             # Only check matchups for the current week
             matchup_week = playoff_start + matchup['r'] - 1
@@ -598,12 +613,14 @@ class SimplePlayoffSimulator:
             
             # Skip if already decided
             if matchup.get('w') is not None:
+                print(f"  ⏭️  Matchup already has winner: roster {matchup['w']}")
                 continue
             
             t1 = matchup.get('t1')
             t2 = matchup.get('t2')
             
             if t1 is None or t2 is None:
+                print(f"  ⚠️  Matchup missing teams: t1={t1}, t2={t2}")
                 continue
             
             # Get starters for both teams
@@ -611,14 +628,32 @@ class SimplePlayoffSimulator:
             matchup2 = next((m for m in self._matchups if m['roster_id'] == t2), None)
             
             if not matchup1 or not matchup2:
+                print(f"  ⚠️  Could not find matchup data for rosters {t1} and {t2}")
                 continue
             
             starters1 = matchup1.get('starters', [])
             starters2 = matchup2.get('starters', [])
             
+            user1 = self._roster_map[t1]['user_name']
+            user2 = self._roster_map[t2]['user_name']
+            
+            print(f"\n  📊 Checking: {user1} (roster {t1}) vs {user2} (roster {t2})")
+            print(f"     {user1} starters: {len(starters1)} players")
+            print(f"     {user2} starters: {len(starters2)} players")
+            
             # Check if all players have finished
-            all_complete_1 = all(pid in self._actual_player_points for pid in starters1 if pid)
-            all_complete_2 = all(pid in self._actual_player_points for pid in starters2 if pid)
+            missing1 = [pid for pid in starters1 if pid and pid not in self._actual_player_points]
+            missing2 = [pid for pid in starters2 if pid and pid not in self._actual_player_points]
+            
+            all_complete_1 = len(missing1) == 0
+            all_complete_2 = len(missing2) == 0
+            
+            if missing1:
+                player_names = [self._sleeper_players.get(pid, {}).get('full_name', pid) for pid in missing1]
+                print(f"     ⏳ {user1} waiting on {len(missing1)} players: {player_names[:3]}")
+            if missing2:
+                player_names = [self._sleeper_players.get(pid, {}).get('full_name', pid) for pid in missing2]
+                print(f"     ⏳ {user2} waiting on {len(missing2)} players: {player_names[:3]}")
             
             if all_complete_1 and all_complete_2:
                 # Calculate final scores
@@ -629,11 +664,13 @@ class SimplePlayoffSimulator:
                 if score1 > score2:
                     matchup['w'] = t1
                     matchup['l'] = t2
-                    print(f"  ✓ Finalized: {self._roster_map[t1]['user_name']} ({score1:.1f}) defeats {self._roster_map[t2]['user_name']} ({score2:.1f})")
+                    print(f"     ✅ FINALIZED: {user1} ({score1:.1f}) defeats {user2} ({score2:.1f})")
                 else:
                     matchup['w'] = t2
                     matchup['l'] = t1
-                    print(f"  ✓ Finalized: {self._roster_map[t2]['user_name']} ({score2:.1f}) defeats {self._roster_map[t1]['user_name']} ({score1:.1f})")
+                    print(f"     ✅ FINALIZED: {user2} ({score2:.1f}) defeats {user1} ({score1:.1f})")
+            else:
+                print(f"     ⏸️  Not finalized - games still in progress")
     
     def simulate_playoffs(self, current_week: int) -> Dict[int, Dict[str, float]]:
         """Run Monte Carlo playoff simulation."""
