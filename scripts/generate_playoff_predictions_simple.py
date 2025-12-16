@@ -737,7 +737,9 @@ class SimplePlayoffSimulator:
     def _simulate_bracket(self, bracket: List[dict], current_week: int, 
                           playoff_start: int) -> Dict[str, int]:
         """Simulate a bracket."""
-        bracket = [dict(m) for m in bracket]
+        # Deep copy to preserve finalized winners
+        import copy
+        bracket = copy.deepcopy(bracket)
         
         max_round = max(m['r'] for m in bracket)
         
