@@ -159,7 +159,7 @@ class SimplePlayoffSimulator:
         
         # Load actual player points for this week
         # Only include players whose games are COMPLETE (have final scores)
-        print(f"\n📍 Loading actual player points for Week {week}...")
+        print(f"\nLoading actual player points for Week {week}...")
         print(f"  Completed game teams filter: {'DISABLED (accepting all)' if completed_game_teams is None else f'{len(completed_game_teams)} teams'}")
         if completed_game_teams:
             print(f"  Completed teams: {sorted(completed_game_teams)}")
@@ -194,7 +194,7 @@ class SimplePlayoffSimulator:
             sample_players = list(self._actual_player_points.items())[:5]
             print(f"  Sample actual points: {[(self._sleeper_players.get(pid, {}).get('full_name', pid), pts) for pid, pts in sample_players]}")
         else:
-            print(f"  ⚠️ WARNING: No actual player points found for week {week}!")
+            print(f"  WARNING: No actual player points found for week {week}!")
         
         # Load 2025 season stats
         print("  Loading 2025 season statistics...")
@@ -602,7 +602,7 @@ class SimplePlayoffSimulator:
     
     def _finalize_completed_matchups(self, bracket: List[dict], current_week: int, playoff_start: int):
         """Check if matchups are complete and mark winners if all players have played."""
-        print(f"\n🔍 FINALIZATION CHECK: Week {current_week}, Playoff Start Week {playoff_start}")
+        print(f"\nFINALIZATION CHECK: Week {current_week}, Playoff Start Week {playoff_start}")
         print(f"  Actual player points available: {len(self._actual_player_points)}")
         
         for matchup in bracket:
@@ -613,14 +613,14 @@ class SimplePlayoffSimulator:
             
             # Skip if already decided
             if matchup.get('w') is not None:
-                print(f"  ⏭️  Matchup already has winner: roster {matchup['w']}")
+                print(f"  >> Matchup already has winner: roster {matchup['w']}")
                 continue
             
             t1 = matchup.get('t1')
             t2 = matchup.get('t2')
             
             if t1 is None or t2 is None:
-                print(f"  ⚠️  Matchup missing teams: t1={t1}, t2={t2}")
+                print(f"  ** Matchup missing teams: t1={t1}, t2={t2}")
                 continue
             
             # Get starters for both teams
@@ -628,7 +628,7 @@ class SimplePlayoffSimulator:
             matchup2 = next((m for m in self._matchups if m['roster_id'] == t2), None)
             
             if not matchup1 or not matchup2:
-                print(f"  ⚠️  Could not find matchup data for rosters {t1} and {t2}")
+                print(f"  ** Could not find matchup data for rosters {t1} and {t2}")
                 continue
             
             starters1 = matchup1.get('starters', [])
@@ -637,7 +637,7 @@ class SimplePlayoffSimulator:
             user1 = self._roster_map[t1]['user_name']
             user2 = self._roster_map[t2]['user_name']
             
-            print(f"\n  📊 Checking: {user1} (roster {t1}) vs {user2} (roster {t2})")
+            print(f"\n  >> Checking: {user1} (roster {t1}) vs {user2} (roster {t2})")
             print(f"     {user1} starters: {len(starters1)} players")
             print(f"     {user2} starters: {len(starters2)} players")
             
@@ -650,10 +650,10 @@ class SimplePlayoffSimulator:
             
             if missing1:
                 player_names = [self._sleeper_players.get(pid, {}).get('full_name', pid) for pid in missing1]
-                print(f"     ⏳ {user1} waiting on {len(missing1)} players: {player_names[:3]}")
+                print(f"     ... {user1} waiting on {len(missing1)} players: {player_names[:3]}")
             if missing2:
                 player_names = [self._sleeper_players.get(pid, {}).get('full_name', pid) for pid in missing2]
-                print(f"     ⏳ {user2} waiting on {len(missing2)} players: {player_names[:3]}")
+                print(f"     ... {user2} waiting on {len(missing2)} players: {player_names[:3]}")
             
             if all_complete_1 and all_complete_2:
                 # Calculate final scores
@@ -664,13 +664,13 @@ class SimplePlayoffSimulator:
                 if score1 > score2:
                     matchup['w'] = t1
                     matchup['l'] = t2
-                    print(f"     ✅ FINALIZED: {user1} ({score1:.1f}) defeats {user2} ({score2:.1f})")
+                    print(f"     *** FINALIZED: {user1} ({score1:.1f}) defeats {user2} ({score2:.1f})")
                 else:
                     matchup['w'] = t2
                     matchup['l'] = t1
-                    print(f"     ✅ FINALIZED: {user2} ({score2:.1f}) defeats {user1} ({score1:.1f})")
+                    print(f"     *** FINALIZED: {user2} ({score2:.1f}) defeats {user1} ({score1:.1f})")
             else:
-                print(f"     ⏸️  Not finalized - games still in progress")
+                print(f"     ... Not finalized - games still in progress")
     
     def simulate_playoffs(self, current_week: int) -> Dict[int, Dict[str, float]]:
         """Run Monte Carlo playoff simulation."""
@@ -698,23 +698,54 @@ class SimplePlayoffSimulator:
         championship_wins = defaultdict(int)
         loser_wins = defaultdict(int)
         
-        print(f"  Running {self.num_simulations:,} playoff simulations...")
+        # Debug: Show finalized matchups before simulation
+        print(f"\nFINALIZED MATCHUPS IN WINNERS BRACKET:")
+        for m in self._winners_bracket:
+            if m.get('w') is not None:
+                winner_name = self._roster_map[m['w']]['user_name']
+                loser_name = self._roster_map[m['l']]['user_name'] if m.get('l') else 'TBD'
+                print(f"   Round {m['r']}, Match {m['m']}: {winner_name} beat {loser_name}")
+        
+        print(f"\nFINALIZED MATCHUPS IN LOSERS BRACKET:")
+        for m in self._losers_bracket:
+            if m.get('w') is not None:
+                winner_name = self._roster_map[m['w']]['user_name']
+                loser_name = self._roster_map[m['l']]['user_name'] if m.get('l') else 'TBD'
+                print(f"   Round {m['r']}, Match {m['m']}: {winner_name} beat {loser_name}")
+        
+        print(f"\n  Running {self.num_simulations:,} playoff simulations...")
         
         for sim in range(self.num_simulations):
             if sim > 0 and sim % 2000 == 0:
                 print(f"    Completed {sim:,} simulations...")
             
-            # Simulate brackets
+            # Simulate brackets (debug first sim only)
+            debug_mode = (sim == 0)
+            if debug_mode:
+                print(f"\nDEBUG: First simulation:")
+            
             winner_results = self._simulate_bracket(
                 self._winners_bracket.copy(),
                 current_week,
-                playoff_start
+                playoff_start,
+                debug=debug_mode
             )
             loser_results = self._simulate_bracket(
                 self._losers_bracket.copy(),
                 current_week,
-                playoff_start
+                playoff_start,
+                debug=debug_mode
             )
+            
+            if debug_mode:
+                champ = winner_results.get('champion')
+                if champ:
+                    champ_name = self._roster_map[champ]['user_name']
+                    print(f"   ** Winner bracket champion: {champ_name}")
+                loser_champ = loser_results.get('champion')
+                if loser_champ:
+                    loser_name = self._roster_map[loser_champ]['user_name']
+                    print(f"   ** Loser bracket champion: {loser_name}")
             
             champ_rid = winner_results.get('champion')
             if champ_rid:
@@ -735,7 +766,7 @@ class SimplePlayoffSimulator:
         return results
     
     def _simulate_bracket(self, bracket: List[dict], current_week: int, 
-                          playoff_start: int) -> Dict[str, int]:
+                          playoff_start: int, debug: bool = False) -> Dict[str, int]:
         """Simulate a bracket."""
         # Deep copy to preserve finalized winners
         import copy
@@ -775,9 +806,14 @@ class SimplePlayoffSimulator:
                 matchup['t2'] = t2
                 
                 if matchup.get('w') is not None:
+                    if debug:
+                        winner_name = self._roster_map[matchup['w']]['user_name']
+                        print(f"    >> Skipping R{round_num} M{matchup['m']}: Already decided ({winner_name} won)")
                     continue
                 
                 if t1 is None or t2 is None:
+                    if debug:
+                        print(f"    ** Skipping R{round_num} M{matchup['m']}: Missing teams (t1={t1}, t2={t2})")
                     continue
                 
                 # Simulate matchup
@@ -941,7 +977,7 @@ class SimplePlayoffSimulator:
         with open(output_path, 'w') as f:
             json.dump(output_data, f, indent=2)
         
-        print(f"\n💾 Saved predictions to: {os.path.abspath(output_path)}")
+        print(f"\nSaved predictions to: {os.path.abspath(output_path)}")
         
         return output_data
 
