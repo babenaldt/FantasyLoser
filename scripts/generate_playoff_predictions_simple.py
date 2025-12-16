@@ -588,11 +588,63 @@ class SimplePlayoffSimulator:
         
         return predictions
     
+    def _finalize_completed_matchups(self, bracket: List[dict], current_week: int, playoff_start: int):
+        """Check if matchups are complete and mark winners if all players have played."""
+        for matchup in bracket:
+            # Only check matchups for the current week
+            matchup_week = playoff_start + matchup['r'] - 1
+            if matchup_week != current_week:
+                continue
+            
+            # Skip if already decided
+            if matchup.get('w') is not None:
+                continue
+            
+            t1 = matchup.get('t1')
+            t2 = matchup.get('t2')
+            
+            if t1 is None or t2 is None:
+                continue
+            
+            # Get starters for both teams
+            matchup1 = next((m for m in self._matchups if m['roster_id'] == t1), None)
+            matchup2 = next((m for m in self._matchups if m['roster_id'] == t2), None)
+            
+            if not matchup1 or not matchup2:
+                continue
+            
+            starters1 = matchup1.get('starters', [])
+            starters2 = matchup2.get('starters', [])
+            
+            # Check if all players have finished
+            all_complete_1 = all(pid in self._actual_player_points for pid in starters1 if pid)
+            all_complete_2 = all(pid in self._actual_player_points for pid in starters2 if pid)
+            
+            if all_complete_1 and all_complete_2:
+                # Calculate final scores
+                score1 = sum(self._actual_player_points.get(pid, 0) for pid in starters1 if pid)
+                score2 = sum(self._actual_player_points.get(pid, 0) for pid in starters2 if pid)
+                
+                # Mark winner
+                if score1 > score2:
+                    matchup['w'] = t1
+                    matchup['l'] = t2
+                    print(f"  ✓ Finalized: {self._roster_map[t1]['user_name']} ({score1:.1f}) defeats {self._roster_map[t2]['user_name']} ({score2:.1f})")
+                else:
+                    matchup['w'] = t2
+                    matchup['l'] = t1
+                    print(f"  ✓ Finalized: {self._roster_map[t2]['user_name']} ({score2:.1f}) defeats {self._roster_map[t1]['user_name']} ({score1:.1f})")
+    
     def simulate_playoffs(self, current_week: int) -> Dict[int, Dict[str, float]]:
         """Run Monte Carlo playoff simulation."""
         self._load_data(current_week)
         
         playoff_start = self._league.get('settings', {}).get('playoff_week_start', 15)
+        
+        # Finalize any completed matchups before simulating
+        print(f"\nChecking for completed matchups in week {current_week}...")
+        self._finalize_completed_matchups(self._winners_bracket, current_week, playoff_start)
+        self._finalize_completed_matchups(self._losers_bracket, current_week, playoff_start)
         
         championship_wins = defaultdict(int)
         loser_wins = defaultdict(int)
