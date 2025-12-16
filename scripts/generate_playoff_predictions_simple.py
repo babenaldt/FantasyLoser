@@ -686,11 +686,20 @@ class SimplePlayoffSimulator:
         # check the previous week for completed matchups
         if current_week > playoff_start and len(self._actual_player_points) == 0:
             print(f"  No data for week {current_week} yet, checking previous week {current_week - 1}...")
+            
+            # Save current brackets before loading previous week
+            saved_winners_bracket = self._winners_bracket
+            saved_losers_bracket = self._losers_bracket
+            
             self._load_data(current_week - 1)
             self._finalize_completed_matchups(self._winners_bracket, current_week - 1, playoff_start)
             self._finalize_completed_matchups(self._losers_bracket, current_week - 1, playoff_start)
-            # Reload current week data for projections
-            self._load_data(current_week)
+            
+            # Reload current week matchup data for projections, but preserve finalized brackets
+            self._matchups = self.api.get_matchups(current_week)
+            self._actual_player_points = {}  # Clear since current week has no data
+            self._load_season_stats()
+            self._load_defense_stats()
         else:
             self._finalize_completed_matchups(self._winners_bracket, current_week, playoff_start)
             self._finalize_completed_matchups(self._losers_bracket, current_week, playoff_start)
