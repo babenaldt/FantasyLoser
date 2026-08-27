@@ -69,8 +69,21 @@ jobs:
           cp output/*.json website/public/data/
           # Remove enriched_player_stats.json - too large for Cloudflare (41MB > 26MB limit)
           rm -f website/public/data/enriched_player_stats.json
+          # Create placeholder files if not generated (preseason)
+          if [ ! -f website/public/data/dynasty_playoff_predictions.json ]; then
+            echo '{"matchups":[],"team_predictions":[],"playoff_probabilities":{},"is_playoffs":false}' > website/public/data/dynasty_playoff_predictions.json
+            echo "Created placeholder dynasty_playoff_predictions.json (preseason)"
+          fi
+          if [ ! -f website/public/data/season_stats_dynasty.json ]; then
+            echo '{"league_id":"","league_name":"Dynasty League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' > website/public/data/season_stats_dynasty.json
+            echo "Created placeholder season_stats_dynasty.json (preseason)"
+          fi
+          if [ ! -f website/public/data/season_stats_chopped.json ]; then
+            echo '{"league_id":"","league_name":"Chopped League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' > website/public/data/season_stats_chopped.json
+            echo "Created placeholder season_stats_chopped.json (preseason)"
+          fi
       
-      - name: Verify playoff predictions were generated
+      - name: Verify data files were generated
         run: |
           echo "Listing all JSON files in website/public/data/:"
           ls -lh website/public/data/*.json
@@ -82,8 +95,7 @@ jobs:
             echo "Preview:"
             head -n 20 website/public/data/dynasty_playoff_predictions.json
           else
-            echo "✗ dynasty_playoff_predictions.json NOT FOUND!"
-            exit 1
+            echo "ℹ️ dynasty_playoff_predictions.json not found (expected in preseason)"
           fi
       
       - name: Upload data artifacts
