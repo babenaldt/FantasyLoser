@@ -2,7 +2,17 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import leagueData from '../../../../public/data/archive/2025/season_stats_dynasty.json';
 
-const { league_name, season, teams, current_week } = leagueData;
+const { league_name, season, teams: rawTeams, current_week } = leagueData;
+
+// Backfill properties that may be missing in older archived data
+const teams = rawTeams.map(t => ({
+    ...t,
+    total_bench_points: t.total_bench_points ?? t.weekly_scores.reduce((sum, w) => sum + (w.bench || 0), 0),
+    weekly_scores: t.weekly_scores.map(w => ({
+        ...w,
+        win_loss_margin: w.win_loss_margin ?? (w.opponent_points ? w.points - w.opponent_points : 0),
+    })),
+}));
 
 const activeTeams = teams.filter(t => t.weeks_played > 0);
 const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
