@@ -416,6 +416,9 @@ def generate_player_stats_json():
             stats['weekly_points'] = full_schedule
             points_list = [wp['points'] for wp in stats['weekly_points'] if wp['points'] is not None]
             
+            if not points_list:
+                continue
+            
             # Basic Averages
             avg_ppg = stats['total_points'] / stats['games_played']
             stats['avg_points_per_game'] = avg_ppg
