@@ -2,7 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import leagueData from '../../../../public/data/archive/2025/season_stats_chopped.json';
 
-const { league_name, season, teams: rawTeams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup } = leagueData;
+const { league_name, season, teams: rawTeams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup, champion } = leagueData;
 
 // Backfill properties that may be missing in older archived data
 const teams = rawTeams.map(t => ({
@@ -56,6 +56,10 @@ activeTeams.forEach(t => {
     });
 });
 
+// Championship data
+const championTeam = champion ? teams.find(t => t.owner_name === champion.owner_name) : null;
+const runnerUpTeam = champion ? teams.find(t => t.owner_name === champion.runner_up) : null;
+
 let unluckiestChop = { owner: '', diff: 9999, elimScore: 0, leagueAvg: 0, week: 0 };
 teams.forEach(t => {
     if (t.eliminated_week) {
@@ -99,6 +103,24 @@ teams.forEach(t => {
     <h1>{league_name}</h1>
     <p class="subtitle">{season} Season Statistics (Archived)</p>
   </div>
+
+  {championTeam && (
+  <div class="championship-section">
+    <div class="trophy-icon">🏆</div>
+    <h2 class="champ-title">{season} Chopped League Champion</h2>
+    <div class="champ-name">{championTeam.owner_name}</div>
+    <div class="champ-stats">
+      <span>{championTeam.total_points_scored.toFixed(1)} total pts</span>
+      <span>{championTeam.avg_points_per_game.toFixed(1)} PPG</span>
+      <span>{championTeam.efficiency_rate.toFixed(1)}% efficiency</span>
+    </div>
+    {runnerUpTeam && (
+      <div class="runner-up">
+        Runner-Up: <strong>{runnerUpTeam.owner_name}</strong> ({runnerUpTeam.total_points_scored.toFixed(1)} pts)
+      </div>
+    )}
+  </div>
+  )}
 
   <div class="stats-grid">
     <div class="stat-card">
@@ -335,7 +357,7 @@ teams.forEach(t => {
     <canvas id="leagueChart"></canvas>
   </div>
 
-  {best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
+  {best_theoretical_lineups && best_theoretical_lineups.some(w => w.points > 0) && (
   <div class="table-container">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Best Theoretical Lineup by Week</h3>
     <p style="text-align: center; color: #666; margin-bottom: 15px;">
@@ -461,6 +483,21 @@ teams.forEach(t => {
     }
     .archive-banner-links { display: flex; gap: 15px; }
     .archive-banner a { color: white; text-decoration: underline; font-weight: 500; }
+    .championship-section {
+      background: linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #ffd700 100%);
+      border-radius: 15px;
+      padding: 35px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+      border: 3px solid #e6a800;
+    }
+    .trophy-icon { font-size: 4em; margin-bottom: 10px; }
+    .champ-title { color: #5a3e00; font-size: 1.3em; margin-bottom: 8px; font-weight: 700; }
+    .champ-name { font-size: 2.5em; font-weight: 800; color: #2d1f00; margin-bottom: 12px; text-shadow: 1px 1px 2px rgba(255,255,255,0.3); }
+    .champ-stats { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; }
+    .champ-stats span { background: rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 20px; font-weight: 600; color: #5a3e00; font-size: 0.95em; }
+    .runner-up { color: #5a3e00; font-size: 1.05em; opacity: 0.85; }
     .page-header { text-align: center; margin-bottom: 40px; color: white; }
     .page-header h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
     .subtitle { font-size: 1.2em; opacity: 0.9; }

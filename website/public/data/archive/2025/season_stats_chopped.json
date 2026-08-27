@@ -2085,5 +2085,9 @@
       "lineup": []
     }
   ],
-  "avg_best_theoretical_lineup": 0.0
+  "avg_best_theoretical_lineup": 0.0,
+  "champion": {
+    "owner_name": "SamirNazir",
+    "runner_up": "SeanRabenaldt"
+  }
 }
