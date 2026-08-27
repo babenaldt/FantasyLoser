@@ -85,7 +85,10 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
 <BaseLayout title={`${league_name} - ${season} Season Archive`}>
   <div class="archive-banner">
     <span>Archived Season - {season}</span>
-    <a href="/season-stats-dynasty">View Current Season &rarr;</a>
+    <div class="archive-banner-links">
+      <a href="/archive/2025/season-stats-chopped">🔪 2025 Chopped</a>
+      <a href="/season-stats-dynasty">View Current Season &rarr;</a>
+    </div>
   </div>
 
   <div class="page-header">
@@ -381,12 +384,14 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
       padding: 12px 20px;
       font-weight: 600;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
       border-radius: 10px;
       margin-bottom: 20px;
     }
+    .archive-banner-links { display: flex; gap: 15px; }
     .archive-banner a {
       color: white;
       text-decoration: underline;
