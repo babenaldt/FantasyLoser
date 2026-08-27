@@ -9,7 +9,7 @@ from nfl_week_helper import get_current_nfl_week
 def get_sleeper_projections(week):
     """Fetch weekly projections from Sleeper API."""
     try:
-        url = f"https://api.sleeper.com/projections/nfl/2025/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
+        url = f"https://api.sleeper.com/projections/nfl/2026/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             projections = response.json()
@@ -308,8 +308,8 @@ def generate_user_lineups():
     ensure_directories()
     
     # League IDs
-    DYNASTY_LEAGUE_ID = "1264304480178950144"
-    CHOPPED_LEAGUE_ID = "1263579037352079360"
+    DYNASTY_LEAGUE_ID = "1312064104759844864"
+    CHOPPED_LEAGUE_ID = "1383538112403095552"
     
     current_week = get_current_nfl_week()
     print(f"  Current NFL Week: {current_week}")

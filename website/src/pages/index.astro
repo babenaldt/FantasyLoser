@@ -12,7 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="reports-grid">
       <div class="report-card">
         <h2>📊 Player Statistics</h2>
-        <p>Comprehensive player stats for 2025 season including PPR scoring, ownership tracking, snap counts, and advanced metrics for all NFL players.</p>
+        <p>Comprehensive player stats for 2026 season including PPR scoring, ownership tracking, snap counts, and advanced metrics for all NFL players.</p>
         <a href="/player-stats" class="report-link">View Player Stats →</a>
       </div>
 
@@ -32,6 +32,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2>🔪 IBAC Chopped League</h2>
         <p>Elimination-style league standings with safety margins, close calls, and weekly survival analysis.</p>
         <a href="/season-stats-chopped" class="report-link">View Chopped Stats →</a>
+      </div>
+    </div>
+
+    <div class="archive-section">
+      <h2 style="color: white; text-align: center; margin-bottom: 20px;">Past Seasons</h2>
+      <div class="reports-grid">
+        <div class="report-card archive-card">
+          <h2>🏆 2025 Dynasty</h2>
+          <p>Archived final standings, awards, and weekly performance from the 2025 Dynasty League season.</p>
+          <a href="/archive/2025/season-stats-dynasty" class="report-link archive-link">View 2025 Dynasty →</a>
+        </div>
+        <div class="report-card archive-card">
+          <h2>🔪 2025 Chopped</h2>
+          <p>Archived elimination timeline, awards, and stats from the 2025 Chopped League season.</p>
+          <a href="/archive/2025/season-stats-chopped" class="report-link archive-link">View 2025 Chopped →</a>
+        </div>
       </div>
     </div>
 
@@ -115,6 +131,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   
   .report-link:hover {
     transform: scale(1.05);
+  }
+  
+  .archive-section {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid rgba(255,255,255,0.2);
+  }
+  
+  .archive-card {
+    opacity: 0.9;
+  }
+  
+  .archive-link {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
   }
   
   .github-link {

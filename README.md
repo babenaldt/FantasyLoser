@@ -127,11 +127,11 @@ Edit `scripts/generate_season_stats.py` to modify league IDs:
 ```python
 LEAGUES = {
     'dynasty': {
-        'id': '1264304480178950144',
+        'id': '1312064104759844864',
         'name': 'Dynasty League'
     },
     'chopped': {
-        'id': '1263579037352079360', 
+        'id': '1383538112403095552',
         'name': 'Chopped League'
     }
 }

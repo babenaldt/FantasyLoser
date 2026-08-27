@@ -16,6 +16,9 @@ output/*.json
 # Generated website data (dynamically created, not committed)
 website/public/data/*.json
 
+# Keep archived season data
+!website/public/data/archive/
+
 # Website build output
 website/dist/
 website/.astro/

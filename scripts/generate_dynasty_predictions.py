@@ -32,7 +32,7 @@ def generate_dynasty_predictions():
     
     # Initialize model
     print("Initializing prediction model...")
-    model = PlayerScoreModelV7(season=2025, verbose=False)
+    model = PlayerScoreModelV7(season=2026, verbose=False)
     print("✅ Model ready\n")
     
     # Generate predictions for each user's players

@@ -379,7 +379,7 @@ class PlayerScoreModelV7:
         self.verbose = verbose
 
         if season is None:
-            season = 2025
+            season = 2026
         self.season = int(season)
 
         # Use current + prior season for training (optimal based on experiment)
