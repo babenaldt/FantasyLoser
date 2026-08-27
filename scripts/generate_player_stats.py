@@ -20,7 +20,7 @@ def fetch_all_weekly_projections():
     
     for week in range(1, 19):
         try:
-            url = f"https://api.sleeper.com/projections/nfl/2025/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
+            url = f"https://api.sleeper.com/projections/nfl/2026/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 week_projections = response.json()
@@ -122,8 +122,8 @@ def generate_player_stats_json():
     from core_data import SleeperAPI
     
     # League IDs
-    DYNASTY_LEAGUE_ID = "1264304480178950144"
-    CHOPPED_LEAGUE_ID = "1263579037352079360"
+    DYNASTY_LEAGUE_ID = "1312064104759844864"
+    CHOPPED_LEAGUE_ID = "1383538112403095552"
     
     # Team code normalization (Sleeper -> NFL)
     TEAM_CODE_MAP = {

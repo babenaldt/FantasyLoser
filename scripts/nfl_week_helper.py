@@ -2,22 +2,22 @@
 
 from datetime import datetime, timedelta
 
-def get_current_nfl_week(season_year=2025):
+def get_current_nfl_week(season_year=2026):
     """
     Determine the current NFL week based on the date.
     Week resets after Monday Night Football (Tuesday 3 AM ET).
     
     Args:
-        season_year: NFL season year (default 2025)
+        season_year: NFL season year (default 2026)
     
     Returns:
         int: Current week number (1-18)
     """
-    # NFL 2025 Season Start: Thursday, September 4, 2025
+    # NFL 2026 Season Start: Wednesday, September 9, 2026
     # Each week runs Tuesday 3 AM ET to following Tuesday 3 AM ET (after MNF)
     
-    # Week 1 starts Tuesday Sept 2, 2025 at 3 AM ET
-    week1_start = datetime(2025, 9, 2, 3, 0, 0)
+    # Week 1 starts Tuesday Sept 8, 2026 at 3 AM ET
+    week1_start = datetime(2026, 9, 8, 3, 0, 0)
     
     # Get current time
     now = datetime.now()

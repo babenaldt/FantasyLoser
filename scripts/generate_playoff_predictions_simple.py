@@ -1,7 +1,7 @@
 """
-Generate playoff predictions using simple 2025 season averages.
+Generate playoff predictions using simple 2026 season averages.
 
-This uses actual PPG and standard deviation from the 2025 season,
+This uses actual PPG and standard deviation from the 2026 season,
 adjusted for defensive matchup favorability, instead of the V7 model.
 """
 
@@ -57,7 +57,7 @@ class SimpleTeamPrediction:
 
 
 class SimplePlayoffSimulator:
-    """Simulate playoffs using simple 2025 season averages."""
+    """Simulate playoffs using simple 2026 season averages."""
     
     ROSTER_SLOTS = {
         'QB': 1,
@@ -68,7 +68,7 @@ class SimplePlayoffSimulator:
         'SUPERFLEX': 1,
     }
     
-    def __init__(self, league_id: str, season: int = 2025, num_simulations: int = 10000):
+    def __init__(self, league_id: str, season: int = 2026, num_simulations: int = 10000):
         self.league_id = league_id
         self.season = season
         self.num_simulations = num_simulations
@@ -196,8 +196,8 @@ class SimplePlayoffSimulator:
         else:
             print(f"  WARNING: No actual player points found for week {week}!")
         
-        # Load 2025 season stats
-        print("  Loading 2025 season statistics...")
+        # Load 2026 season stats
+        print("  Loading 2026 season statistics...")
         self._load_season_stats()
         
         # Load defense stats
@@ -207,7 +207,7 @@ class SimplePlayoffSimulator:
         print(f"  Loaded {len(self._rosters)} rosters, {len(self._matchups)} matchups")
     
     def _load_season_stats(self):
-        """Load actual 2025 season stats for all players from their matchup history."""
+        """Load actual 2026 season stats for all players from their matchup history."""
         # Calculate season averages from actual matchup history
         # Go through past weeks and collect points for each player
         current_week = get_current_nfl_week()
@@ -993,9 +993,9 @@ class SimplePlayoffSimulator:
 
 def main():
     """Run simple playoff predictions."""
-    league_id = "1264304480178950144"  # IBAC Dynasty
+    league_id = "1312064104759844864"  # IBAC Dynasty
     
-    simulator = SimplePlayoffSimulator(league_id, season=2025, num_simulations=10000)
+    simulator = SimplePlayoffSimulator(league_id, season=2026, num_simulations=10000)
     
     # Use absolute path based on script location
     script_dir = os.path.dirname(os.path.abspath(__file__))

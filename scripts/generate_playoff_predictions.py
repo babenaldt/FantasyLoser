@@ -70,7 +70,7 @@ class PlayoffSimulator:
         'SUPERFLEX': 1,  # QB/RB/WR/TE
     }
     
-    def __init__(self, league_id: str, season: int = 2025, num_simulations: int = 10000):
+    def __init__(self, league_id: str, season: int = 2026, num_simulations: int = 10000):
         self.league_id = league_id
         self.season = season
         self.num_simulations = num_simulations
@@ -810,7 +810,7 @@ def main():
     """Run playoff predictions for Dynasty league."""
     # Only Dynasty league has traditional playoffs
     # Chopped league uses a different format (last_chopped_leg) without playoff brackets
-    DYNASTY_LEAGUE_ID = "1264304480178950144"
+    DYNASTY_LEAGUE_ID = "1312064104759844864"
     
     print(f"\n\n{'#'*80}")
     print(f"# DYNASTY LEAGUE PLAYOFF PREDICTIONS")
@@ -818,7 +818,7 @@ def main():
     
     simulator = PlayoffSimulator(
         league_id=DYNASTY_LEAGUE_ID,
-        season=2025,
+        season=2026,
         num_simulations=10000
     )
     

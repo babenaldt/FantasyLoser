@@ -12,11 +12,11 @@ from core_data import (
 # League configurations
 LEAGUES = {
     'dynasty': {
-        'id': '1264304480178950144',
+        'id': '1312064104759844864',
         'name': 'Dynasty League'
     },
     'chopped': {
-        'id': '1263579037352079360',
+        'id': '1383538112403095552',
         'name': 'Chopped League'
     }
 }
@@ -460,7 +460,7 @@ def calculate_season_stats(league_id, league_name):
     return {
         'league_id': league_id,
         'league_name': league_name,
-        'season': league.get('season', '2025'),
+        'season': league.get('season', '2026'),
         'current_week': current_week,
         'generated_at': __import__('datetime').datetime.now().isoformat(),
         'teams': stats_list,
