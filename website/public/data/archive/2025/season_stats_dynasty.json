@@ -2,20 +2,20 @@
   "league_id": "1264304480178950144",
   "league_name": "Dynasty League",
   "season": "2025",
-  "current_week": 15,
+  "current_week": 18,
   "generated_at": "2025-12-13T01:45:04.979665",
   "teams": [
     {
       "roster_id": 7,
       "owner_id": "992545813546979328",
       "owner_name": "emiliosolay",
-      "total_points_scored": 2177.98,
+      "total_points_scored": 2560.3199999999997,
       "total_points_against": 1670.3,
       "total_optimal_points": 2177.98,
       "wins": 12,
       "losses": 2,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -181,6 +181,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 128.42,
+          "optimal": 128.42,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
+        },
+        {
+          "week": 16,
+          "points": 136.68,
+          "optimal": 136.68,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 129.28,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 117.24,
+          "optimal": 117.24,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 120.78,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
         }
       ],
       "points_left_on_bench": 1126.36,
@@ -192,8 +225,8 @@
       "all_play_wins": 95,
       "all_play_losses": 31,
       "all_play_ties": 0,
-      "average_points": 145.19866666666667,
-      "avg_points_per_game": 145.19866666666667,
+      "average_points": 142.23999999999998,
+      "avg_points_per_game": 142.23999999999998,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 49.499545454545455,
@@ -208,13 +241,13 @@
       "roster_id": 5,
       "owner_id": "867509897846259712",
       "owner_name": "BTThomp",
-      "total_points_scored": 1938.8799999999999,
+      "total_points_scored": 2303.26,
       "total_points_against": 1892.76,
       "total_optimal_points": 1938.8799999999999,
       "wins": 6,
       "losses": 8,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -380,6 +413,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 169.08,
+          "optimal": 169.08,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 170.22,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 105.32,
+          "optimal": 105.32,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 146.2,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 89.98,
+          "optimal": 89.98,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
         }
       ],
       "points_left_on_bench": 1349.0199999999998,
@@ -391,8 +457,8 @@
       "all_play_wins": 82,
       "all_play_losses": 44,
       "all_play_ties": 0,
-      "average_points": 129.25866666666667,
-      "avg_points_per_game": 129.25866666666667,
+      "average_points": 127.95888888888891,
+      "avg_points_per_game": 127.95888888888891,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 176.26181818181817,
@@ -407,13 +473,13 @@
       "roster_id": 4,
       "owner_id": "992533962855608320",
       "owner_name": "SeanRabenaldt",
-      "total_points_scored": 1927.88,
+      "total_points_scored": 2349.12,
       "total_points_against": 1890.5000000000002,
       "total_optimal_points": 1927.88,
       "wins": 8,
       "losses": 6,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -579,6 +645,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 170.22,
+          "optimal": 170.22,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 169.08,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 132.38,
+          "optimal": 132.38,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 143.0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 118.64,
+          "optimal": 118.64,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 159.82,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
         }
       ],
       "points_left_on_bench": 997.68,
@@ -590,8 +689,8 @@
       "all_play_wins": 72,
       "all_play_losses": 54,
       "all_play_ties": 0,
-      "average_points": 128.52533333333335,
-      "avg_points_per_game": 128.52533333333335,
+      "average_points": 130.50666666666666,
+      "avg_points_per_game": 130.50666666666666,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 20.082083333333333,
@@ -606,13 +705,13 @@
       "roster_id": 10,
       "owner_id": "865705907659632640",
       "owner_name": "Taubitz",
-      "total_points_scored": 1779.4199999999998,
+      "total_points_scored": 2182.72,
       "total_points_against": 1936.48,
       "total_optimal_points": 1779.4199999999998,
       "wins": 6,
       "losses": 8,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -778,6 +877,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 129.46,
+          "optimal": 129.46,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 161.92,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 134.98,
+          "optimal": 134.98,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 137.16,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 138.86,
+          "optimal": 138.86,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
         }
       ],
       "points_left_on_bench": 912.3399999999999,
@@ -789,8 +921,8 @@
       "all_play_wins": 67,
       "all_play_losses": 62,
       "all_play_ties": 0,
-      "average_points": 118.62799999999999,
-      "avg_points_per_game": 118.62799999999999,
+      "average_points": 121.2622222222222,
+      "avg_points_per_game": 121.2622222222222,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 44.485499999999995,
@@ -805,13 +937,13 @@
       "roster_id": 6,
       "owner_id": "466651430967570432",
       "owner_name": "Sangha",
-      "total_points_scored": 1762.4800000000002,
+      "total_points_scored": 2194.2400000000002,
       "total_points_against": 1813.2600000000002,
       "total_optimal_points": 1762.4800000000002,
       "wins": 7,
       "losses": 7,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -977,6 +1109,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 142.66,
+          "optimal": 142.66,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 123.86,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 129.28,
+          "optimal": 129.28,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 136.68,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 159.82,
+          "optimal": 159.82,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 118.64,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
         }
       ],
       "points_left_on_bench": 1016.64,
@@ -988,8 +1153,8 @@
       "all_play_wins": 60,
       "all_play_losses": 66,
       "all_play_ties": 0,
-      "average_points": 117.49866666666668,
-      "avg_points_per_game": 117.49866666666668,
+      "average_points": 121.90222222222224,
+      "avg_points_per_game": 121.90222222222224,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 80.11272727272728,
@@ -1004,13 +1169,13 @@
       "roster_id": 3,
       "owner_id": "867508658106421248",
       "owner_name": "B-Ray",
-      "total_points_scored": 1742.82,
+      "total_points_scored": 2151.7,
       "total_points_against": 1769.98,
       "total_optimal_points": 1742.82,
       "wins": 6,
       "losses": 8,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -1176,6 +1341,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 138.0,
+          "optimal": 138.0,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 146.34,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 137.16,
+          "optimal": 137.16,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 134.98,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 133.72,
+          "optimal": 133.72,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
         }
       ],
       "points_left_on_bench": 1080.16,
@@ -1187,8 +1385,8 @@
       "all_play_wins": 47,
       "all_play_losses": 82,
       "all_play_ties": 0,
-      "average_points": 116.188,
-      "avg_points_per_game": 116.188,
+      "average_points": 119.53888888888888,
+      "avg_points_per_game": 119.53888888888888,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 87.14099999999999,
@@ -1203,13 +1401,13 @@
       "roster_id": 2,
       "owner_id": "865700190626136064",
       "owner_name": "NLadocsi",
-      "total_points_scored": 1741.9,
+      "total_points_scored": 2110.5800000000004,
       "total_points_against": 1700.8999999999999,
       "total_optimal_points": 1741.9,
       "wins": 9,
       "losses": 5,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -1375,6 +1573,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 104.9,
+          "optimal": 104.9,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
+        },
+        {
+          "week": 16,
+          "points": 143.0,
+          "optimal": 143.0,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 132.38,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 120.78,
+          "optimal": 120.78,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 117.24,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
         }
       ],
       "points_left_on_bench": 1056.8600000000001,
@@ -1386,8 +1617,8 @@
       "all_play_wins": 63,
       "all_play_losses": 63,
       "all_play_ties": 0,
-      "average_points": 116.12666666666668,
-      "avg_points_per_game": 116.12666666666668,
+      "average_points": 117.25444444444446,
+      "avg_points_per_game": 117.25444444444446,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 30.55964912280702,
@@ -1402,13 +1633,13 @@
       "roster_id": 1,
       "owner_id": "713832511611965440",
       "owner_name": "agrusa17",
-      "total_points_scored": 1700.0600000000002,
+      "total_points_scored": 2017.0600000000002,
       "total_points_against": 1929.0200000000002,
       "total_optimal_points": 1700.0600000000002,
       "wins": 4,
       "losses": 10,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -1574,6 +1805,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 146.34,
+          "optimal": 146.34,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 138.0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 75.7,
+          "optimal": 75.7,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 168.78,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 94.96,
+          "optimal": 94.96,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
         }
       ],
       "points_left_on_bench": 1173.9000000000003,
@@ -1585,8 +1849,8 @@
       "all_play_wins": 58,
       "all_play_losses": 71,
       "all_play_ties": 0,
-      "average_points": 113.33733333333335,
-      "avg_points_per_game": 113.33733333333335,
+      "average_points": 112.0588888888889,
+      "avg_points_per_game": 112.0588888888889,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 17.52639175257732,
@@ -1601,13 +1865,13 @@
       "roster_id": 8,
       "owner_id": "865996913412022272",
       "owner_name": "McInally",
-      "total_points_scored": 1693.48,
+      "total_points_scored": 2108.84,
       "total_points_against": 1836.62,
       "total_optimal_points": 1693.48,
       "wins": 4,
       "losses": 10,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -1773,6 +2037,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 161.92,
+          "optimal": 161.92,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 129.46,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 168.78,
+          "optimal": 168.78,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 75.7,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 84.66,
+          "optimal": 84.66,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
         }
       ],
       "points_left_on_bench": 1056.44,
@@ -1784,8 +2081,8 @@
       "all_play_wins": 44,
       "all_play_losses": 85,
       "all_play_ties": 0,
-      "average_points": 112.89866666666667,
-      "avg_points_per_game": 112.89866666666667,
+      "average_points": 117.15777777777778,
+      "avg_points_per_game": 117.15777777777778,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 27.3141935483871,
@@ -1800,13 +2097,13 @@
       "roster_id": 9,
       "owner_id": "1265686061632208896",
       "owner_name": "dbyrd55",
-      "total_points_scored": 1670.88,
+      "total_points_scored": 2041.78,
       "total_points_against": 1695.9599999999998,
       "total_optimal_points": 1670.88,
       "wins": 8,
       "losses": 6,
       "ties": 0,
-      "weeks_played": 15,
+      "weeks_played": 18,
       "weekly_scores": [
         {
           "week": 1,
@@ -1972,6 +2269,39 @@
           "waiver_moves": 0,
           "faab_spent": 0,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 123.86,
+          "optimal": 123.86,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 142.66,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 16,
+          "points": 146.2,
+          "optimal": 146.2,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 105.32,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
+        },
+        {
+          "week": 17,
+          "points": 100.84,
+          "optimal": 100.84,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 0,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": false
         }
       ],
       "points_left_on_bench": 711.36,
@@ -1983,8 +2313,8 @@
       "all_play_wins": 48,
       "all_play_losses": 78,
       "all_play_ties": 0,
-      "average_points": 111.39200000000001,
-      "avg_points_per_game": 111.39200000000001,
+      "average_points": 113.43222222222222,
+      "avg_points_per_game": 113.43222222222222,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 75.94909090909091,
@@ -2006,85 +2336,161 @@
     "start_week": 15,
     "winners_bracket": [
       {
-        "round": 1, "week": 15, "label": "Quarterfinal 1",
-        "team1": "dbyrd55", "team1_points": 123.86,
-        "team2": "Sangha", "team2_points": 142.66,
+        "round": 1,
+        "week": 15,
+        "label": "Quarterfinal 1",
+        "team1": "dbyrd55",
+        "team1_points": 123.86,
+        "team2": "Sangha",
+        "team2_points": 142.66,
         "winner": "Sangha"
       },
       {
-        "round": 1, "week": 15, "label": "Quarterfinal 2",
-        "team1": "BTThomp", "team1_points": 169.08,
-        "team2": "SeanRabenaldt", "team2_points": 170.22,
+        "round": 1,
+        "week": 15,
+        "label": "Quarterfinal 2",
+        "team1": "BTThomp",
+        "team1_points": 169.08,
+        "team2": "SeanRabenaldt",
+        "team2_points": 170.22,
         "winner": "SeanRabenaldt"
       },
       {
-        "round": 2, "week": 16, "label": "Semifinal 1",
-        "team1": "emiliosolay", "team1_points": 136.68, "team1_note": "#1 Seed",
-        "team2": "Sangha", "team2_points": 129.28,
+        "round": 2,
+        "week": 16,
+        "label": "Semifinal 1",
+        "team1": "emiliosolay",
+        "team1_points": 136.68,
+        "team1_note": "#1 Seed",
+        "team2": "Sangha",
+        "team2_points": 129.28,
         "winner": "emiliosolay"
       },
       {
-        "round": 2, "week": 16, "label": "Semifinal 2",
-        "team1": "NLadocsi", "team1_points": 143.0, "team1_note": "#2 Seed",
-        "team2": "SeanRabenaldt", "team2_points": 132.38,
+        "round": 2,
+        "week": 16,
+        "label": "Semifinal 2",
+        "team1": "NLadocsi",
+        "team1_points": 143.0,
+        "team1_note": "#2 Seed",
+        "team2": "SeanRabenaldt",
+        "team2_points": 132.38,
         "winner": "NLadocsi"
       },
       {
-        "round": 2, "week": 16, "label": "5th Place Game",
-        "team1": "dbyrd55", "team1_points": 146.2,
-        "team2": "BTThomp", "team2_points": 105.32,
+        "round": 2,
+        "week": 16,
+        "label": "5th Place Game",
+        "team1": "dbyrd55",
+        "team1_points": 146.2,
+        "team2": "BTThomp",
+        "team2_points": 105.32,
         "winner": "dbyrd55"
       },
       {
-        "round": 3, "week": 17, "label": "Championship",
-        "team1": "emiliosolay", "team1_points": 117.24,
-        "team2": "NLadocsi", "team2_points": 120.78,
+        "round": 3,
+        "week": 17,
+        "label": "Championship",
+        "team1": "emiliosolay",
+        "team1_points": 117.24,
+        "team2": "NLadocsi",
+        "team2_points": 120.78,
         "winner": "NLadocsi"
       },
       {
-        "round": 3, "week": 17, "label": "3rd Place Game",
-        "team1": "Sangha", "team1_points": 159.82,
-        "team2": "SeanRabenaldt", "team2_points": 118.64,
+        "round": 3,
+        "week": 17,
+        "label": "3rd Place Game",
+        "team1": "Sangha",
+        "team1_points": 159.82,
+        "team2": "SeanRabenaldt",
+        "team2_points": 118.64,
         "winner": "Sangha"
       }
     ],
     "losers_bracket": [
       {
-        "round": 1, "week": 15, "label": "Consolation QF 1",
-        "team1": "McInally", "team1_points": 161.92,
-        "team2": "Taubitz", "team2_points": 129.46,
+        "round": 1,
+        "week": 15,
+        "label": "Consolation QF 1",
+        "team1": "McInally",
+        "team1_points": 161.92,
+        "team2": "Taubitz",
+        "team2_points": 129.46,
         "winner": "McInally"
       },
       {
-        "round": 1, "week": 15, "label": "Consolation QF 2",
-        "team1": "agrusa17", "team1_points": 146.34,
-        "team2": "B-Ray", "team2_points": 138.0,
+        "round": 1,
+        "week": 15,
+        "label": "Consolation QF 2",
+        "team1": "agrusa17",
+        "team1_points": 146.34,
+        "team2": "B-Ray",
+        "team2_points": 138.0,
         "winner": "agrusa17"
       },
       {
-        "round": 2, "week": 16, "label": "Consolation Semi",
-        "team1": "McInally", "team1_points": 168.78,
-        "team2": "agrusa17", "team2_points": 75.7,
+        "round": 2,
+        "week": 16,
+        "label": "Consolation Semi",
+        "team1": "McInally",
+        "team1_points": 168.78,
+        "team2": "agrusa17",
+        "team2_points": 75.7,
         "winner": "McInally"
       },
       {
-        "round": 2, "week": 16, "label": "9th Place Game",
-        "team1": "Taubitz", "team1_points": 134.98,
-        "team2": "B-Ray", "team2_points": 137.16,
+        "round": 2,
+        "week": 16,
+        "label": "9th Place Game",
+        "team1": "Taubitz",
+        "team1_points": 134.98,
+        "team2": "B-Ray",
+        "team2_points": 137.16,
         "winner": "B-Ray"
       }
     ],
     "final_standings": [
-      {"place": 1, "owner_name": "NLadocsi"},
-      {"place": 2, "owner_name": "emiliosolay"},
-      {"place": 3, "owner_name": "Sangha"},
-      {"place": 4, "owner_name": "SeanRabenaldt"},
-      {"place": 5, "owner_name": "dbyrd55"},
-      {"place": 6, "owner_name": "BTThomp"},
-      {"place": 7, "owner_name": "McInally"},
-      {"place": 8, "owner_name": "agrusa17"},
-      {"place": 9, "owner_name": "B-Ray"},
-      {"place": 10, "owner_name": "Taubitz"}
+      {
+        "place": 1,
+        "owner_name": "NLadocsi"
+      },
+      {
+        "place": 2,
+        "owner_name": "emiliosolay"
+      },
+      {
+        "place": 3,
+        "owner_name": "Sangha"
+      },
+      {
+        "place": 4,
+        "owner_name": "SeanRabenaldt"
+      },
+      {
+        "place": 5,
+        "owner_name": "dbyrd55"
+      },
+      {
+        "place": 6,
+        "owner_name": "BTThomp"
+      },
+      {
+        "place": 7,
+        "owner_name": "McInally"
+      },
+      {
+        "place": 8,
+        "owner_name": "agrusa17"
+      },
+      {
+        "place": 9,
+        "owner_name": "B-Ray"
+      },
+      {
+        "place": 10,
+        "owner_name": "Taubitz"
+      }
     ]
   }
 }
