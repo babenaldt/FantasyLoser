@@ -89,7 +89,10 @@ teams.forEach(t => {
 <BaseLayout title={`${league_name} - ${season} Season Archive`}>
   <div class="archive-banner">
     <span>Archived Season - {season}</span>
-    <a href="/season-stats-chopped">View Current Season &rarr;</a>
+    <div class="archive-banner-links">
+      <a href="/archive/2025/season-stats-dynasty">🏆 2025 Dynasty</a>
+      <a href="/season-stats-chopped">View Current Season &rarr;</a>
+    </div>
   </div>
 
   <div class="page-header">
@@ -449,12 +452,14 @@ teams.forEach(t => {
       padding: 12px 20px;
       font-weight: 600;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
       border-radius: 10px;
       margin-bottom: 20px;
     }
+    .archive-banner-links { display: flex; gap: 15px; }
     .archive-banner a { color: white; text-decoration: underline; font-weight: 500; }
     .page-header { text-align: center; margin-bottom: 40px; color: white; }
     .page-header h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
