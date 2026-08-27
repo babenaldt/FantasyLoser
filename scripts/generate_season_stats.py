@@ -370,6 +370,22 @@ def calculate_season_stats(league_id, league_name):
     # Calculate derived stats for all teams
     for team in team_stats.values():
         weeks = team['weeks_played']
+
+        # Always set defaults so Astro pages never encounter undefined properties
+        team.setdefault('average_points', 0)
+        team.setdefault('avg_points_per_game', 0)
+        team.setdefault('efficiency_rate', 0)
+        team.setdefault('faab_efficiency', 0)
+        team.setdefault('points_per_faab', 0)
+        team.setdefault('pythagorean_wins', 0)
+        team.setdefault('luck_factor', 0)
+        team.setdefault('trend', 0)
+        team.setdefault('avg_margin_above_last', 0)
+        team.setdefault('avg_safety_margin', 0)
+        team.setdefault('consistency_score', 0)
+        team.setdefault('total_bench_points', 0)
+        team.setdefault('win_loss_margin', 0)
+
         if weeks > 0:
             team['average_points'] = team['total_points_scored'] / weeks
             team['avg_points_per_game'] = team['average_points'] # Alias for Astro

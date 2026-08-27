@@ -33,13 +33,14 @@ const sortedTeams = [...teams].sort((a, b) => b.total_points_scored - a.total_po
 const chartTeams = sortedTeams;
 const weeks = chartTeams[0]?.weekly_scores.map(w => w.week) || [];
 
-// Summary Stats
-const avgPPG = teams.reduce((sum, t) => sum + t.avg_points_per_game, 0) / teams.length;
-const highestEfficiency = Math.max(...teams.map(t => t.efficiency_rate));
-const totalBenchPoints = teams.reduce((sum, t) => sum + t.points_left_on_bench, 0);
-const maxFAAB = 100; // Dynasty usually has  budget, but let's assume 100 or check config. Using 100 as default.
-const mostFAABRemaining = Math.max(...teams.map(t => maxFAAB - t.faab_spent));
-const bestTheoreticalAvg = Math.max(...teams.map(t => t.total_optimal_points / t.weeks_played));
+// Summary Stats (guard against empty/preseason data)
+const avgPPG = teams.length ? teams.reduce((sum, t) => sum + (t.avg_points_per_game || 0), 0) / teams.length : 0;
+const highestEfficiency = teams.length ? Math.max(...teams.map(t => t.efficiency_rate || 0)) : 0;
+const totalBenchPoints = teams.reduce((sum, t) => sum + (t.points_left_on_bench || 0), 0);
+const maxFAAB = 100;
+const mostFAABRemaining = teams.length ? Math.max(...teams.map(t => maxFAAB - (t.faab_spent || 0))) : maxFAAB;
+const activeForTheoretical = teams.filter(t => t.weeks_played > 0);
+const bestTheoreticalAvg = activeForTheoretical.length ? Math.max(...activeForTheoretical.map(t => t.total_optimal_points / t.weeks_played)) : 0;
 
 // Awards (Qualified Teams: >= 5 weeks)
 const highestScorer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.total_points_scored > current.total_points_scored) ? prev : current) : null;
@@ -171,19 +172,19 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
               </a>
             </td>
             <td style="text-align: center;" data-value={team.wins}>{team.wins}-{team.losses}</td>
-            <td style="text-align: center;" data-value={team.total_points_scored}>{team.total_points_scored.toFixed(1)}</td>
-            <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game}>{team.avg_points_per_game.toFixed(1)}</td>
-            <td style="text-align: center;" data-value={team.efficiency_rate}>{team.efficiency_rate.toFixed(1)}%</td>
-            <td style="text-align: center;" data-value={team.total_bench_points}>{team.total_bench_points.toFixed(1)}</td>
-            <td style="text-align: center;" data-value={team.points_left_on_bench}>{team.points_left_on_bench.toFixed(1)}</td>
-            <td style="text-align: center;" data-value={team.pythagorean_wins}>{team.pythagorean_wins.toFixed(1)}-{(team.weeks_played - team.pythagorean_wins).toFixed(1)}</td>
-            <td style={`text-align: center; color: ${team.luck_factor > 0 ? 'green' : 'red'}; font-weight: bold;`} data-value={team.luck_factor}>{team.luck_factor > 0 ? '+' : ''}{team.luck_factor.toFixed(1)}</td>
-            <td style="text-align: center;" data-value={team.all_play_wins}>{team.all_play_wins}-{team.all_play_losses} ({((team.all_play_wins / (team.all_play_wins + team.all_play_losses)) || 0).toFixed(3)})</td>
-            <td style="text-align: center;" data-value={team.consistency_score}>{team.consistency_score.toFixed(2)}</td>
-            <td style="text-align: center;" data-value={team.faab_spent}>${team.faab_spent}</td>
-            <td style="text-align: center;" data-value={team.points_per_faab}>{team.points_per_faab.toFixed(2)}</td>
-            <td style={`text-align: center; color: ${team.trend > 0 ? 'green' : 'red'};`} data-value={team.trend}>
-              {team.trend > 0 ? '▲' : '▼'} {Math.abs(team.trend).toFixed(1)}%
+            <td style="text-align: center;" data-value={team.total_points_scored || 0}>{(team.total_points_scored || 0).toFixed(1)}</td>
+            <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game || 0}>{(team.avg_points_per_game || 0).toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.efficiency_rate || 0}>{(team.efficiency_rate || 0).toFixed(1)}%</td>
+            <td style="text-align: center;" data-value={team.total_bench_points || 0}>{(team.total_bench_points || 0).toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.points_left_on_bench || 0}>{(team.points_left_on_bench || 0).toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.pythagorean_wins || 0}>{(team.pythagorean_wins || 0).toFixed(1)}-{((team.weeks_played || 0) - (team.pythagorean_wins || 0)).toFixed(1)}</td>
+            <td style={`text-align: center; color: ${(team.luck_factor || 0) > 0 ? 'green' : 'red'}; font-weight: bold;`} data-value={team.luck_factor || 0}>{(team.luck_factor || 0) > 0 ? '+' : ''}{(team.luck_factor || 0).toFixed(1)}</td>
+            <td style="text-align: center;" data-value={team.all_play_wins || 0}>{team.all_play_wins || 0}-{team.all_play_losses || 0} ({((team.all_play_wins / (team.all_play_wins + team.all_play_losses)) || 0).toFixed(3)})</td>
+            <td style="text-align: center;" data-value={team.consistency_score || 0}>{(team.consistency_score || 0).toFixed(2)}</td>
+            <td style="text-align: center;" data-value={team.faab_spent || 0}>${team.faab_spent || 0}</td>
+            <td style="text-align: center;" data-value={team.points_per_faab || 0}>{(team.points_per_faab || 0).toFixed(2)}</td>
+            <td style={`text-align: center; color: ${(team.trend || 0) > 0 ? 'green' : 'red'};`} data-value={team.trend || 0}>
+              {(team.trend || 0) > 0 ? '▲' : '▼'} {Math.abs(team.trend || 0).toFixed(1)}%
             </td>
           </tr>
         ))}
