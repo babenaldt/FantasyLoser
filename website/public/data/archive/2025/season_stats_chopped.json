@@ -2,7 +2,7 @@
   "league_id": "1263579037352079360",
   "league_name": "Chopped League",
   "season": "2025",
-  "current_week": 15,
+  "current_week": 16,
   "generated_at": "2025-12-13T01:45:09.905106",
   "teams": [
     {
@@ -170,6 +170,17 @@
           "waiver_moves": 2,
           "faab_spent": 3,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 161.02,
+          "optimal": 161.02,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 171.62,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
         }
       ],
       "points_left_on_bench": 411.96,
@@ -181,8 +192,10 @@
       "all_play_wins": 83,
       "all_play_losses": 36,
       "all_play_ties": 0,
-      "average_points": 115.24999999999999,
-      "avg_points_per_game": 115.24999999999999,
+      "weeks_played": 15,
+      "total_points_scored": 1774.52,
+      "average_points": 118.30133333333333,
+      "avg_points_per_game": 118.30133333333333,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 10.756666666666666,
@@ -358,6 +371,17 @@
           "waiver_moves": 6,
           "faab_spent": 10,
           "has_matchup": true
+        },
+        {
+          "week": 15,
+          "points": 171.62,
+          "optimal": 171.62,
+          "bench": 0,
+          "margin": 0,
+          "opponent_points": 161.02,
+          "waiver_moves": 0,
+          "faab_spent": 0,
+          "has_matchup": true
         }
       ],
       "points_left_on_bench": 543.26,
@@ -369,8 +393,10 @@
       "all_play_wins": 70,
       "all_play_losses": 49,
       "all_play_ties": 0,
-      "average_points": 112.86714285714285,
-      "avg_points_per_game": 112.86714285714285,
+      "weeks_played": 15,
+      "total_points_scored": 1751.76,
+      "average_points": 116.784,
+      "avg_points_per_game": 116.784,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 10.534266666666666,
@@ -2088,6 +2114,9 @@
   "avg_best_theoretical_lineup": 0.0,
   "champion": {
     "owner_name": "SamirNazir",
-    "runner_up": "SeanRabenaldt"
+    "champion_score": 171.62,
+    "runner_up": "SeanRabenaldt",
+    "runner_up_score": 161.02,
+    "championship_week": 15
   }
 }
