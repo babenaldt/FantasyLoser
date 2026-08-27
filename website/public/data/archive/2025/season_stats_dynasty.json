@@ -1997,5 +1997,94 @@
     }
   ],
   "best_theoretical_lineups": [],
-  "avg_best_theoretical_lineup": 0
+  "avg_best_theoretical_lineup": 0,
+  "champion": {
+    "owner_name": "NLadocsi",
+    "runner_up": "emiliosolay"
+  },
+  "playoffs": {
+    "start_week": 15,
+    "winners_bracket": [
+      {
+        "round": 1, "week": 15, "label": "Quarterfinal 1",
+        "team1": "dbyrd55", "team1_points": 123.86,
+        "team2": "Sangha", "team2_points": 142.66,
+        "winner": "Sangha"
+      },
+      {
+        "round": 1, "week": 15, "label": "Quarterfinal 2",
+        "team1": "BTThomp", "team1_points": 169.08,
+        "team2": "SeanRabenaldt", "team2_points": 170.22,
+        "winner": "SeanRabenaldt"
+      },
+      {
+        "round": 2, "week": 16, "label": "Semifinal 1",
+        "team1": "emiliosolay", "team1_points": 136.68, "team1_note": "#1 Seed",
+        "team2": "Sangha", "team2_points": 129.28,
+        "winner": "emiliosolay"
+      },
+      {
+        "round": 2, "week": 16, "label": "Semifinal 2",
+        "team1": "NLadocsi", "team1_points": 143.0, "team1_note": "#2 Seed",
+        "team2": "SeanRabenaldt", "team2_points": 132.38,
+        "winner": "NLadocsi"
+      },
+      {
+        "round": 2, "week": 16, "label": "5th Place Game",
+        "team1": "dbyrd55", "team1_points": 146.2,
+        "team2": "BTThomp", "team2_points": 105.32,
+        "winner": "dbyrd55"
+      },
+      {
+        "round": 3, "week": 17, "label": "Championship",
+        "team1": "emiliosolay", "team1_points": 117.24,
+        "team2": "NLadocsi", "team2_points": 120.78,
+        "winner": "NLadocsi"
+      },
+      {
+        "round": 3, "week": 17, "label": "3rd Place Game",
+        "team1": "Sangha", "team1_points": 159.82,
+        "team2": "SeanRabenaldt", "team2_points": 118.64,
+        "winner": "Sangha"
+      }
+    ],
+    "losers_bracket": [
+      {
+        "round": 1, "week": 15, "label": "Consolation QF 1",
+        "team1": "McInally", "team1_points": 161.92,
+        "team2": "Taubitz", "team2_points": 129.46,
+        "winner": "McInally"
+      },
+      {
+        "round": 1, "week": 15, "label": "Consolation QF 2",
+        "team1": "agrusa17", "team1_points": 146.34,
+        "team2": "B-Ray", "team2_points": 138.0,
+        "winner": "agrusa17"
+      },
+      {
+        "round": 2, "week": 16, "label": "Consolation Semi",
+        "team1": "McInally", "team1_points": 168.78,
+        "team2": "agrusa17", "team2_points": 75.7,
+        "winner": "McInally"
+      },
+      {
+        "round": 2, "week": 16, "label": "9th Place Game",
+        "team1": "Taubitz", "team1_points": 134.98,
+        "team2": "B-Ray", "team2_points": 137.16,
+        "winner": "B-Ray"
+      }
+    ],
+    "final_standings": [
+      {"place": 1, "owner_name": "NLadocsi"},
+      {"place": 2, "owner_name": "emiliosolay"},
+      {"place": 3, "owner_name": "Sangha"},
+      {"place": 4, "owner_name": "SeanRabenaldt"},
+      {"place": 5, "owner_name": "dbyrd55"},
+      {"place": 6, "owner_name": "BTThomp"},
+      {"place": 7, "owner_name": "McInally"},
+      {"place": 8, "owner_name": "agrusa17"},
+      {"place": 9, "owner_name": "B-Ray"},
+      {"place": 10, "owner_name": "Taubitz"}
+    ]
+  }
 }

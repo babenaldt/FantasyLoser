@@ -2,7 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import leagueData from '../../../../public/data/archive/2025/season_stats_dynasty.json';
 
-const { league_name, season, teams: rawTeams, current_week } = leagueData;
+const { league_name, season, teams: rawTeams, current_week, champion, playoffs } = leagueData;
 
 // Backfill properties that may be missing in older archived data
 const teams = rawTeams.map(t => ({
@@ -80,6 +80,13 @@ const validLuckiest = luckiest && luckiest.luck_factor > 0.5 ? luckiest : null;
 
 const unluckiest = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.luck_factor < current.luck_factor) ? prev : current) : null;
 const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest : null;
+
+const championTeam = champion ? teams.find(t => t.owner_name === champion.owner_name) : null;
+const runnerUpTeam = champion ? teams.find(t => t.owner_name === champion.runner_up) : null;
+
+const winnersBracket = playoffs?.winners_bracket || [];
+const losersBracket = playoffs?.losers_bracket || [];
+const finalStandings = playoffs?.final_standings || [];
 ---
 
 <BaseLayout title={`${league_name} - ${season} Season Archive`}>
@@ -95,6 +102,103 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
     <h1>{league_name}</h1>
     <p class="subtitle">{season} Season Statistics (Archived)</p>
   </div>
+
+  {championTeam && (
+  <div class="championship-section">
+    <div class="trophy-icon">🏆</div>
+    <h2 class="champ-title">{season} Dynasty League Champion</h2>
+    <div class="champ-name">{championTeam.owner_name}</div>
+    <div class="champ-stats">
+      <span>{championTeam.wins}-{championTeam.losses} Record</span>
+      <span>{championTeam.total_points_scored.toFixed(1)} total pts</span>
+      <span>{championTeam.avg_points_per_game.toFixed(1)} PPG</span>
+    </div>
+    {runnerUpTeam && (
+      <div class="runner-up">
+        Runner-Up: <strong>{runnerUpTeam.owner_name}</strong> ({runnerUpTeam.total_points_scored.toFixed(1)} pts)
+      </div>
+    )}
+  </div>
+  )}
+
+  {winnersBracket.length > 0 && (
+  <div class="playoff-section">
+    <h2 class="playoff-title">Playoff Bracket</h2>
+    
+    <h3 class="bracket-label">Winners Bracket</h3>
+    <div class="bracket-rounds">
+      {[1, 2, 3].map(round => {
+        const roundMatches = winnersBracket.filter(m => m.round === round);
+        const roundLabel = round === 1 ? 'Quarterfinals (Week 15)' : round === 2 ? 'Semifinals (Week 16)' : 'Finals (Week 17)';
+        return (
+          <div class="bracket-round">
+            <div class="round-label">{roundLabel}</div>
+            {roundMatches.map(match => {
+              const isChampionship = match.label === 'Championship';
+              return (
+                <div class={`matchup-card ${isChampionship ? 'championship-matchup' : ''}`}>
+                  <div class="matchup-label">{match.label}</div>
+                  <div class={`matchup-team ${match.winner === match.team1 ? 'winner' : 'loser'}`}>
+                    <span class="team-name">{match.team1}</span>
+                    {match.team1_note && <span class="seed-tag">{match.team1_note}</span>}
+                    <span class="team-score">{match.team1_points.toFixed(1)}</span>
+                  </div>
+                  <div class={`matchup-team ${match.winner === match.team2 ? 'winner' : 'loser'}`}>
+                    <span class="team-name">{match.team2}</span>
+                    {match.team2_note && <span class="seed-tag">{match.team2_note}</span>}
+                    <span class="team-score">{match.team2_points.toFixed(1)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+
+    <h3 class="bracket-label" style="margin-top: 30px;">Consolation Bracket</h3>
+    <div class="bracket-rounds">
+      {[1, 2].map(round => {
+        const roundMatches = losersBracket.filter(m => m.round === round);
+        const roundLabel = round === 1 ? 'Round 1 (Week 15)' : 'Round 2 (Week 16)';
+        return (
+          <div class="bracket-round">
+            <div class="round-label">{roundLabel}</div>
+            {roundMatches.map(match => (
+              <div class="matchup-card consolation">
+                <div class="matchup-label">{match.label}</div>
+                <div class={`matchup-team ${match.winner === match.team1 ? 'winner' : 'loser'}`}>
+                  <span class="team-name">{match.team1}</span>
+                  <span class="team-score">{match.team1_points.toFixed(1)}</span>
+                </div>
+                <div class={`matchup-team ${match.winner === match.team2 ? 'winner' : 'loser'}`}>
+                  <span class="team-name">{match.team2}</span>
+                  <span class="team-score">{match.team2_points.toFixed(1)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+
+    {finalStandings.length > 0 && (
+    <div class="final-standings">
+      <h3 class="bracket-label" style="margin-top: 30px;">Final Standings</h3>
+      <div class="standings-list">
+        {finalStandings.map(s => (
+          <div class={`standing-row ${s.place === 1 ? 'champion-row' : s.place <= 3 ? 'podium-row' : ''}`}>
+            <span class="standing-place">
+              {s.place === 1 ? '🏆' : s.place === 2 ? '🥈' : s.place === 3 ? '🥉' : `#${s.place}`}
+            </span>
+            <span class="standing-name">{s.owner_name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    )}
+  </div>
+  )}
 
   <div class="stats-grid">
     <div class="stat-card">
@@ -397,6 +501,147 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
       text-decoration: underline;
       font-weight: 500;
     }
+
+    .championship-section {
+      background: linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #ffd700 100%);
+      border-radius: 15px;
+      padding: 35px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+      border: 3px solid #e6a800;
+    }
+    .trophy-icon { font-size: 4em; margin-bottom: 10px; }
+    .champ-title { color: #5a3e00; font-size: 1.3em; margin-bottom: 8px; font-weight: 700; }
+    .champ-name { font-size: 2.5em; font-weight: 800; color: #2d1f00; margin-bottom: 12px; text-shadow: 1px 1px 2px rgba(255,255,255,0.3); }
+    .champ-stats { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; }
+    .champ-stats span { background: rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 20px; font-weight: 600; color: #5a3e00; font-size: 0.95em; }
+    .runner-up { color: #5a3e00; font-size: 1.05em; opacity: 0.85; }
+
+    .playoff-section {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .playoff-title {
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    .bracket-label {
+      color: #667eea;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .bracket-rounds {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+    .bracket-round {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .round-label {
+      font-weight: 700;
+      color: #4a5568;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .matchup-card {
+      background: #f7fafc;
+      border-radius: 10px;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+    }
+    .matchup-card.championship-matchup {
+      border: 3px solid #ffd700;
+      background: linear-gradient(135deg, #fffef5 0%, #fff8e1 100%);
+    }
+    .matchup-card.consolation {
+      opacity: 0.85;
+      border-color: #e0e0e0;
+    }
+    .matchup-label {
+      font-size: 0.78em;
+      font-weight: 700;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+    }
+    .matchup-team {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+    .matchup-team.winner {
+      background: #e6ffed;
+      font-weight: 700;
+      border-left: 4px solid #38a169;
+    }
+    .matchup-team.loser {
+      color: #a0aec0;
+      border-left: 4px solid transparent;
+      padding-left: 14px;
+    }
+    .team-name { flex: 1; }
+    .seed-tag {
+      font-size: 0.75em;
+      background: #667eea;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .team-score { font-variant-numeric: tabular-nums; min-width: 50px; text-align: right; }
+
+    .final-standings {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .standings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .standing-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: #f7fafc;
+    }
+    .standing-row.champion-row {
+      background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+      font-weight: 800;
+      font-size: 1.1em;
+    }
+    .standing-row.podium-row {
+      background: #e6ffed;
+      font-weight: 600;
+    }
+    .standing-place { min-width: 30px; text-align: center; font-weight: 700; }
+    .standing-name { flex: 1; }
+
+    @media (max-width: 768px) {
+      .bracket-rounds { grid-template-columns: 1fr; }
+    }
+
     .page-header {
       text-align: center;
       margin-bottom: 40px;
