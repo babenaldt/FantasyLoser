@@ -2,7 +2,13 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import leagueData from '../../../../public/data/archive/2025/season_stats_chopped.json';
 
-const { league_name, season, teams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup } = leagueData;
+const { league_name, season, teams: rawTeams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup } = leagueData;
+
+// Backfill properties that may be missing in older archived data
+const teams = rawTeams.map(t => ({
+    ...t,
+    total_bench_points: t.total_bench_points ?? t.weekly_scores.reduce((sum, w) => sum + (w.bench || 0), 0),
+}));
 
 const activeTeams = teams.filter(t => t.weeks_played > 0);
 const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
