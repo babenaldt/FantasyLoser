@@ -19,16 +19,13 @@ const chartTeams = sortedTeams;
 const weeks = chartTeams[0]?.weekly_scores.map(w => w.week) || [];
 
 const avgPPG = teams.reduce((sum, t) => sum + t.avg_points_per_game, 0) / teams.length;
-const highestEfficiency = Math.max(...teams.map(t => t.efficiency_rate));
-const totalBenchPoints = teams.reduce((sum, t) => sum + t.points_left_on_bench, 0);
+const totalBenchPoints = teams.reduce((sum, t) => sum + t.total_bench_points, 0);
 const maxFAAB = 150;
 const mostFAABRemaining = Math.max(...teams.map(t => maxFAAB - t.faab_spent));
-const bestTheoreticalAvg = Math.max(...teams.map(t => t.total_optimal_points / t.weeks_played));
 
 const highestScorer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.total_points_scored > current.total_points_scored) ? prev : current) : null;
-const bestManager = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.efficiency_rate > current.efficiency_rate) ? prev : current) : null;
 const mostConsistent = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.consistency_score > current.consistency_score) ? prev : current) : null;
-const benchWarmer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.points_left_on_bench > current.points_left_on_bench) ? prev : current) : null;
+const benchWarmer = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.total_bench_points > current.total_bench_points) ? prev : current) : null;
 const waiverWizard = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => (prev.points_per_faab > current.points_per_faab) ? prev : current) : null;
 const validWaiverWizard = waiverWizard && waiverWizard.points_per_faab > 0 ? waiverWizard : null;
 
@@ -112,7 +109,7 @@ teams.forEach(t => {
     <div class="champ-stats">
       <span>{championTeam.total_points_scored.toFixed(1)} total pts</span>
       <span>{championTeam.avg_points_per_game.toFixed(1)} PPG</span>
-      <span>{championTeam.efficiency_rate.toFixed(1)}% efficiency</span>
+      <span>{championTeam.weeks_played} weeks survived</span>
     </div>
     {champion.champion_score && (
       <div class="champ-matchup">
@@ -133,8 +130,8 @@ teams.forEach(t => {
       <div class="stat-value">{avgPPG.toFixed(1)}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-title">Highest Efficiency</div>
-      <div class="stat-value">{highestEfficiency.toFixed(1)}%</div>
+      <div class="stat-title">Highest Weekly Score</div>
+      <div class="stat-value">{highestWeeklyScore.score > 0 ? highestWeeklyScore.score.toFixed(1) : 'N/A'}</div>
     </div>
     <div class="stat-card">
       <div class="stat-title">Total Bench Points</div>
@@ -143,10 +140,6 @@ teams.forEach(t => {
     <div class="stat-card">
       <div class="stat-title">Most FAAB Remaining</div>
       <div class="stat-value">${mostFAABRemaining}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Best Theoretical Avg</div>
-      <div class="stat-value">{bestTheoreticalAvg.toFixed(1)}</div>
     </div>
   </div>
 
@@ -160,12 +153,10 @@ teams.forEach(t => {
           <th onclick="sortTable(2)" title="Average points per game">Avg PPG</th>
           <th onclick="sortTable(3)" title="Average margin above the eliminated team each week">Safety Margin</th>
           <th onclick="sortTable(4)" title="Number of weeks with margin <= 10 points">Close Calls</th>
-          <th onclick="sortTable(5)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
-          <th onclick="sortTable(6)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
-          <th onclick="sortTable(7)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
-          <th onclick="sortTable(8)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
-          <th onclick="sortTable(9)" title="FAAB dollars spent on waivers">FAAB Used</th>
-          <th onclick="sortTable(10)" title="Points per FAAB dollar spent">Pt/$</th>
+          <th onclick="sortTable(5)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
+          <th onclick="sortTable(6)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
+          <th onclick="sortTable(7)" title="FAAB dollars spent on waivers">FAAB Used</th>
+          <th onclick="sortTable(8)" title="Points per FAAB dollar spent">Pt/$</th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -176,9 +167,7 @@ teams.forEach(t => {
             <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game}>{team.avg_points_per_game.toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.avg_safety_margin}>{team.avg_safety_margin.toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.close_calls}>{team.close_calls}</td>
-            <td style="text-align: center;" data-value={team.efficiency_rate}>{team.efficiency_rate.toFixed(1)}%</td>
             <td style="text-align: center;" data-value={team.total_bench_points}>{team.total_bench_points.toFixed(1)}</td>
-            <td style="text-align: center;" data-value={team.points_left_on_bench}>{team.points_left_on_bench.toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.consistency_score}>{team.consistency_score.toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.faab_spent}>${team.faab_spent}</td>
             <td style="text-align: center;" data-value={team.points_per_faab}>{team.points_per_faab.toFixed(2)}</td>
@@ -221,14 +210,6 @@ teams.forEach(t => {
         <div class="award-title">Highest Average Score</div>
         <div class="award-winner">{highestAvgScore.owner_name}</div>
         <div class="award-value">{highestAvgScore.avg_points_per_game.toFixed(1)} ppg</div>
-      </div>
-      )}
-      {bestManager && (
-      <div class="award-card">
-        <div class="award-icon">🎯</div>
-        <div class="award-title">Best Manager</div>
-        <div class="award-winner">{bestManager.owner_name}</div>
-        <div class="award-value">{bestManager.efficiency_rate.toFixed(1)}% efficiency</div>
       </div>
       )}
       {unluckiestChop.owner && (
@@ -292,7 +273,7 @@ teams.forEach(t => {
         <div class="award-icon">🪑</div>
         <div class="award-title">Bench Warmer</div>
         <div class="award-winner">{benchWarmer.owner_name}</div>
-        <div class="award-value">{benchWarmer.points_left_on_bench.toFixed(1)} pts</div>
+        <div class="award-value">{benchWarmer.total_bench_points.toFixed(1)} pts</div>
       </div>
       )}
     </div>
@@ -346,7 +327,7 @@ teams.forEach(t => {
                 <div class="player-name">{team.owner_name}</div>
                 <div class="finalist-stats">
                   <div>{team.avg_points_per_game.toFixed(1)} PPG</div>
-                  <div>{team.efficiency_rate.toFixed(1)}% Eff</div>
+                  <div>{team.total_points_scored.toFixed(1)} total pts</div>
                 </div>
                 <div class="finalist-badge">Finalist</div>
               </div>
