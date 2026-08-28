@@ -9,13 +9,13 @@
       "roster_id": 6,
       "owner_id": "992533962855608320",
       "owner_name": "SeanRabenaldt",
-      "total_points_scored": 1613.4999999999998,
+      "total_points_scored": 1774.5199999999998,
       "total_points_against": 0,
-      "total_optimal_points": 1613.4999999999998,
+      "total_optimal_points": 1774.5199999999998,
       "wins": 0,
       "losses": 0,
       "ties": 0,
-      "weeks_played": 14,
+      "weeks_played": 15,
       "weekly_scores": [
         {
           "week": 1,
@@ -188,35 +188,34 @@
       "waiver_moves": 17,
       "safety_margin_sum": 513.7599999999999,
       "close_calls": 1,
-      "eliminated_week": null,
+      "eliminated_week": 15,
       "all_play_wins": 83,
       "all_play_losses": 36,
       "all_play_ties": 0,
-      "weeks_played": 15,
-      "total_points_scored": 1774.52,
-      "average_points": 118.30133333333333,
-      "avg_points_per_game": 118.30133333333333,
+      "average_points": 118.30133333333332,
+      "avg_points_per_game": 118.30133333333332,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
-      "points_per_faab": 10.756666666666666,
+      "points_per_faab": 11.830133333333333,
       "pythagorean_wins": 0,
       "luck_factor": 0,
-      "trend": 9.755603759942174,
+      "trend": 23.041723959155146,
       "avg_margin_above_last": 36.69714285714285,
       "avg_safety_margin": 36.69714285714285,
-      "consistency_score": 6.394205239470435
+      "consistency_score": 5.631329112921172,
+      "total_bench_points": 411.96
     },
     {
       "roster_id": 16,
       "owner_id": "1264630225161965568",
       "owner_name": "SamirNazir",
-      "total_points_scored": 1580.1399999999999,
+      "total_points_scored": 1751.7599999999998,
       "total_points_against": 0,
-      "total_optimal_points": 1580.1399999999999,
+      "total_optimal_points": 1751.7599999999998,
       "wins": 0,
       "losses": 0,
       "ties": 0,
-      "weeks_played": 14,
+      "weeks_played": 15,
       "weekly_scores": [
         {
           "week": 1,
@@ -393,19 +392,18 @@
       "all_play_wins": 70,
       "all_play_losses": 49,
       "all_play_ties": 0,
-      "weeks_played": 15,
-      "total_points_scored": 1751.76,
-      "average_points": 116.784,
-      "avg_points_per_game": 116.784,
+      "average_points": 116.78399999999998,
+      "avg_points_per_game": 116.78399999999998,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
-      "points_per_faab": 10.534266666666666,
+      "points_per_faab": 11.678399999999998,
       "pythagorean_wins": 0,
       "luck_factor": 0,
-      "trend": 15.53997325131529,
-      "avg_margin_above_last": 34.31428571428571,
-      "avg_safety_margin": 34.31428571428571,
-      "consistency_score": 4.768333018257576
+      "trend": 12.264237110106418,
+      "avg_margin_above_last": 32.026666666666664,
+      "avg_safety_margin": 32.026666666666664,
+      "consistency_score": 4.263261190511121,
+      "total_bench_points": 543.26
     },
     {
       "roster_id": 1,
@@ -593,15 +591,16 @@
       "trend": -4.88310449513433,
       "avg_margin_above_last": 27.22923076923077,
       "avg_safety_margin": 27.22923076923077,
-      "consistency_score": 6.3511783329444995
+      "consistency_score": 6.3511783329444995,
+      "total_bench_points": 505.0
     },
     {
       "roster_id": 11,
       "owner_id": "1263895969355808768",
       "owner_name": "inTreywetrust",
-      "total_points_scored": 1358.06,
+      "total_points_scored": 1358.0600000000002,
       "total_points_against": 0,
-      "total_optimal_points": 1358.06,
+      "total_optimal_points": 1358.0600000000002,
       "wins": 0,
       "losses": 0,
       "ties": 0,
@@ -751,26 +750,27 @@
           "has_matchup": true
         }
       ],
-      "points_left_on_bench": 423.56,
+      "points_left_on_bench": 423.55999999999995,
       "faab_spent": 150,
       "waiver_moves": 9,
-      "safety_margin_sum": 345.86,
+      "safety_margin_sum": 345.8599999999999,
       "close_calls": 2,
       "eliminated_week": 13,
       "all_play_wins": 60,
       "all_play_losses": 57,
       "all_play_ties": 0,
-      "average_points": 104.46615384615384,
-      "avg_points_per_game": 104.46615384615384,
+      "average_points": 104.46615384615386,
+      "avg_points_per_game": 104.46615384615386,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
       "points_per_faab": 9.053733333333334,
       "pythagorean_wins": 0,
       "luck_factor": 0,
-      "trend": -0.2994467598387716,
-      "avg_margin_above_last": 28.82166666666667,
-      "avg_safety_margin": 28.82166666666667,
-      "consistency_score": 7.301147602252926
+      "trend": -0.29944675983878516,
+      "avg_margin_above_last": 28.82166666666666,
+      "avg_safety_margin": 28.82166666666666,
+      "consistency_score": 7.301147602252926,
+      "total_bench_points": 423.55999999999995
     },
     {
       "roster_id": 12,
@@ -933,10 +933,11 @@
       "points_per_faab": 8.748472222222222,
       "pythagorean_wins": 0,
       "luck_factor": 0,
-      "trend": 4.0435631618219094,
+      "trend": 4.043563161821882,
       "avg_margin_above_last": 32.447272727272725,
       "avg_safety_margin": 32.447272727272725,
-      "consistency_score": 3.7303329223713693
+      "consistency_score": 3.7303329223713693,
+      "total_bench_points": 382.96
     },
     {
       "roster_id": 10,
@@ -1072,10 +1073,10 @@
           "has_matchup": true
         }
       ],
-      "points_left_on_bench": 379.66,
+      "points_left_on_bench": 379.6599999999999,
       "faab_spent": 138,
       "waiver_moves": 13,
-      "safety_margin_sum": 334.86,
+      "safety_margin_sum": 334.85999999999996,
       "close_calls": 0,
       "eliminated_week": 11,
       "all_play_wins": 67,
@@ -1089,9 +1090,10 @@
       "pythagorean_wins": 0,
       "luck_factor": 0,
       "trend": 4.854641502515288,
-      "avg_margin_above_last": 33.486000000000004,
-      "avg_safety_margin": 33.486000000000004,
-      "consistency_score": 5.728920428945352
+      "avg_margin_above_last": 33.486,
+      "avg_safety_margin": 33.486,
+      "consistency_score": 5.728920428945352,
+      "total_bench_points": 379.6599999999999
     },
     {
       "roster_id": 5,
@@ -1216,7 +1218,7 @@
           "has_matchup": true
         }
       ],
-      "points_left_on_bench": 282.46,
+      "points_left_on_bench": 282.46000000000004,
       "faab_spent": 137,
       "waiver_moves": 4,
       "safety_margin_sum": 274.34000000000003,
@@ -1235,7 +1237,8 @@
       "trend": 8.276710023943561,
       "avg_margin_above_last": 30.482222222222227,
       "avg_safety_margin": 30.482222222222227,
-      "consistency_score": 4.422058588840286
+      "consistency_score": 4.422058588840286,
+      "total_bench_points": 282.46000000000004
     },
     {
       "roster_id": 8,
@@ -1349,7 +1352,7 @@
           "has_matchup": true
         }
       ],
-      "points_left_on_bench": 218.42,
+      "points_left_on_bench": 218.42000000000002,
       "faab_spent": 124,
       "waiver_moves": 6,
       "safety_margin_sum": 216.71999999999997,
@@ -1368,15 +1371,16 @@
       "trend": -3.3134731666260686,
       "avg_margin_above_last": 27.089999999999996,
       "avg_safety_margin": 27.089999999999996,
-      "consistency_score": 8.802854132343422
+      "consistency_score": 8.802854132343422,
+      "total_bench_points": 218.42000000000002
     },
     {
       "roster_id": 4,
       "owner_id": "1263581912555855872",
       "owner_name": "ProfOaks",
-      "total_points_scored": 836.74,
+      "total_points_scored": 836.7399999999999,
       "total_points_against": 0,
-      "total_optimal_points": 836.74,
+      "total_optimal_points": 836.7399999999999,
       "wins": 0,
       "losses": 0,
       "ties": 0,
@@ -1463,23 +1467,24 @@
       "points_left_on_bench": 163.74,
       "faab_spent": 80,
       "waiver_moves": 2,
-      "safety_margin_sum": 323.82,
+      "safety_margin_sum": 323.81999999999994,
       "close_calls": 0,
       "eliminated_week": 7,
       "all_play_wins": 64,
       "all_play_losses": 20,
       "all_play_ties": 0,
-      "average_points": 119.53428571428572,
-      "avg_points_per_game": 119.53428571428572,
+      "average_points": 119.5342857142857,
+      "avg_points_per_game": 119.5342857142857,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
-      "points_per_faab": 10.45925,
+      "points_per_faab": 10.459249999999999,
       "pythagorean_wins": 0,
       "luck_factor": 0,
-      "trend": -0.1458039534383456,
-      "avg_margin_above_last": 53.97,
-      "avg_safety_margin": 53.97,
-      "consistency_score": 4.7126013732848255
+      "trend": -0.14580395343833374,
+      "avg_margin_above_last": 53.96999999999999,
+      "avg_safety_margin": 53.96999999999999,
+      "consistency_score": 4.7126013732848255,
+      "total_bench_points": 163.74
     },
     {
       "roster_id": 3,
@@ -1601,15 +1606,16 @@
       "trend": 0.34487064949037677,
       "avg_margin_above_last": 13.84,
       "avg_safety_margin": 13.84,
-      "consistency_score": 9.802205805918067
+      "consistency_score": 9.802205805918067,
+      "total_bench_points": 282.96
     },
     {
       "roster_id": 2,
       "owner_id": "713832511611965440",
       "owner_name": "agrusa17",
-      "total_points_scored": 575.58,
+      "total_points_scored": 575.5799999999999,
       "total_points_against": 0,
-      "total_optimal_points": 575.58,
+      "total_optimal_points": 575.5799999999999,
       "wins": 0,
       "losses": 0,
       "ties": 0,
@@ -1691,17 +1697,18 @@
       "all_play_wins": 44,
       "all_play_losses": 31,
       "all_play_ties": 0,
-      "average_points": 95.93,
-      "avg_points_per_game": 95.93,
+      "average_points": 95.92999999999999,
+      "avg_points_per_game": 95.92999999999999,
       "efficiency_rate": 100.0,
       "faab_efficiency": 0,
-      "points_per_faab": 7.194750000000001,
+      "points_per_faab": 7.194749999999999,
       "pythagorean_wins": 0,
       "luck_factor": 0,
-      "trend": -1.379478091664065,
+      "trend": -1.3794780916640503,
       "avg_margin_above_last": 30.080000000000002,
       "avg_safety_margin": 30.080000000000002,
-      "consistency_score": 4.809483169192955
+      "consistency_score": 4.809483169192955,
+      "total_bench_points": 150.1
     },
     {
       "roster_id": 15,
@@ -1790,7 +1797,8 @@
       "trend": -3.6177666933879706,
       "avg_margin_above_last": 21.455,
       "avg_safety_margin": 21.455,
-      "consistency_score": 10.60066195162308
+      "consistency_score": 10.60066195162308,
+      "total_bench_points": 183.01999999999998
     },
     {
       "roster_id": 9,
@@ -1868,7 +1876,8 @@
       "trend": -3.6149343458313563,
       "avg_margin_above_last": 18.99333333333333,
       "avg_safety_margin": 18.99333333333333,
-      "consistency_score": 8.29376522306451
+      "consistency_score": 8.29376522306451,
+      "total_bench_points": 112.9
     },
     {
       "roster_id": 13,
@@ -1935,7 +1944,8 @@
       "trend": 0.0,
       "avg_margin_above_last": 25.32,
       "avg_safety_margin": 25.32,
-      "consistency_score": 6.990886591809996
+      "consistency_score": 6.990886591809996,
+      "total_bench_points": 95.22
     },
     {
       "roster_id": 7,
@@ -1991,7 +2001,8 @@
       "trend": 0,
       "avg_margin_above_last": 15.799999999999997,
       "avg_safety_margin": 15.799999999999997,
-      "consistency_score": 22.128113025947975
+      "consistency_score": 22.128113025947975,
+      "total_bench_points": 108.72
     },
     {
       "roster_id": 14,
@@ -2036,7 +2047,8 @@
       "trend": 0,
       "avg_margin_above_last": 0.0,
       "avg_safety_margin": 0.0,
-      "consistency_score": 0
+      "consistency_score": 0,
+      "total_bench_points": 4.300000000000001
     }
   ],
   "best_theoretical_lineups": [
