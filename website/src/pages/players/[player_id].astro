@@ -97,8 +97,12 @@ const chopped_owner = isPreseason
   ? (prevPlayer?.chopped_owner || player.chopped_owner || 'Free Agent')
   : (currentPlayer?.chopped_owner || player.chopped_owner || 'Free Agent');
 
-// Postseason data
-const postseason = player.postseason || prevPlayer?.postseason || null;
+// Postseason data - normalize weekly_stats vs weekly_points naming
+const rawPostseason = player.postseason || prevPlayer?.postseason || null;
+const postseason = rawPostseason ? {
+  ...rawPostseason,
+  weekly_points: rawPostseason.weekly_points || rawPostseason.weekly_stats || []
+} : null;
 
 // Display season
 const displaySeason = isPreseason ? '2025' : '2026';
@@ -238,7 +242,7 @@ const displaySeason = isPreseason ? '2025' : '2026';
         </table>
       </div>
 
-      {postseason && (
+      {postseason && postseason.weekly_points && postseason.weekly_points.length > 0 && (
         <div class="postseason-section">
           <h3 style="color: #9b59b6; margin-bottom: 20px;">Postseason Performance</h3>
           <div class="postseason-summary">
@@ -248,11 +252,11 @@ const displaySeason = isPreseason ? '2025' : '2026';
             </div>
             <div class="ps-stat">
               <span class="ps-label">Total Pts</span>
-              <span class="ps-value">{postseason.total_points.toFixed(1)}</span>
+              <span class="ps-value">{(postseason.total_points || 0).toFixed(1)}</span>
             </div>
             <div class="ps-stat">
               <span class="ps-label">PPG</span>
-              <span class="ps-value">{postseason.avg_points_per_game.toFixed(1)}</span>
+              <span class="ps-value">{(postseason.avg_points_per_game || 0).toFixed(1)}</span>
             </div>
           </div>
           <table>
@@ -268,7 +272,7 @@ const displaySeason = isPreseason ? '2025' : '2026';
                 <tr>
                   <td>{w.round || `Week ${w.week}`}</td>
                   <td>{w.opponent}</td>
-                  <td style="font-weight: bold;">{w.points.toFixed(2)}</td>
+                  <td style="font-weight: bold;">{(w.points || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -276,9 +280,9 @@ const displaySeason = isPreseason ? '2025' : '2026';
         </div>
       )}
 
-      {!isPreseason && prevPlayer && prevPlayer.games_played > 0 && (
+      {!isPreseason && prevPlayer && (prevPlayer.games_played || 0) > 0 && (
         <details class="prev-season-section">
-          <summary>Previous Season (2025) &mdash; {prevPlayer.games_played} games, {prevPlayer.total_points.toFixed(1)} pts, {(prevPlayer.avg_points_per_game || prevPlayer.avg_points || 0).toFixed(1)} PPG</summary>
+          <summary>Previous Season (2025) &mdash; {prevPlayer.games_played} games, {(prevPlayer.total_points || 0).toFixed(1)} pts, {(prevPlayer.avg_points_per_game || prevPlayer.avg_points || 0).toFixed(1)} PPG</summary>
           <div class="prev-season-content">
             <div class="postseason-summary" style="margin-bottom: 20px;">
               <div class="ps-stat">
