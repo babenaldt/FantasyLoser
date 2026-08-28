@@ -1,17 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-// Import the JSON data directly
 const data = await import('../../public/data/defense_stats.json');
-const defenses = data.default?.defenses || data.defenses || [];
+const currentDefenses = data.default?.defenses || data.defenses || [];
+
+const prevData = await import('../../public/data/archive/2025/defense_stats.json');
+const prevDefenses = prevData.default?.defenses || prevData.defenses || [];
+
+const isPreseason = currentDefenses.length === 0 || currentDefenses.every(d => (d.games || 0) === 0);
+const defenses = isPreseason ? prevDefenses : currentDefenses;
+
+const prevDefenseMap = Object.fromEntries(prevDefenses.map(d => [d.team, d]));
+const displaySeason = isPreseason ? '2025' : '2026';
+const seasonLabel = isPreseason
+  ? '2026 Season \u2014 Preseason. Showing 2025 defense matchup data.'
+  : '2026 Season \u2014 Fantasy Points Allowed Analysis';
 ---
 
-<BaseLayout title="NFL Defense Statistics - 2026">
+<BaseLayout title={`NFL Defense Statistics - ${displaySeason}`}>
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
   <div class="defense-stats-container">
     <div class="header">
       <h1>NFL Defense Statistics</h1>
-      <p class="subtitle">2026 Season - Fantasy Points Allowed Analysis</p>
+      <p class="subtitle">{seasonLabel}</p>
       <div id="scoringNotice" class="scoring-notice">
         <span id="currentScoringDisplay">Current Scoring: Full PPR</span>
       </div>
@@ -38,6 +49,8 @@ const defenses = data.default?.defenses || data.defenses || [];
               <th data-column="3" title="RB points per game - Click to sort">RB PPG</th>
               <th data-column="4" title="WR points per game - Click to sort">WR PPG</th>
               <th data-column="5" title="TE points per game - Click to sort">TE PPG</th>
+              <th data-column="6" title="Postseason avg fantasy points allowed">Playoff PPG</th>
+              {!isPreseason && <th data-column="7" title="Previous season avg fantasy points allowed">Last Yr PPG</th>}
             </tr>
           </thead>
           <tbody>
@@ -58,6 +71,8 @@ const defenses = data.default?.defenses || data.defenses || [];
                 <td>{(defense.rb_points_allowed / defense.games).toFixed(1)}</td>
                 <td>{(defense.wr_points_allowed / defense.games).toFixed(1)}</td>
                 <td>{(defense.te_points_allowed / defense.games).toFixed(1)}</td>
+                <td style="color: #9b59b6; font-weight: 600;">{defense.postseason ? defense.postseason.avg_points_per_game.toFixed(1) : '--'}</td>
+                {!isPreseason && <td style="color: #7f8c8d;">{prevDefenseMap[defense.team] ? prevDefenseMap[defense.team].avg_points_per_game.toFixed(1) : '--'}</td>}
               </tr>
             ))}
           </tbody>

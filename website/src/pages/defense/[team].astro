@@ -2,24 +2,36 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  // Import the JSON data directly
   const data = await import('../../../public/data/defense_stats.json');
-  const defenses = data.default?.defenses || data.defenses || [];
+  const prevData = await import('../../../public/data/archive/2025/defense_stats.json');
+  
+  const currentDefenses = data.default?.defenses || data.defenses || [];
+  const prevDefenses = prevData.default?.defenses || prevData.defenses || [];
+  
+  const isPreseason = currentDefenses.length === 0 || currentDefenses.every(d => (d.games || 0) === 0);
+  
+  const defenseMap = new Map();
+  for (const d of currentDefenses) defenseMap.set(d.team, { ...defenseMap.get(d.team), current: d });
+  for (const d of prevDefenses) defenseMap.set(d.team, { ...defenseMap.get(d.team), prev: d });
 
-  return defenses.map(defense => ({
-    params: { team: defense.team },
-    props: { defense }
-  }));
+  return Array.from(defenseMap.entries()).map(([team, data]) => {
+    const primary = isPreseason ? (data.prev || data.current) : (data.current || data.prev);
+    return {
+      params: { team },
+      props: { defense: primary, prevDefense: data.prev || null, isPreseason }
+    };
+  });
 }
 
-const { defense } = Astro.props;
+const { defense, prevDefense, isPreseason } = Astro.props;
 const { team } = Astro.params;
+const displaySeason = isPreseason ? '2025' : '2026';
+const postseason = defense.postseason || prevDefense?.postseason || null;
 
-// Prepare weekly chart data
 const weeklyData = defense.weekly_breakdown || [];
 ---
 
-<BaseLayout title={`${team} Defense Stats - 2026`}>
+<BaseLayout title={`${team} Defense Stats - ${displaySeason}`}>
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
   <div class="defense-detail-container">
     <div class="header">
@@ -27,7 +39,8 @@ const weeklyData = defense.weekly_breakdown || [];
         <a href="/defense-stats">← Back to All Defenses</a>
       </div>
       <h1>{team} Defense</h1>
-      <p class="subtitle">2026 Season - Detailed Weekly Performance</p>
+      <p class="subtitle">{displaySeason} Season - Detailed Weekly Performance</p>
+      {isPreseason && <div style="margin-top: 10px; padding: 8px 16px; background: rgba(243,156,18,0.25); border-radius: 6px; display: inline-block; color: white; font-weight: 500;">Preseason — Showing 2025 data</div>}
     </div>
 
     <!-- Season Summary Cards -->
@@ -125,6 +138,86 @@ const weeklyData = defense.weekly_breakdown || [];
         </table>
       </div>
     </div>
+    {postseason && (
+      <div class="table-container" style="border-left: 4px solid #9b59b6;">
+        <h2 style="color: #9b59b6;">Postseason Performance</h2>
+        <div style="display: flex; gap: 30px; margin-bottom: 20px; flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="font-size: 2em; font-weight: bold; color: #9b59b6;">{postseason.games}</div>
+            <div style="color: #666;">Games</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2em; font-weight: bold; color: #9b59b6;">{postseason.avg_points_per_game.toFixed(1)}</div>
+            <div style="color: #666;">Avg PPG Allowed</div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Round</th>
+                <th>Opponent</th>
+                <th>Total Pts</th>
+                <th>QB Pts</th>
+                <th>RB Pts</th>
+                <th>WR Pts</th>
+                <th>TE Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {postseason.weekly_breakdown.map(w => (
+                <tr>
+                  <td class="week-label">{w.round || `Week ${w.week}`}</td>
+                  <td class="opponent-label">{w.opponent || 'N/A'}</td>
+                  <td class="highlight">{w.total_points.toFixed(1)}</td>
+                  <td>{w.qb_points.toFixed(1)}</td>
+                  <td>{w.rb_points.toFixed(1)}</td>
+                  <td>{w.wr_points.toFixed(1)}</td>
+                  <td>{w.te_points.toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+
+    {!isPreseason && prevDefense && prevDefense.games > 0 && (
+      <details class="table-container" style="border-left: 4px solid #7f8c8d;">
+        <summary style="cursor: pointer; color: #667eea; font-weight: 600; font-size: 1.2em;">
+          Previous Season (2025) &mdash; {prevDefense.avg_points_per_game.toFixed(1)} PPG allowed over {prevDefense.games} games
+        </summary>
+        <div style="margin-top: 15px;">
+          <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 15px;">
+            <div style="text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold; color: #2c3e50;">{prevDefense.avg_points_per_game.toFixed(1)}</div>
+              <div style="color: #666;">Avg PPG</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold;">{(prevDefense.qb_points_allowed / prevDefense.games).toFixed(1)}</div>
+              <div style="color: #666;">vs QB</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold;">{(prevDefense.rb_points_allowed / prevDefense.games).toFixed(1)}</div>
+              <div style="color: #666;">vs RB</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold;">{(prevDefense.wr_points_allowed / prevDefense.games).toFixed(1)}</div>
+              <div style="color: #666;">vs WR</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold;">{(prevDefense.te_points_allowed / prevDefense.games).toFixed(1)}</div>
+              <div style="color: #666;">vs TE</div>
+            </div>
+          </div>
+          {prevDefense.postseason && (
+            <div style="margin-top: 10px;">
+              <h4 style="color: #9b59b6;">2025 Postseason: {prevDefense.postseason.avg_points_per_game.toFixed(1)} PPG allowed in {prevDefense.postseason.games} games</h4>
+            </div>
+          )}
+        </div>
+      </details>
+    )}
   </div>
 </BaseLayout>
 
