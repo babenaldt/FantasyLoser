@@ -41,6 +41,16 @@ def fetch_all_weekly_projections():
     return projections
 
 
+SEASON = 2026
+
+DYNASTY_LEAGUE_ID = os.environ.get("DYNASTY_LEAGUE_ID", "1312064104759844864")
+CHOPPED_LEAGUE_ID = os.environ.get("CHOPPED_LEAGUE_ID", "1383538112403095552")
+
+PLAYOFF_ROUND_NAMES = {
+    19: 'Wild Card', 20: 'Divisional', 21: 'Conference', 22: 'Super Bowl'
+}
+
+
 def generate_player_stats_json():
     """Generate player statistics and save to JSON."""
     print("\nGenerating Player Statistics...")
@@ -51,14 +61,24 @@ def generate_player_stats_json():
     
     # Load NFL data
     print("  Loading NFL weekly player stats...")
-    nfl_season = nfl.get_current_season()
+    nfl_season = SEASON
     season = [nfl_season]
     
     try:
-        weekly_stats = nfl.load_player_stats(season)
-        print(f"  Loaded {len(weekly_stats)} weekly records for {nfl_season} season")
+        all_weekly = nfl.load_player_stats(season, summary_level='week')
+        weekly_stats = all_weekly.filter(all_weekly['season_type'] == 'REG')
+        post_stats = all_weekly.filter(all_weekly['season_type'] == 'POST')
+        print(f"  Loaded {len(weekly_stats)} regular + {len(post_stats)} postseason records for {nfl_season}")
     except Exception as e:
-        print(f"  Error loading NFL data: {e}")
+        print(f"  Warning: No NFL data for {nfl_season}: {e}")
+        output_data = {
+            'season': str(nfl_season),
+            'generated_at': __import__('datetime').datetime.now().isoformat(),
+            'players': []
+        }
+        save_json(output_data, f"{OUTPUT_DIR}/player_stats.json")
+        save_json(output_data, f"{ASTRO_DATA_DIR}/player_stats.json")
+        print("  Created empty player_stats.json (preseason)")
         return
     
     # Load NFL Schedule for full season matchups
@@ -121,9 +141,8 @@ def generate_player_stats_json():
     print("  Loading ownership data from Sleeper leagues...")
     from core_data import SleeperAPI
     
-    # League IDs
-    DYNASTY_LEAGUE_ID = "1312064104759844864"
-    CHOPPED_LEAGUE_ID = "1383538112403095552"
+    dynasty_league_id = DYNASTY_LEAGUE_ID
+    chopped_league_id = CHOPPED_LEAGUE_ID
     
     # Team code normalization (Sleeper -> NFL)
     TEAM_CODE_MAP = {
@@ -150,7 +169,7 @@ def generate_player_stats_json():
         
         # Load Dynasty league rosters
         # Note: Dynasty leagues have null players in rosters API, so use week 1 matchups instead
-        dynasty_api = SleeperAPI(DYNASTY_LEAGUE_ID)
+        dynasty_api = SleeperAPI(dynasty_league_id)
         dynasty_users = dynasty_api.get_users() or []
         dynasty_user_map = {u['user_id']: u['display_name'] for u in dynasty_users}
         
@@ -173,7 +192,7 @@ def generate_player_stats_json():
                     })
         
         # Load Chopped league rosters
-        chopped_api = SleeperAPI(CHOPPED_LEAGUE_ID)
+        chopped_api = SleeperAPI(chopped_league_id)
         chopped_rosters = chopped_api.get_rosters() or []
         chopped_users = chopped_api.get_users() or []
         chopped_user_map = {u['user_id']: u['display_name'] for u in chopped_users}
@@ -239,6 +258,9 @@ def generate_player_stats_json():
                         chopped_mapped += 1
         
         print(f"  Mapped {chopped_mapped} Chopped roster spots by name+team")
+        chopped_pre_draft = (chopped_mapped == 0)
+        if chopped_pre_draft:
+            print("  Chopped league appears to be pre-draft")
         print(f"  Total unique players with ownership: {len(player_ownership)}")
         
         # Create reverse lookup: (name, team) -> sleeper_id for projections
@@ -266,6 +288,7 @@ def generate_player_stats_json():
     except Exception as e:
         print(f"  Error loading ownership data: {e}")
         player_to_sleeper_id = {}
+        chopped_pre_draft = True
 
     # Load Defense Stats for Opponent Points Allowed
     print("  Loading defense stats for opponent matchups...")
@@ -364,6 +387,38 @@ def generate_player_stats_json():
                 'raw_stats': raw_stats
             })
     
+    # Process postseason stats
+    postseason_stats = {}
+    if post_stats is not None and len(post_stats) > 0:
+        print("  Processing postseason stats...")
+        for row in post_stats.iter_rows(named=True):
+            player_id = row.get('player_id')
+            if not player_id:
+                continue
+            position = row.get('position', '')
+            if position not in ROSTERABLE_POSITIONS:
+                continue
+            pts = calculate_fantasy_points(row)
+            week = row.get('week')
+            if not week or pts <= 0:
+                continue
+            if player_id not in postseason_stats:
+                postseason_stats[player_id] = {
+                    'games_played': 0,
+                    'total_points': 0,
+                    'weekly_points': []
+                }
+            opponent = row.get('opponent_team', 'N/A')
+            postseason_stats[player_id]['weekly_points'].append({
+                'week': week,
+                'points': round(pts, 2),
+                'opponent': opponent,
+                'round': PLAYOFF_ROUND_NAMES.get(week, f'Week {week}')
+            })
+            postseason_stats[player_id]['total_points'] += pts
+            postseason_stats[player_id]['games_played'] += 1
+        print(f"  Found postseason data for {len(postseason_stats)} players")
+
     # Calculate averages, consistency, and filter
     players_list = []
     
@@ -461,7 +516,8 @@ def generate_player_stats_json():
             ownership = player_ownership.get(ownership_key, {})
             
             stats['dynasty_owner'] = ownership.get('dynasty_owner', 'Free Agent')
-            stats['chopped_owner'] = ownership.get('chopped_owner', 'Free Agent')
+            chopped_default = 'Pre-Draft' if chopped_pre_draft else 'Free Agent'
+            stats['chopped_owner'] = ownership.get('chopped_owner', chopped_default)
 
             # Trend - Compare last 2 games to previous 2 games (excludes bye weeks and future games)
             played_weeks = [w for w in stats['weekly_points'] if w['points'] is not None and w['points'] > 0]
@@ -487,6 +543,16 @@ def generate_player_stats_json():
                 stats['trend_pct'] = 0
                 stats['trend_dir'] = "-"
             
+            # Attach postseason data
+            ps = postseason_stats.get(player_id)
+            if ps:
+                ps['avg_points_per_game'] = round(ps['total_points'] / ps['games_played'], 2)
+                ps['total_points'] = round(ps['total_points'], 2)
+                ps['weekly_points'].sort(key=lambda x: x['week'])
+                stats['postseason'] = ps
+            else:
+                stats['postseason'] = None
+
             # Collect for position averages
             pos = stats['position']
             if pos not in position_totals:

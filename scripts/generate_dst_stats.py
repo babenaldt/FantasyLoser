@@ -188,23 +188,44 @@ def _calc_blocked_kicks_by_team_week(pbp: pd.DataFrame) -> pd.DataFrame:
     out = g.groupby(['week', 'team'], as_index=False)['def_blocked_kick'].sum()
     return out
 
+SEASON = 2026
+
+PLAYOFF_ROUND_NAMES = {
+    19: 'Wild Card', 20: 'Divisional', 21: 'Conference', 22: 'Super Bowl'
+}
+
+
 def generate_dst_stats():
     """Generate comprehensive DST fantasy statistics."""
     print("Loading data from nflverse...")
     
-    # Get current season
-    current_season = nfl.get_current_season()
+    current_season = SEASON
     print(f"Using season: {current_season}")
     
-    # Load team stats, schedules, and play-by-play
-    team_stats = nfl.load_team_stats([current_season]).to_pandas()
-    schedules = nfl.load_schedules([current_season]).to_pandas()
-    pbp = nfl.load_pbp([current_season]).to_pandas()
-    
-    # Filter to regular season only
-    team_stats = team_stats[team_stats['season_type'] == 'REG'].copy()
-    pbp = pbp[pbp['season_type'] == 'REG'].copy()
-    schedules = schedules[schedules['game_type'] == 'REG'].copy()
+    try:
+        team_stats = nfl.load_team_stats([current_season]).to_pandas()
+        schedules = nfl.load_schedules([current_season]).to_pandas()
+        pbp = nfl.load_pbp([current_season]).to_pandas()
+    except Exception as e:
+        print(f"Warning: No data for {current_season}: {e}")
+        output = {'season': current_season, 'generated_at': datetime.now().isoformat(), 'teams': []}
+        output_path = 'website/public/data/dst_stats.json'
+        with open(output_path, 'w') as f:
+            json.dump(output, f, indent=2)
+        print(f"Created empty dst_stats.json (preseason)")
+        return
+
+    reg_team_stats = team_stats[team_stats['season_type'] == 'REG'].copy()
+    post_team_stats = team_stats[team_stats['season_type'] == 'POST'].copy()
+    reg_pbp = pbp[pbp['season_type'] == 'REG'].copy()
+    post_pbp = pbp[pbp['season_type'] == 'POST'].copy()
+    reg_schedules = schedules[schedules['game_type'] == 'REG'].copy()
+    post_schedules = schedules[schedules['game_type'].isin(['WC', 'DIV', 'CON', 'SB', 'POST'])].copy()
+
+    # Use regular season for main processing
+    team_stats = reg_team_stats
+    pbp = reg_pbp
+    schedules = reg_schedules
     
     # Expand schedules to team-week rows.
     # Note: DST `points_allowed` in Sleeper is not always the final opponent score.
@@ -353,6 +374,89 @@ def generate_dst_stats():
         
         teams.append(team_data)
     
+    # Process postseason data
+    if len(post_team_stats) > 0:
+        print("Processing postseason DST stats...")
+        post_sched_expanded = []
+        for _, game in post_schedules.iterrows():
+            if pd.notna(game.get('home_score')) and pd.notna(game.get('away_score')):
+                post_sched_expanded.append({'week': game['week'], 'game_id': game['game_id'],
+                                            'team': game['home_team'], 'opponent': game['away_team'],
+                                            'points_allowed': game['away_score']})
+                post_sched_expanded.append({'week': game['week'], 'game_id': game['game_id'],
+                                            'team': game['away_team'], 'opponent': game['home_team'],
+                                            'points_allowed': game['home_score']})
+        post_sched_df = pd.DataFrame(post_sched_expanded) if post_sched_expanded else pd.DataFrame()
+
+        if not post_sched_df.empty:
+            post_def_pts = {}
+            for gid, g in post_pbp.groupby('game_id', sort=False):
+                pts_ag = _calc_defensive_points_against(g)
+                for t, p in pts_ag.items():
+                    post_def_pts[(str(gid), t)] = p
+            post_fumbles = _calc_fumbles_by_team_week(post_pbp)
+            post_ret_tds = _calc_return_tds_by_team_week(post_pbp)
+            post_blocked = _calc_blocked_kicks_by_team_week(post_pbp)
+
+            post_merged = post_team_stats.merge(post_sched_df, on=['week', 'team'], how='left')
+            post_merged = post_merged.merge(post_fumbles, on=['week', 'team'], how='left')
+            post_merged = post_merged.merge(post_ret_tds, on=['week', 'team'], how='left')
+            post_merged = post_merged.merge(post_blocked, on=['week', 'team'], how='left')
+            for col in ['def_ff', 'def_fr', 'st_ff', 'st_fr', 'kr_td', 'st_td', 'def_blocked_kick']:
+                if col in post_merged.columns:
+                    post_merged[col] = post_merged[col].fillna(0)
+
+            post_dict = {}
+            for _, row in post_merged.iterrows():
+                tm = row['team']
+                if tm not in post_dict:
+                    post_dict[tm] = {'games_played': 0, 'total_points': 0, 'weekly_stats': []}
+                gid = str(row['game_id']) if pd.notna(row.get('game_id')) else None
+                pa_total = int(row['points_allowed']) if pd.notna(row.get('points_allowed')) else 0
+                def_scored = post_def_pts.get((gid, tm), 0) if gid else 0
+                pa_adj = max(pa_total - def_scored, 0)
+                total_def_tds = int(row['def_tds']) + int(row['fumble_recovery_tds'])
+                raw = {
+                    'def_td': total_def_tds, 'kr_td': int(row.get('kr_td', 0) or 0),
+                    'st_td': int(row.get('st_td', 0) or 0), 'def_int': int(row['def_interceptions']),
+                    'def_fumble_recovery': int(row.get('def_fr', 0) or 0),
+                    'def_fumble_forced': int(row.get('def_ff', 0) or 0),
+                    'st_fumble_recovery': int(row.get('st_fr', 0) or 0),
+                    'st_fumble_forced': int(row.get('st_ff', 0) or 0),
+                    'def_sack': float(row['def_sacks']), 'def_safety': int(row['def_safeties']),
+                    'def_blocked_kick': int(row.get('def_blocked_kick', 0) or 0),
+                    'points_allowed': pa_adj,
+                }
+                pts = calculate_fantasy_points(raw, SCORING_PRESETS['ppr'])
+                post_dict[tm]['weekly_stats'].append({
+                    'week': int(row['week']),
+                    'opponent': row['opponent'] if pd.notna(row.get('opponent')) else row.get('opponent_team', 'N/A'),
+                    'points': round(pts, 2), 'raw_stats': raw,
+                    'round': PLAYOFF_ROUND_NAMES.get(int(row['week']), f"Week {int(row['week'])}")
+                })
+                post_dict[tm]['games_played'] += 1
+                post_dict[tm]['total_points'] += pts
+
+            for td in teams:
+                tm = td['team']
+                if tm in post_dict:
+                    ptd = post_dict[tm]
+                    ptd['weekly_stats'].sort(key=lambda x: x['week'])
+                    td['postseason'] = {
+                        'games_played': ptd['games_played'],
+                        'total_points': round(ptd['total_points'], 2),
+                        'avg_points_per_game': round(ptd['total_points'] / ptd['games_played'], 2),
+                        'weekly_stats': ptd['weekly_stats']
+                    }
+                else:
+                    td['postseason'] = None
+        else:
+            for td in teams:
+                td['postseason'] = None
+    else:
+        for td in teams:
+            td['postseason'] = None
+
     # Sort by total points
     teams.sort(key=lambda x: x['total_points'], reverse=True)
     

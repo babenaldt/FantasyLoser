@@ -10,29 +10,42 @@ import nflreadpy as nfl
 from core_data import calculate_fantasy_points, SCORING_PRESETS
 # from player_detail_generator import generate_player_detail_page
 
+SEASON = 2026
+
+PLAYOFF_ROUND_NAMES = {
+    19: 'Wild Card', 20: 'Divisional', 21: 'Conference', 22: 'Super Bowl'
+}
+
+
 def generate_kicker_stats():
     """Generate comprehensive kicker statistics."""
     print("Loading data from nflverse...")
     
-    # Get current season
-    current_season = nfl.get_current_season()
+    current_season = SEASON
     print(f"Using season: {current_season}")
     
-    # Load team stats and rosters
-    team_stats = nfl.load_team_stats([current_season]).to_pandas()
-    rosters = nfl.load_rosters([current_season]).to_pandas()
+    try:
+        team_stats = nfl.load_team_stats([current_season]).to_pandas()
+        rosters = nfl.load_rosters([current_season]).to_pandas()
+    except Exception as e:
+        print(f"Warning: No data for {current_season}: {e}")
+        output = {'season': current_season, 'generated_at': datetime.now().isoformat(), 'players': []}
+        output_path = 'website/public/data/kicker_stats.json'
+        with open(output_path, 'w') as f:
+            json.dump(output, f, indent=2)
+        print(f"Created empty kicker_stats.json (preseason)")
+        return
     
-    # Get kickers from rosters
     kickers = rosters[rosters['position'] == 'K'][['team', 'full_name', 'gsis_id', 'birth_date']].copy()
     kickers = kickers.rename(columns={'full_name': 'player_name', 'gsis_id': 'player_id'})
     
     print(f"Found {len(kickers)} kickers")
     
-    # Merge kicker info with team stats
-    kicker_stats = team_stats.merge(kickers, on='team', how='inner')
+    reg_stats = team_stats[team_stats['season_type'] == 'REG'].copy()
+    post_stats = team_stats[team_stats['season_type'] == 'POST'].copy()
     
-    # Filter to regular season only
-    kicker_stats = kicker_stats[kicker_stats['season_type'] == 'REG'].copy()
+    kicker_stats = reg_stats.merge(kickers, on='team', how='inner')
+    post_kicker_stats = post_stats.merge(kickers, on='team', how='inner') if len(post_stats) > 0 else None
     
     # Build player data structure
     players_dict = {}
@@ -91,6 +104,39 @@ def generate_kicker_stats():
         player['games_played'] += 1
         player['total_points'] += weekly_points
     
+    # Process postseason data
+    if post_kicker_stats is not None and len(post_kicker_stats) > 0:
+        print("Processing postseason kicker stats...")
+        for _, row in post_kicker_stats.iterrows():
+            pid = row['player_id']
+            if pid not in players_dict:
+                continue
+            raw = {
+                'fg_0_19': int(row.get('fg_made_0_19', 0) or 0),
+                'fg_20_29': int(row.get('fg_made_20_29', 0) or 0),
+                'fg_30_39': int(row.get('fg_made_30_39', 0) or 0),
+                'fg_40_49': int(row.get('fg_made_40_49', 0) or 0),
+                'fg_50_59': int(row.get('fg_made_50_59', 0) or 0),
+                'fg_60_plus': int(row.get('fg_made_60_', 0) or 0),
+                'fg_missed': int(row.get('fg_missed', 0) or 0),
+                'fg_att': int(row.get('fg_att', 0) or 0),
+                'pat_made': int(row.get('pat_made', 0) or 0),
+                'pat_missed': int(row.get('pat_missed', 0) or 0),
+                'pat_att': int(row.get('pat_att', 0) or 0),
+            }
+            pts = calculate_fantasy_points(raw, SCORING_PRESETS['ppr'])
+            if 'postseason' not in players_dict[pid]:
+                players_dict[pid]['postseason'] = {'games_played': 0, 'total_points': 0, 'weekly_stats': []}
+            players_dict[pid]['postseason']['weekly_stats'].append({
+                'week': int(row['week']),
+                'opponent': row.get('opponent_team', 'N/A'),
+                'points': round(pts, 2),
+                'round': PLAYOFF_ROUND_NAMES.get(int(row['week']), f"Week {int(row['week'])}"),
+                'raw_stats': raw
+            })
+            players_dict[pid]['postseason']['total_points'] += pts
+            players_dict[pid]['postseason']['games_played'] += 1
+
     # Convert to list and calculate aggregate stats
     players = []
     for player_id, player_data in players_dict.items():
@@ -143,6 +189,15 @@ def generate_kicker_stats():
         player_data['avg_points'] = round(player_data['total_points'] / player_data['games_played'], 2) if player_data['games_played'] > 0 else 0
         player_data['total_points'] = round(player_data['total_points'], 2)
         
+        # Finalize postseason
+        ps = player_data.get('postseason')
+        if ps and ps['games_played'] > 0:
+            ps['avg_points_per_game'] = round(ps['total_points'] / ps['games_played'], 2)
+            ps['total_points'] = round(ps['total_points'], 2)
+            ps['weekly_stats'].sort(key=lambda x: x['week'])
+        else:
+            player_data['postseason'] = None
+
         players.append(player_data)
     
     # Sort by total points

@@ -4,10 +4,31 @@ import playerData from '../../public/data/player_stats.json';
 import kickerData from '../../public/data/kicker_stats.json';
 import dstData from '../../public/data/dst_stats.json';
 
-// Load player stats
-const allPlayers = playerData.players;
-const allKickers = kickerData.players;
-const allDSTs = dstData.teams;
+// Load archived 2025 data
+import prevPlayerData from '../../public/data/archive/2025/player_stats.json';
+import prevKickerData from '../../public/data/archive/2025/kicker_stats.json';
+import prevDstData from '../../public/data/archive/2025/dst_stats.json';
+
+// Detect preseason: current season has no games played
+const currentPlayers = playerData.players || [];
+const currentKickers = kickerData.players || [];
+const currentDSTs = dstData.teams || [];
+const isPreseason = currentPlayers.length === 0 || currentPlayers.every(p => (p.games_played || 0) === 0);
+
+// Use previous season data in preseason, current in-season
+const allPlayers = isPreseason ? (prevPlayerData.players || []) : currentPlayers;
+const allKickers = isPreseason ? (prevKickerData.players || []) : currentKickers;
+const allDSTs = isPreseason ? (prevDstData.teams || []) : currentDSTs;
+
+// Previous season lookup for in-season "Last Yr" columns
+const prevPlayersMap = new Map((prevPlayerData.players || []).map(p => [p.player_id, p]));
+const prevKickersMap = new Map((prevKickerData.players || []).map(p => [p.player_id, p]));
+const prevDSTsMap = new Map((prevDstData.teams || []).map(t => [t.team, t]));
+
+const displaySeason = isPreseason ? '2025' : '2026';
+const seasonLabel = isPreseason
+  ? '2026 Season \u2014 Preseason. Showing 2025 season results.'
+  : '2026 Season';
 
 // Group players by position
 const playersByPosition = {
@@ -34,8 +55,13 @@ const topPlayers = {
 
 <BaseLayout title="Player Stats - Fantasy Football">
   <div class="page-header">
-    <h1>📊 Player Statistics</h1>
-    <p>Top fantasy football players by position for the 2026 season</p>
+    <h1>Player Statistics</h1>
+    <p>{seasonLabel}</p>
+    {isPreseason && (
+      <div class="preseason-banner">
+        Preseason Mode — Draft prep data from the 2025 season. Playoff PPG shown where applicable.
+      </div>
+    )}
   </div>
 
   <!-- Search and Compare Controls -->
@@ -107,6 +133,8 @@ const topPlayers = {
                   <th style="cursor: pointer;" data-sort="trend" title="Trend (Last 4 Weeks vs Season Avg)">Trend</th>
                   <th style="cursor: pointer;" data-sort="vs_pos" title="Points vs Position Average">vs Pos</th>
                   <th style="cursor: pointer;" data-sort="vs_opp_avg" title="Average Delta vs Opponent Avg Allowed">vs Opp</th>
+                  <th style="cursor: pointer;" data-sort="playoff_ppg" title="Postseason Average PPG">Playoff PPG</th>
+                  {!isPreseason && <th style="cursor: pointer;" data-sort="last_yr_ppg" title="Previous Season Average PPG">Last Yr PPG</th>}
                 </>
               )}
               {position === 'K' && (
@@ -152,6 +180,17 @@ const topPlayers = {
     .page-header p {
       color: rgba(255, 255, 255, 0.9);
       font-size: 1.2em;
+    }
+
+    .preseason-banner {
+      margin-top: 15px;
+      padding: 12px 24px;
+      background: rgba(243, 156, 18, 0.25);
+      border: 1px solid rgba(243, 156, 18, 0.5);
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 500;
+      display: inline-block;
     }
 
     .position-tabs {
@@ -287,7 +326,7 @@ const topPlayers = {
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   
-  <script define:vars={{ allPlayers, topPlayers, allKickers, allDSTs }}>
+  <script define:vars={{ allPlayers, topPlayers, allKickers, allDSTs, isPreseason, prevPlayersMap: Object.fromEntries(prevPlayersMap), prevKickersMap: Object.fromEntries(prevKickersMap), prevDSTsMap: Object.fromEntries(prevDSTsMap) }}>
     let currentPosition = 'ALL';
     let currentChart = null;
     let playerData = allPlayers;
@@ -604,10 +643,13 @@ const topPlayers = {
         if (position === 'ALL') {
           posCol = `<td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${player.position}</td>`;
           
-          // Common advanced stats for all positions in ALL view
           const trendColor = player.calculated_trend_dir === '▲' ? 'green' : (player.calculated_trend_dir === '▼' ? 'red' : 'black');
           const vsPosColor = (player.calculated_vs_pos || 0) > 0 ? 'green' : ((player.calculated_vs_pos || 0) < 0 ? 'red' : 'black');
           const vsOppColor = (player.calculated_vs_opp_avg || 0) > 0 ? 'green' : ((player.calculated_vs_opp_avg || 0) < 0 ? 'red' : 'black');
+          
+          const playoffPpg = player.postseason ? player.postseason.avg_points_per_game.toFixed(1) : '--';
+          const prevPlayer = prevPlayersMap[player.player_id] || prevKickersMap[player.player_id];
+          const lastYrPpg = prevPlayer ? (prevPlayer.avg_points_per_game || prevPlayer.avg_points || 0).toFixed(1) : '--';
           
           extraCols = `
              <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_consistency || 0).toFixed(2)}</td>
@@ -615,13 +657,18 @@ const topPlayers = {
              <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${trendColor};">${player.calculated_trend_dir} ${(Math.abs(player.calculated_trend_pct || 0)).toFixed(1)}%</td>
              <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsPosColor};">${(player.calculated_vs_pos || 0) > 0 ? '+' : ''}${(player.calculated_vs_pos || 0).toFixed(1)}</td>
              <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsOppColor};">${(player.calculated_vs_opp_avg || 0) > 0 ? '+' : ''}${(player.calculated_vs_opp_avg || 0).toFixed(1)}</td>
+             <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: #9b59b6; font-weight: 600;">${playoffPpg}</td>
+             ${!isPreseason ? `<td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: #7f8c8d;">${lastYrPpg}</td>` : ''}
           `;
         } else {
-            // Common advanced stats for QB, RB, WR, TE
             if (['QB', 'RB', 'WR', 'TE'].includes(player.position)) {
                  const trendColor = player.calculated_trend_dir === '▲' ? 'green' : (player.calculated_trend_dir === '▼' ? 'red' : 'black');
                  const vsPosColor = (player.calculated_vs_pos || 0) > 0 ? 'green' : ((player.calculated_vs_pos || 0) < 0 ? 'red' : 'black');
                  const vsOppColor = (player.calculated_vs_opp_avg || 0) > 0 ? 'green' : ((player.calculated_vs_opp_avg || 0) < 0 ? 'red' : 'black');
+                 
+                 const playoffPpg = player.postseason ? player.postseason.avg_points_per_game.toFixed(1) : '--';
+                 const prevPlayer = prevPlayersMap[player.player_id];
+                 const lastYrPpg = prevPlayer ? (prevPlayer.avg_points_per_game || 0).toFixed(1) : '--';
                  
                  extraCols = `
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1;">${(player.calculated_consistency || 0).toFixed(2)}</td>
@@ -629,6 +676,8 @@ const topPlayers = {
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${trendColor};">${player.calculated_trend_dir} ${(Math.abs(player.calculated_trend_pct || 0)).toFixed(1)}%</td>
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsPosColor};">${(player.calculated_vs_pos || 0) > 0 ? '+' : ''}${(player.calculated_vs_pos || 0).toFixed(1)}</td>
                     <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: ${vsOppColor};">${(player.calculated_vs_opp_avg || 0) > 0 ? '+' : ''}${(player.calculated_vs_opp_avg || 0).toFixed(1)}</td>
+                    <td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: #9b59b6; font-weight: 600;">${playoffPpg}</td>
+                    ${!isPreseason ? `<td style="text-align: center; padding: 12px 10px; border-bottom: 1px solid #ecf0f1; color: #7f8c8d;">${lastYrPpg}</td>` : ''}
                  `;
             } else if (position === 'K') {
               const stats = player.aggregate_stats || {};

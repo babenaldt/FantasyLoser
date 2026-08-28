@@ -6,6 +6,13 @@ import nflreadpy as nfl
 from core_data import calculate_fantasy_points, SCORING_PRESETS, ensure_directories, ROSTERABLE_POSITIONS, OUTPUT_DIR, ASTRO_DATA_DIR, save_json
 
 
+SEASON = 2026
+
+PLAYOFF_ROUND_NAMES = {
+    19: 'Wild Card', 20: 'Divisional', 21: 'Conference', 22: 'Super Bowl'
+}
+
+
 def generate_defense_stats_json():
     """Generate defense statistics and save to JSON."""
     print("\nGenerating Defense Statistics...")
@@ -13,15 +20,24 @@ def generate_defense_stats_json():
     
     # Load NFL data
     print("  Loading NFL weekly player stats...")
-    nfl_season = nfl.get_current_season()
+    nfl_season = SEASON
     season = [nfl_season]
     
     try:
-        weekly_stats = nfl.load_player_stats(season)
-        print(f"  Detected current NFL season: {nfl_season}")
-        print(f"  Loaded weekly data for {nfl_season} season ({len(weekly_stats)} records)")
+        all_weekly = nfl.load_player_stats(season, summary_level='week')
+        weekly_stats = all_weekly.filter(all_weekly['season_type'] == 'REG')
+        post_stats = all_weekly.filter(all_weekly['season_type'] == 'POST')
+        print(f"  Loaded {len(weekly_stats)} regular + {len(post_stats)} postseason records for {nfl_season}")
     except Exception as e:
-        print(f"  Error loading NFL data: {e}")
+        print(f"  Warning: No NFL data for {nfl_season}: {e}")
+        output_data = {
+            'season': str(nfl_season),
+            'generated_at': __import__('datetime').datetime.now().isoformat(),
+            'defenses': []
+        }
+        save_json(output_data, f"{OUTPUT_DIR}/defense_stats.json")
+        save_json(output_data, f"{ASTRO_DATA_DIR}/defense_stats.json")
+        print("  Created empty defense_stats.json (preseason)")
         return
     
     # Calculate defensive statistics
@@ -226,6 +242,61 @@ def generate_defense_stats_json():
         
         defenses_list.append(stats)
     
+    # Process postseason data
+    if post_stats is not None and len(post_stats) > 0:
+        print("  Processing postseason defense stats...")
+        post_defense = {}
+        for row in post_stats.iter_rows(named=True):
+            opponent = row.get('opponent_team')
+            if not opponent:
+                continue
+            position = row.get('position', '')
+            if position not in ROSTERABLE_POSITIONS or position in ('K', 'DEF'):
+                continue
+            pts = calculate_fantasy_points(row)
+            week = row.get('week')
+            player_team = row.get('team')
+            if not week:
+                continue
+            if opponent not in post_defense:
+                post_defense[opponent] = {
+                    'games': 0, 'total_points_allowed': 0,
+                    'weeks_played': set(), 'weekly_breakdown': {}
+                }
+            pd_ = post_defense[opponent]
+            pd_['weeks_played'].add(week)
+            if week not in pd_['weekly_breakdown']:
+                pd_['weekly_breakdown'][week] = {
+                    'week': week, 'opponent': player_team or 'N/A',
+                    'round': PLAYOFF_ROUND_NAMES.get(week, f'Week {week}'),
+                    'total_points': 0, 'qb_points': 0, 'rb_points': 0,
+                    'wr_points': 0, 'te_points': 0
+                }
+            pd_['total_points_allowed'] += pts
+            wb = pd_['weekly_breakdown'][week]
+            wb['total_points'] += pts
+            if position == 'QB': wb['qb_points'] += pts
+            elif position == 'RB': wb['rb_points'] += pts
+            elif position == 'WR': wb['wr_points'] += pts
+            elif position == 'TE': wb['te_points'] += pts
+
+        for d in defenses_list:
+            tm = d['team']
+            if tm in post_defense:
+                pd_ = post_defense[tm]
+                pd_['games'] = len(pd_['weeks_played'])
+                wbs = sorted(pd_['weekly_breakdown'].values(), key=lambda x: x['week'])
+                d['postseason'] = {
+                    'games': pd_['games'],
+                    'avg_points_per_game': round(pd_['total_points_allowed'] / pd_['games'], 1) if pd_['games'] > 0 else 0,
+                    'weekly_breakdown': wbs
+                }
+            else:
+                d['postseason'] = None
+    else:
+        for d in defenses_list:
+            d['postseason'] = None
+
     print(f"  Calculated stats for {len(defenses_list)} defenses")
     
     # Prepare output data

@@ -82,6 +82,22 @@ jobs:
             echo '{"league_id":"","league_name":"Chopped League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' > website/public/data/season_stats_chopped.json
             echo "Created placeholder season_stats_chopped.json (preseason)"
           fi
+          if [ ! -f website/public/data/player_stats.json ]; then
+            echo '{"season":"2026","generated_at":"","players":[]}' > website/public/data/player_stats.json
+            echo "Created placeholder player_stats.json (preseason)"
+          fi
+          if [ ! -f website/public/data/kicker_stats.json ]; then
+            echo '{"season":"2026","generated_at":"","players":[]}' > website/public/data/kicker_stats.json
+            echo "Created placeholder kicker_stats.json (preseason)"
+          fi
+          if [ ! -f website/public/data/dst_stats.json ]; then
+            echo '{"season":"2026","generated_at":"","teams":[]}' > website/public/data/dst_stats.json
+            echo "Created placeholder dst_stats.json (preseason)"
+          fi
+          if [ ! -f website/public/data/defense_stats.json ]; then
+            echo '{"season":"2026","generated_at":"","defenses":[]}' > website/public/data/defense_stats.json
+            echo "Created placeholder defense_stats.json (preseason)"
+          fi
       
       - name: Verify data files were generated
         run: |

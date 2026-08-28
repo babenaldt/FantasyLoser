@@ -2,23 +2,40 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  // Import data
   const playerData = await import('../../../public/data/player_stats.json');
   const kickerData = await import('../../../public/data/kicker_stats.json');
+  const prevPlayerData = await import('../../../public/data/archive/2025/player_stats.json');
+  const prevKickerData = await import('../../../public/data/archive/2025/kicker_stats.json');
   
-  const players = playerData.default?.players || playerData.players || [];
-  const kickers = kickerData.default?.players || kickerData.players || [];
-  
-  // Combine players and kickers
-  const allPlayers = [...players, ...kickers];
+  const currentPlayers = playerData.default?.players || playerData.players || [];
+  const currentKickers = kickerData.default?.players || kickerData.players || [];
+  const prevPlayers = prevPlayerData.default?.players || prevPlayerData.players || [];
+  const prevKickers = prevKickerData.default?.players || prevKickerData.players || [];
 
-  return allPlayers.map(player => ({
-    params: { player_id: player.player_id },
-    props: { player }
-  }));
+  const isPreseason = currentPlayers.length === 0 || currentPlayers.every(p => (p.games_played || 0) === 0);
+
+  // Build map by player_id from all sources
+  const playerMap = new Map();
+  for (const p of currentPlayers) playerMap.set(p.player_id, { ...playerMap.get(p.player_id), current: p });
+  for (const p of currentKickers) playerMap.set(p.player_id, { ...playerMap.get(p.player_id), current: p });
+  for (const p of prevPlayers) playerMap.set(p.player_id, { ...playerMap.get(p.player_id), prev: p });
+  for (const p of prevKickers) playerMap.set(p.player_id, { ...playerMap.get(p.player_id), prev: p });
+
+  return Array.from(playerMap.entries()).map(([id, data]) => {
+    const primary = isPreseason ? (data.prev || data.current) : (data.current || data.prev);
+    return {
+      params: { player_id: id },
+      props: {
+        player: primary,
+        prevPlayer: data.prev || null,
+        currentPlayer: data.current || null,
+        isPreseason
+      }
+    };
+  });
 }
 
-const { player } = Astro.props;
+const { player, prevPlayer, currentPlayer, isPreseason } = Astro.props;
 
 // Normalize data structures
 const position = player.position;
@@ -72,9 +89,19 @@ if (playedWeeks.length > 0) {
   if (worstWeek) worstWeekNum = worstWeek.week;
 }
 
-// Owners
-const dynasty_owner = player.dynasty_owner || 'Free Agent';
-const chopped_owner = player.chopped_owner || 'Free Agent';
+// Owners - use current season ownership if available, fall back to previous
+const dynasty_owner = isPreseason
+  ? (prevPlayer?.dynasty_owner || player.dynasty_owner || 'Free Agent')
+  : (currentPlayer?.dynasty_owner || player.dynasty_owner || 'Free Agent');
+const chopped_owner = isPreseason
+  ? (prevPlayer?.chopped_owner || player.chopped_owner || 'Free Agent')
+  : (currentPlayer?.chopped_owner || player.chopped_owner || 'Free Agent');
+
+// Postseason data
+const postseason = player.postseason || prevPlayer?.postseason || null;
+
+// Display season
+const displaySeason = isPreseason ? '2025' : '2026';
 
 ---
 
@@ -88,6 +115,7 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
       <div class="player-header">
         <h1 class="player-name">{player_name}</h1>
         <span class={`position ${position}`}>{position}</span>
+        {isPreseason && <span class="season-badge">2025 Season Data</span>}
         
         <div class="player-meta">
           <div class="meta-item">
@@ -209,6 +237,76 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
           </tbody>
         </table>
       </div>
+
+      {postseason && (
+        <div class="postseason-section">
+          <h3 style="color: #9b59b6; margin-bottom: 20px;">Postseason Performance</h3>
+          <div class="postseason-summary">
+            <div class="ps-stat">
+              <span class="ps-label">Games</span>
+              <span class="ps-value">{postseason.games_played}</span>
+            </div>
+            <div class="ps-stat">
+              <span class="ps-label">Total Pts</span>
+              <span class="ps-value">{postseason.total_points.toFixed(1)}</span>
+            </div>
+            <div class="ps-stat">
+              <span class="ps-label">PPG</span>
+              <span class="ps-value">{postseason.avg_points_per_game.toFixed(1)}</span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Round</th>
+                <th>Opponent</th>
+                <th>Fantasy Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {postseason.weekly_points.map(w => (
+                <tr>
+                  <td>{w.round || `Week ${w.week}`}</td>
+                  <td>{w.opponent}</td>
+                  <td style="font-weight: bold;">{w.points.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {!isPreseason && prevPlayer && prevPlayer.games_played > 0 && (
+        <details class="prev-season-section">
+          <summary>Previous Season (2025) &mdash; {prevPlayer.games_played} games, {prevPlayer.total_points.toFixed(1)} pts, {(prevPlayer.avg_points_per_game || prevPlayer.avg_points || 0).toFixed(1)} PPG</summary>
+          <div class="prev-season-content">
+            <div class="postseason-summary" style="margin-bottom: 20px;">
+              <div class="ps-stat">
+                <span class="ps-label">Games</span>
+                <span class="ps-value">{prevPlayer.games_played}</span>
+              </div>
+              <div class="ps-stat">
+                <span class="ps-label">Total Pts</span>
+                <span class="ps-value">{prevPlayer.total_points.toFixed(1)}</span>
+              </div>
+              <div class="ps-stat">
+                <span class="ps-label">PPG</span>
+                <span class="ps-value">{(prevPlayer.avg_points_per_game || prevPlayer.avg_points || 0).toFixed(1)}</span>
+              </div>
+              <div class="ps-stat">
+                <span class="ps-label">Consistency</span>
+                <span class="ps-value">{(prevPlayer.consistency || 0).toFixed(2)}</span>
+              </div>
+            </div>
+            {prevPlayer.postseason && (
+              <div style="margin-top: 15px;">
+                <h4 style="color: #9b59b6; margin-bottom: 10px;">2025 Postseason</h4>
+                <p style="color: #666;">{prevPlayer.postseason.games_played} games, {prevPlayer.postseason.avg_points_per_game.toFixed(1)} PPG</p>
+              </div>
+            )}
+          </div>
+        </details>
+      )}
     </div>
   </div>
 
@@ -591,6 +689,62 @@ const chopped_owner = player.chopped_owner || 'Free Agent';
     }
     .worst-week {
       background-color: #f8d7da !important;
+    }
+    .season-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(243, 156, 18, 0.2);
+      border: 1px solid rgba(243, 156, 18, 0.5);
+      border-radius: 12px;
+      color: #f39c12;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .postseason-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border-left: 4px solid #9b59b6;
+    }
+    .postseason-summary {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .ps-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .ps-label {
+      font-size: 0.85em;
+      color: #666;
+    }
+    .ps-value {
+      font-size: 1.4em;
+      font-weight: 700;
+      color: #9b59b6;
+    }
+    .prev-season-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border-left: 4px solid #7f8c8d;
+    }
+    .prev-season-section summary {
+      cursor: pointer;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+    .prev-season-content {
+      margin-top: 15px;
     }
     
     /* Mobile Responsive Styles */
