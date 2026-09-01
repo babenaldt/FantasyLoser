@@ -316,17 +316,20 @@ def generate_user_lineups():
     
     # Load player stats
     print("  Loading player stats...")
+    players_by_name_team = {}
     try:
         with open(f"{OUTPUT_DIR}/player_stats.json", 'r', encoding='utf-8') as f:
             player_data = json.load(f)
-            players_by_name_team = {}
-            for p in player_data['players']:
+            for p in player_data.get('players', []):
                 key = (p['player_name'], p['team'])
                 players_by_name_team[key] = p
         print(f"  Loaded {len(players_by_name_team)} players")
     except Exception as e:
-        print(f"  Error loading player stats: {e}")
-        return
+        print(f"  Warning: Could not load player stats: {e}")
+    
+    is_preseason = len(players_by_name_team) == 0
+    if is_preseason:
+        print("  ⚠ Preseason mode: generating basic roster data without matchup analysis")
     
     # Load defense stats
     print("  Loading defense stats...")
@@ -417,8 +420,8 @@ def generate_user_lineups():
                 # Get user's players with stats
                 user_players_data = []
                 
-                # For Chopped league, create entry even if no roster_players (eliminated teams)
-                if not roster_players and league_info['name'] != 'Chopped':
+                # Skip users with no roster (unless Chopped eliminated or preseason)
+                if not roster_players and league_info['name'] != 'Chopped' and not is_preseason:
                     continue
                 
                 # Ensure roster_players is a list
@@ -458,14 +461,21 @@ def generate_user_lineups():
                                 player_name = player_name + suffix  # Use the full name from player_stats
                                 break
                     
-                    if not full_stats or position not in ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']:
+                    if position not in ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']:
+                        continue
+                    
+                    # During preseason, create basic entries even without full_stats
+                    if not full_stats and not is_preseason:
                         continue
                     
                     # Get week matchup
-                    weekly_data = full_stats.get('weekly_points', [])
-                    week_matchup = next((w for w in weekly_data if w['week'] == current_week), None)
+                    if full_stats:
+                        weekly_data = full_stats.get('weekly_points', [])
+                        week_matchup = next((w for w in weekly_data if w['week'] == current_week), None)
+                    else:
+                        week_matchup = None
                     
-                    opponent = week_matchup['opponent'] if week_matchup else 'Unknown'
+                    opponent = week_matchup['opponent'] if week_matchup else 'TBD'
                     opp_avg_allowed = week_matchup['opp_avg_allowed'] if week_matchup else 0
                     
                     # Get Sleeper projection
@@ -485,13 +495,11 @@ def generate_user_lineups():
                     
                     # Determine acquisition status display text
                     if acquired_week:
-                        # Player was acquired via transaction
                         if prev_owner:
                             acquisition_status = f"from {prev_owner}"
                         else:
                             acquisition_status = 'Free Agent' if faab_spent == 0 else 'Waivers'
                     else:
-                        # No transaction history - must be drafted
                         acquisition_status = 'Drafted'
                     
                     user_players_data.append({
@@ -500,18 +508,18 @@ def generate_user_lineups():
                         'position': position,
                         'opponent': opponent,
                         'opp_avg_allowed': opp_avg_allowed,
-                        'avg_ppg': full_stats.get('avg_points_per_game', 0),
+                        'avg_ppg': full_stats.get('avg_points_per_game', 0) if full_stats else 0,
                         'projected_points': proj_ppr,
                         'injury_status': injury_status,
                         'injury_notes': injury_notes,
-                        'total_points': full_stats.get('total_points', 0),
-                        'games_played': full_stats.get('games_played', 0),
-                        'consistency': full_stats.get('consistency', 0),
-                        'std_dev': full_stats.get('std_dev', 0),
-                        'trend_dir': full_stats.get('trend_dir', '-'),
-                        'trend_pct': full_stats.get('trend_pct', 0),
-                        'vs_position_avg': full_stats.get('vs_position_avg', 0),
-                        'player_id': full_stats.get('player_id', ''),
+                        'total_points': full_stats.get('total_points', 0) if full_stats else 0,
+                        'games_played': full_stats.get('games_played', 0) if full_stats else 0,
+                        'consistency': full_stats.get('consistency', 0) if full_stats else 0,
+                        'std_dev': full_stats.get('std_dev', 0) if full_stats else 0,
+                        'trend_dir': full_stats.get('trend_dir', '-') if full_stats else '-',
+                        'trend_pct': full_stats.get('trend_pct', 0) if full_stats else 0,
+                        'vs_position_avg': full_stats.get('vs_position_avg', 0) if full_stats else 0,
+                        'player_id': full_stats.get('player_id', '') if full_stats else '',
                         'sleeper_id': sleeper_id,
                         'acquired_week': acquired_week,
                         'prev_owner': prev_owner,
@@ -520,8 +528,8 @@ def generate_user_lineups():
                         'faab_spent': faab_spent
                     })
                 
-                # Add user entry if they have players OR if it's Chopped (to include eliminated teams)
-                if user_players_data or league_info['name'] == 'Chopped':
+                # Add user entry if they have players, if it's Chopped (eliminated teams), or during preseason
+                if user_players_data or league_info['name'] == 'Chopped' or is_preseason:
                     user_weekly_txns = weekly_transactions_by_user.get(owner_id, {})
                     # Convert to sorted list
                     weekly_txns_list = [
