@@ -28,6 +28,18 @@ const loserProbs = Object.entries(playoffProbabilities)
   .filter(t => t.loser_bracket_prob > 0)
   .sort((a, b) => b.loser_bracket_prob - a.loser_bracket_prob);
 
+// Playoff odds (making the winners bracket) - used during regular season
+const playoffOdds = Object.entries(playoffProbabilities)
+  .map(([name, data]) => ({ name, ...data }))
+  .filter(t => (t.playoff_odds || 0) > 0)
+  .sort((a, b) => (b.playoff_odds || 0) - (a.playoff_odds || 0));
+
+// Teams at risk of missing playoffs (inverse of playoff odds)
+const missPlayoffOdds = Object.entries(playoffProbabilities)
+  .map(([name, data]) => ({ name, playoffOdds: data.playoff_odds || 0, ...data }))
+  .filter(t => t.playoffOdds < 1 && t.playoffOdds > 0)
+  .sort((a, b) => a.playoffOdds - b.playoffOdds);
+
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
 const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
@@ -202,51 +214,103 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
     </table>
   </div>
 
-  {/* Playoff Predictions Section */}
-  {isPlayoffs && Object.keys(playoffProbabilities).length > 0 && (
+  {/* Playoff / Regular Season Predictions Section */}
+  {Object.keys(playoffProbabilities).length > 0 && (
   <div class="playoff-shell" style="margin-top: 32px; padding: 0 8px;">
     <div class="playoff-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
-      {/* Winners Bracket */}
-      <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
-        <div class="card-title champ" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-green);">🏆 Championship Odds</div>
-        <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
-          {champProbs.filter(t => t.championship_prob > 0).map((team, idx) => {
-            const prob = (team.championship_prob * 100);
-            const barColor = idx === 0 ? 'var(--accent-green)' : idx === 1 ? 'var(--accent-indigo)' : 'var(--muted)';
-            return (
-              <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
-                <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
-                <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
-                  <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
-                </div>
-                <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      
+      {isPlayoffs ? (
+        <>
+          {/* PLAYOFFS: Championship Odds */}
+          <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
+            <div class="card-title champ" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-green);">🏆 Championship Odds</div>
+            <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
+              {champProbs.filter(t => t.championship_prob > 0).map((team, idx) => {
+                const prob = (team.championship_prob * 100);
+                const barColor = idx === 0 ? 'var(--accent-green)' : idx === 1 ? 'var(--accent-indigo)' : 'var(--muted)';
+                return (
+                  <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
+                    <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                    <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
+                      <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
+                    </div>
+                    <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-      {/* Losers Bracket */}
-      {loserProbs.length > 0 && (
-      <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
-        <div class="card-title loser" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-red);">💀 Loser Bracket Odds</div>
-        <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
-          {loserProbs.map((team, idx) => {
-            const prob = (team.loser_bracket_prob * 100);
-            const barColor = idx === 0 ? 'var(--accent-red)' : idx === 1 ? 'var(--accent-orange)' : 'var(--muted)';
-            return (
-              <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
-                <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
-                <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
-                  <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
-                </div>
-                <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          {/* PLAYOFFS: Losers Bracket */}
+          {loserProbs.length > 0 && (
+          <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
+            <div class="card-title loser" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-red);">💀 Loser Bracket Odds</div>
+            <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
+              {loserProbs.map((team, idx) => {
+                const prob = (team.loser_bracket_prob * 100);
+                const barColor = idx === 0 ? 'var(--accent-red)' : idx === 1 ? 'var(--accent-orange)' : 'var(--muted)';
+                return (
+                  <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
+                    <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                    <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
+                      <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
+                    </div>
+                    <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          )}
+        </>
+      ) : (
+        <>
+          {/* REGULAR SEASON: Playoff Odds (making the winners bracket) */}
+          {playoffOdds.length > 0 && (
+          <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
+            <div class="card-title champ" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-green);">🏈 Playoff Odds</div>
+            <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
+              {playoffOdds.map((team, idx) => {
+                const prob = ((team.playoff_odds || 0) * 100);
+                const barColor = prob >= 75 ? 'var(--accent-green)' : prob >= 50 ? 'var(--accent-indigo)' : prob >= 25 ? 'var(--accent-orange)' : 'var(--accent-red)';
+                return (
+                  <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
+                    <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                    <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
+                      <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
+                    </div>
+                    <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          )}
+
+          {/* REGULAR SEASON: Loser Bracket Risk */}
+          {loserProbs.length > 0 && (
+          <div class="playoff-card" style="background: linear-gradient(145deg, #ffffff 0%, #f6f8ff 100%); border-radius: 14px; padding: 18px 16px; box-shadow: 0 10px 30px rgba(78, 91, 255, 0.08); border: 1px solid rgba(84, 109, 229, 0.1);">
+            <div class="card-title loser" style="text-align: center; margin-bottom: 14px; font-size: 1.05em; font-weight: 700; letter-spacing: 0.01em; color: var(--accent-red);">💀 Loser Bracket Risk</div>
+            <div class="bar-column" style="display: flex; flex-direction: column; gap: 10px;">
+              {loserProbs.map((team, idx) => {
+                const prob = (team.loser_bracket_prob * 100);
+                const barColor = idx === 0 ? 'var(--accent-red)' : idx === 1 ? 'var(--accent-orange)' : 'var(--muted)';
+                return (
+                  <div class="bar-row" style="display: grid; grid-template-columns: 100px 1fr 54px; align-items: center; gap: 10px;">
+                    <div class="team-name" style="font-weight: 600; font-size: 0.88em; color: #2f3a4a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{team.name}</div>
+                    <div class="bar-track" style="position: relative; width: 100%; height: 18px; border-radius: 999px; background: linear-gradient(90deg, #e2e8f0 0%, #d9e2ec 100%); overflow: hidden;">
+                      <div class="bar-fill" style={`height: 100%; border-radius: 999px; min-width: 3px; width: ${prob}%; background: ${barColor}; transition: width 180ms ease-out;`}></div>
+                    </div>
+                    <div class="pct" style={`font-size: 0.82em; font-weight: 700; text-align: right; color: ${barColor};`}>{prob.toFixed(1)}%</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          )}
+        </>
       )}
+
     </div>
   </div>
   )}

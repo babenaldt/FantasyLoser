@@ -501,6 +501,7 @@ class PlayoffSimulator:
         # Track outcomes across simulations
         championship_wins = {rid: 0 for rid in self._roster_map.keys()}
         loser_wins = {rid: 0 for rid in self._roster_map.keys()}
+        winners_bracket_appearances = {rid: 0 for rid in self._roster_map.keys()}
         
         print(f"  Running {self.num_simulations:,} playoff simulations...")
         
@@ -520,6 +521,10 @@ class PlayoffSimulator:
                 playoff_start
             )
             
+            # Track which teams appeared in the winners bracket
+            for rid in winner_results.get('participants', []):
+                winners_bracket_appearances[rid] += 1
+            
             # Track winner
             champ_rid = winner_results.get('champion')
             if champ_rid:
@@ -535,6 +540,7 @@ class PlayoffSimulator:
             results[rid] = {
                 'championship_prob': championship_wins[rid] / self.num_simulations,
                 'loser_bracket_prob': loser_wins[rid] / self.num_simulations,
+                'playoff_odds': winners_bracket_appearances[rid] / self.num_simulations,
             }
         
         return results
@@ -635,7 +641,15 @@ class PlayoffSimulator:
         final_matchup = next((m for m in bracket if m.get('p') == 1), None)
         champion = final_matchup.get('w') if final_matchup else None
         
-        return {'champion': champion}
+        # Collect all participants in this bracket
+        participants = set()
+        for m in bracket:
+            if m.get('t1') is not None:
+                participants.add(m['t1'])
+            if m.get('t2') is not None:
+                participants.add(m['t2'])
+        
+        return {'champion': champion, 'participants': list(participants)}
     
     def generate_predictions(self, output_path: str = None):
         """Generate all predictions and save to JSON."""
@@ -789,6 +803,7 @@ class PlayoffSimulator:
                     'roster_id': rid,
                     'championship_prob': round(probs['championship_prob'], 4),
                     'loser_bracket_prob': round(probs['loser_bracket_prob'], 4),
+                    'playoff_odds': round(probs.get('playoff_odds', 0), 4),
                 }
                 for rid, probs in playoff_results.items()
             }

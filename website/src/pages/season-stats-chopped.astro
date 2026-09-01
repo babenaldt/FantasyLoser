@@ -318,8 +318,7 @@ teams.forEach(t => {
               {eliminated.length > 0 ? (
                 eliminated.map(team => {
                   const weekScore = team.weekly_scores.find(w => w.week === week);
-                  return (
-                    {hasUserPage(team.owner_name) ? (
+                  return hasUserPage(team.owner_name) ? (
                       <a href={`/users/chopped-${slugify(team.owner_name)}`} class="eliminated-player">
                         <div class="player-name">{team.owner_name}</div>
                         <div class="elimination-score">{weekScore?.points.toFixed(1) || '0.0'} pts</div>
@@ -331,8 +330,7 @@ teams.forEach(t => {
                         <div class="elimination-score">{weekScore?.points.toFixed(1) || '0.0'} pts</div>
                         <div class="eliminated-badge">❌ Chopped</div>
                       </div>
-                    )}
-                  );
+                    );
                 })
               ) : (
                 <div class="no-elimination">✓ No eliminations</div>
@@ -350,8 +348,8 @@ teams.forEach(t => {
             <div class="remaining-count">{teams.filter(t => !t.eliminated_week).length} finalists</div>
           </div>
           <div class="elimination-content finals-content">
-            {teams.filter(t => !t.eliminated_week).map(team => (
-              {hasUserPage(team.owner_name) ? (
+            {teams.filter(t => !t.eliminated_week).map(team => 
+              hasUserPage(team.owner_name) ? (
                 <a href={`/users/chopped-${slugify(team.owner_name)}`} class="finalist">
                   <div class="player-name">{team.owner_name}</div>
                   <div class="finalist-stats">
@@ -369,8 +367,8 @@ teams.forEach(t => {
                   </div>
                   <div class="finalist-badge">👑 Finalist</div>
                 </div>
-              )}
-            ))}
+              )
+            )}
           </div>
         </div>
       )}
