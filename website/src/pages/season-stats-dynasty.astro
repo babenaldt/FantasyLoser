@@ -41,6 +41,9 @@ const playoffOdds = Object.entries(playoffProbabilities)
   .filter(t => (t.playoff_odds || 0) > 0)
   .sort((a, b) => (b.playoff_odds || 0) - (a.playoff_odds || 0));
 
+// Preseason detection: no games played yet
+const isPreseason = !teams || teams.length === 0 || teams.every(t => (t.weeks_played || 0) === 0);
+
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
 const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
@@ -136,6 +139,14 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
     <p class="subtitle">{season} Season Statistics</p>
   </div>
 
+  {isPreseason && (
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+    <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">🏈 Preseason</div>
+    <div style="opacity: 0.9;">The {season} season hasn't started yet. Stats will populate once games begin.</div>
+  </div>
+  )}
+
+  {!isPreseason && (
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-title">League Average PPG</div>
@@ -158,6 +169,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
       <div class="stat-value">{bestTheoreticalAvg.toFixed(1)}</div>
     </div>
   </div>
+  )}
 
 
 
@@ -290,6 +302,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
   </div>
   )}
 
+  {!isPreseason && (
   <div class="awards-section" style="margin-top: 40px;">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
@@ -407,11 +420,14 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
       )}
     </div>
   </div>
+  )}
 
+  {!isPreseason && (
   <div class="chart-container" style="height: 600px; margin-top: 40px;">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
     <canvas id="leagueChart"></canvas>
   </div>
+  )}
 
   <script is:inline>
     function sortTable(columnIndex) {
