@@ -279,6 +279,16 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
         )})}
       </div>
     </section>
+    ) : isPagePreseason ? (
+    <!-- Pre-Draft / Empty Roster in Preseason -->
+    <section class="eliminated-message">
+      <div class="eliminated-card">
+        <div class="eliminated-icon">🏈</div>
+        <h2>Pre-Draft</h2>
+        <p>The 2026 {league} league hasn't drafted yet.</p>
+        <p>Roster information will be available after the draft.</p>
+      </div>
+    </section>
     ) : (
     <!-- Eliminated Player Message -->
     <section class="eliminated-message">
