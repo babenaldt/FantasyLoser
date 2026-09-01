@@ -10,6 +10,9 @@ const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 const userLineupUsers = (userLineupsData.users || []).map((u: any) => slugify(u.user_name));
 const hasUserPage = (ownerName: string) => userLineupUsers.includes(slugify(ownerName));
 
+// Preseason detection: no games played yet
+const isPreseason = !teams || teams.length === 0 || teams.every(t => (t.weeks_played || 0) === 0);
+
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
 const qualifiedTeams = teams.filter(t => t.weeks_played >= 5);
@@ -118,6 +121,14 @@ teams.forEach(t => {
     <p class="subtitle">{season} Season Statistics</p>
   </div>
 
+  {isPreseason && (
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+    <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">🏈 Preseason</div>
+    <div style="opacity: 0.9;">The {season} season hasn't started yet. Stats will populate once games begin.</div>
+  </div>
+  )}
+
+  {!isPreseason && (
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-title">League Average PPG</div>
@@ -140,7 +151,9 @@ teams.forEach(t => {
       <div class="stat-value">{bestTheoreticalAvg.toFixed(1)}</div>
     </div>
   </div>
+  )}
 
+  {!isPreseason && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
     <table class="stats-table" id="statsTable">
@@ -186,7 +199,9 @@ teams.forEach(t => {
       </tbody>
     </table>
   </div>
+  )}
 
+  {!isPreseason && (
   <div class="awards-section">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
@@ -296,7 +311,9 @@ teams.forEach(t => {
       )}
     </div>
   </div>
+  )}
 
+  {!isPreseason && (
   <!-- Elimination Bracket Visualization -->
   <div class="elimination-bracket-section">
     <h2>⚔️ Elimination Timeline</h2>
@@ -379,8 +396,9 @@ teams.forEach(t => {
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
     <canvas id="leagueChart"></canvas>
   </div>
+  )}
 
-  {best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
+  {!isPreseason && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
   <div class="table-container">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">📊 Best Theoretical Lineup by Week</h3>
     <p style="text-align: center; color: #666; margin-bottom: 15px;">
