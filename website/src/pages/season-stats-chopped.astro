@@ -1,8 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import leagueData from '../../public/data/season_stats_chopped.json';
+import userLineupsData from '../../public/data/user_lineups_chopped.json';
 
 const { league_name, season, teams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup } = leagueData;
+
+// Build a set of user names that have lineup pages
+const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const userLineupUsers = (userLineupsData.users || []).map((u: any) => slugify(u.user_name));
+const hasUserPage = (ownerName: string) => userLineupUsers.includes(slugify(ownerName));
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
@@ -158,9 +164,13 @@ teams.forEach(t => {
           <tr>
             <td style="text-align: center;" data-value={index + 1}>{index + 1}</td>
             <td style="font-weight: 600;">
-              <a href={`/users/chopped-${team.owner_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`} style="color: #667eea; text-decoration: none;">
-                {team.owner_name}
-              </a>
+              {hasUserPage(team.owner_name) ? (
+                <a href={`/users/chopped-${slugify(team.owner_name)}`} style="color: #667eea; text-decoration: none;">
+                  {team.owner_name}
+                </a>
+              ) : (
+                <span>{team.owner_name}</span>
+              )}
             </td>
             <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game || 0}>{(team.avg_points_per_game || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.avg_safety_margin || 0}>{(team.avg_safety_margin || 0).toFixed(1)}</td>
@@ -309,11 +319,19 @@ teams.forEach(t => {
                 eliminated.map(team => {
                   const weekScore = team.weekly_scores.find(w => w.week === week);
                   return (
-                    <a href={`/users/chopped-${team.owner_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} class="eliminated-player">
-                      <div class="player-name">{team.owner_name}</div>
-                      <div class="elimination-score">{weekScore?.points.toFixed(1) || '0.0'} pts</div>
-                      <div class="eliminated-badge">❌ Chopped</div>
-                    </a>
+                    {hasUserPage(team.owner_name) ? (
+                      <a href={`/users/chopped-${slugify(team.owner_name)}`} class="eliminated-player">
+                        <div class="player-name">{team.owner_name}</div>
+                        <div class="elimination-score">{weekScore?.points.toFixed(1) || '0.0'} pts</div>
+                        <div class="eliminated-badge">❌ Chopped</div>
+                      </a>
+                    ) : (
+                      <div class="eliminated-player">
+                        <div class="player-name">{team.owner_name}</div>
+                        <div class="elimination-score">{weekScore?.points.toFixed(1) || '0.0'} pts</div>
+                        <div class="eliminated-badge">❌ Chopped</div>
+                      </div>
+                    )}
                   );
                 })
               ) : (
@@ -333,14 +351,25 @@ teams.forEach(t => {
           </div>
           <div class="elimination-content finals-content">
             {teams.filter(t => !t.eliminated_week).map(team => (
-              <a href={`/users/chopped-${team.owner_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} class="finalist">
-                <div class="player-name">{team.owner_name}</div>
-                <div class="finalist-stats">
-                  <div>{(team.avg_points_per_game || 0).toFixed(1)} PPG</div>
-                  <div>{(team.efficiency_rate || 0).toFixed(1)}% Eff</div>
+              {hasUserPage(team.owner_name) ? (
+                <a href={`/users/chopped-${slugify(team.owner_name)}`} class="finalist">
+                  <div class="player-name">{team.owner_name}</div>
+                  <div class="finalist-stats">
+                    <div>{(team.avg_points_per_game || 0).toFixed(1)} PPG</div>
+                    <div>{(team.efficiency_rate || 0).toFixed(1)}% Eff</div>
+                  </div>
+                  <div class="finalist-badge">👑 Finalist</div>
+                </a>
+              ) : (
+                <div class="finalist">
+                  <div class="player-name">{team.owner_name}</div>
+                  <div class="finalist-stats">
+                    <div>{(team.avg_points_per_game || 0).toFixed(1)} PPG</div>
+                    <div>{(team.efficiency_rate || 0).toFixed(1)}% Eff</div>
+                  </div>
+                  <div class="finalist-badge">👑 Finalist</div>
                 </div>
-                <div class="finalist-badge">👑 Finalist</div>
-              </a>
+              )}
             ))}
           </div>
         </div>

@@ -68,6 +68,9 @@ export async function getStaticPaths() {
 
 const { user, league, current_week, teamData, allPlayers, allTeams } = Astro.props;
 
+// Detect preseason: no games played by any player
+const isPagePreseason = !allPlayers || allPlayers.length === 0 || allPlayers.every(p => (p.games_played || 0) === 0);
+
 // Create player lookup map for quick access to weekly points
 const playerLookup = {};
 allPlayers.forEach(p => {
@@ -188,19 +191,46 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
 }, 0);
 ---
 
-<BaseLayout title={`${user.user_name} - Week ${current_week} Lineup Advisor`}>
+<BaseLayout title={isPagePreseason ? `${user.user_name} - ${league} Roster` : `${user.user_name} - Week ${current_week} Lineup Advisor`}>
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <div class="page-header">
     <a href={league === 'Dynasty' ? '/season-stats-dynasty' : '/season-stats-chopped'} class="back-link">
       ← Back to {league} Stats
     </a>
-    <h1>🏈 {user.user_name}'s Lineup</h1>
-    <p>Week {current_week} Matchup Advisor - {league} League</p>
+    <h1>🏈 {user.user_name}'s {isPagePreseason ? 'Roster' : 'Lineup'}</h1>
+    <p>{isPagePreseason ? `2026 Preseason - ${league} League` : `Week ${current_week} Matchup Advisor - ${league} League`}</p>
   </div>
 
   <div class="container">
-    {user.players.length > 0 ? (
+    {isPagePreseason && user.players.length > 0 ? (
+    <!-- Preseason Roster View -->
+    <section class="recommended-section">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+        <strong>🏈 Preseason</strong> — The 2026 season hasn't started yet. Here's the current roster.
+      </div>
+      <h2>📋 Current Roster ({user.players.length} players)</h2>
+      <div class="recommended-grid">
+        {user.players.sort((a, b) => {
+          const posOrder = { QB: 1, RB: 2, WR: 3, TE: 4, K: 5, DEF: 6 };
+          return (posOrder[a.position] || 99) - (posOrder[b.position] || 99);
+        }).map(player => (
+          <div class="recommended-card" style="cursor: default;">
+            <div class={`position-badge ${player.position.toLowerCase()}`}>{player.position}</div>
+            {player.injury_status && (
+              <div class="injury-badge" title={player.injury_notes || ''}>
+                {player.injury_status}
+              </div>
+            )}
+            <div class="player-info">
+              <div class="player-name">{player.player_name}</div>
+              <div class="player-team">{player.team}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+    ) : user.players.length > 0 ? (
     <!-- Recommended Lineup -->
     <section class="recommended-section">
       <h2>💡 Recommended Starters (Week {current_week})</h2>
@@ -262,7 +292,7 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     )}
 
     <!-- Position Scatter Plots -->
-    {user.players.length > 0 && (
+    {!isPagePreseason && user.players.length > 0 && (
     <section class="charts-section">
       <h2>📊 Matchup Analysis by Position</h2>
       <p class="section-subtitle">Player Average vs Opponent Average Allowed - Hover for player names</p>
@@ -289,7 +319,7 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     )}
 
     <!-- Full Roster Tables -->
-    {user.players.length > 0 && (
+    {!isPagePreseason && user.players.length > 0 && (
     <section class="roster-section">
       <h2>📋 Full Roster Stats</h2>
       

@@ -98,6 +98,14 @@ jobs:
             echo '{"season":"2026","generated_at":"","defenses":[]}' > website/public/data/defense_stats.json
             echo "Created placeholder defense_stats.json (preseason)"
           fi
+          if [ ! -f website/public/data/user_lineups_dynasty.json ]; then
+            echo '{"league_name":"Dynasty","current_week":0,"users":[]}' > website/public/data/user_lineups_dynasty.json
+            echo "Created placeholder user_lineups_dynasty.json (preseason)"
+          fi
+          if [ ! -f website/public/data/user_lineups_chopped.json ]; then
+            echo '{"league_name":"Chopped","current_week":0,"users":[]}' > website/public/data/user_lineups_chopped.json
+            echo "Created placeholder user_lineups_chopped.json (preseason)"
+          fi
       
       - name: Verify data files were generated
         run: |
