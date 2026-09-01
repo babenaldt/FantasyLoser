@@ -679,15 +679,11 @@ class SimplePlayoffSimulator:
         playoff_start = self._league.get('settings', {}).get('playoff_week_start', 15)
         
         # Finalize any completed matchups before simulating
-        # Check both current week AND previous week (in case we're between weeks)
         print(f"\nChecking for completed matchups...")
         
-        # If we're past playoff start and have no actual points for current week,
-        # check the previous week for completed matchups
         if current_week > playoff_start and len(self._actual_player_points) == 0:
             print(f"  No data for week {current_week} yet, checking previous week {current_week - 1}...")
             
-            # Save current brackets before loading previous week
             saved_winners_bracket = self._winners_bracket
             saved_losers_bracket = self._losers_bracket
             
@@ -695,9 +691,8 @@ class SimplePlayoffSimulator:
             self._finalize_completed_matchups(self._winners_bracket, current_week - 1, playoff_start)
             self._finalize_completed_matchups(self._losers_bracket, current_week - 1, playoff_start)
             
-            # Reload current week matchup data for projections, but preserve finalized brackets
             self._matchups = self.api.get_matchups(current_week)
-            self._actual_player_points = {}  # Clear since current week has no data
+            self._actual_player_points = {}
             self._load_season_stats()
             self._load_defense_stats()
         else:
@@ -706,8 +701,8 @@ class SimplePlayoffSimulator:
         
         championship_wins = defaultdict(int)
         loser_wins = defaultdict(int)
+        winners_bracket_appearances = defaultdict(int)
         
-        # Debug: Show finalized matchups before simulation
         print(f"\nFINALIZED MATCHUPS IN WINNERS BRACKET:")
         for m in self._winners_bracket:
             if m.get('w') is not None:
@@ -728,7 +723,6 @@ class SimplePlayoffSimulator:
             if sim > 0 and sim % 2000 == 0:
                 print(f"    Completed {sim:,} simulations...")
             
-            # Simulate brackets (debug first sim only)
             debug_mode = (sim == 0)
             if debug_mode:
                 print(f"\nDEBUG: First simulation:")
@@ -745,6 +739,10 @@ class SimplePlayoffSimulator:
                 playoff_start,
                 debug=debug_mode
             )
+            
+            # Track which teams appeared in the winners bracket
+            for rid in winner_results.get('participants', []):
+                winners_bracket_appearances[rid] += 1
             
             if debug_mode:
                 champ = winner_results.get('champion')
@@ -770,6 +768,7 @@ class SimplePlayoffSimulator:
             results[rid] = {
                 'championship_prob': championship_wins[rid] / self.num_simulations,
                 'loser_bracket_prob': loser_wins[rid] / self.num_simulations,
+                'playoff_odds': winners_bracket_appearances.get(rid, 0) / self.num_simulations,
             }
         
         return results
@@ -865,7 +864,15 @@ class SimplePlayoffSimulator:
         final_matchup = next((m for m in bracket if m.get('p') == 1), None)
         champion = final_matchup.get('w') if final_matchup else None
         
-        return {'champion': champion}
+        # Collect all participants in this bracket
+        participants = set()
+        for m in bracket:
+            if m.get('t1') is not None:
+                participants.add(m['t1'])
+            if m.get('t2') is not None:
+                participants.add(m['t2'])
+        
+        return {'champion': champion, 'participants': list(participants)}
     
     def generate_predictions(self, output_path: str = None):
         """Generate predictions and save to JSON."""
@@ -926,12 +933,17 @@ class SimplePlayoffSimulator:
             if champ_pct > 0 or loser_pct > 0:
                 print(f"{user_name:<20} {champ_pct:>14.1f}% {loser_pct:>14.1f}%")
         
+        # Determine if we're actually in playoffs
+        playoff_start = settings.get('playoff_week_start', 15)
+        is_playoffs = current_week >= playoff_start
+        
         # Build output data structure
         output_data = {
             'generated_at': current_week,
             'league_name': league_name,
             'model': 'Simple Season Average',
-            'is_playoffs': True,
+            'is_playoffs': is_playoffs,
+            'playoff_week_start': playoff_start,
             'matchups': [
                 {
                     'roster_id_1': mp.roster_id_1,
@@ -974,6 +986,7 @@ class SimplePlayoffSimulator:
                     'roster_id': rid,
                     'championship_prob': round(probs['championship_prob'], 4),
                     'loser_bracket_prob': round(probs['loser_bracket_prob'], 4),
+                    'playoff_odds': round(probs.get('playoff_odds', 0), 4),
                 }
                 for rid, probs in playoff_results.items()
             }
