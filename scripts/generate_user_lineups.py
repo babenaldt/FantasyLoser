@@ -331,6 +331,29 @@ def generate_user_lineups():
     if is_preseason:
         print("  ⚠ Preseason mode: generating basic roster data without matchup analysis")
     
+    # Load NFL schedule for opponent lookup (works even during preseason)
+    nfl_schedule = {}  # (team, week) -> opponent
+    try:
+        import nflreadpy as nfl
+        schedules = nfl.load_schedules([2026])
+        for game in schedules.iter_rows(named=True):
+            week = game.get('week')
+            game_type = game.get('game_type', '')
+            if week and game_type in ('REG', ''):
+                home = game.get('home_team')
+                away = game.get('away_team')
+                if home and away:
+                    nfl_schedule[(home, week)] = away
+                    nfl_schedule[(away, week)] = home
+                    # Sleeper uses LAR, nflverse uses LA
+                    if home == 'LA':
+                        nfl_schedule[('LAR', week)] = away
+                    if away == 'LA':
+                        nfl_schedule[('LAR', week)] = home
+        print(f"  Loaded NFL schedule: {len(nfl_schedule)} team-week matchups")
+    except Exception as e:
+        print(f"  Warning: Could not load NFL schedule: {e}")
+    
     # Load defense stats
     print("  Loading defense stats...")
     try:
@@ -475,8 +498,14 @@ def generate_user_lineups():
                     else:
                         week_matchup = None
                     
-                    opponent = week_matchup['opponent'] if week_matchup else 'TBD'
-                    opp_avg_allowed = week_matchup['opp_avg_allowed'] if week_matchup else 0
+                    if week_matchup:
+                        opponent = week_matchup['opponent']
+                        opp_avg_allowed = week_matchup['opp_avg_allowed']
+                    else:
+                        # Fall back to NFL schedule lookup (works during preseason)
+                        raw_team = player_info.get('team', '')
+                        opponent = nfl_schedule.get((raw_team, current_week), 'TBD')
+                        opp_avg_allowed = 0
                     
                     # Get Sleeper projection
                     projection = sleeper_projections.get(sleeper_id, {})
