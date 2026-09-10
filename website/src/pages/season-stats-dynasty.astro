@@ -41,8 +41,9 @@ const playoffOdds = Object.entries(playoffProbabilities)
   .filter(t => (t.playoff_odds || 0) > 0)
   .sort((a, b) => (b.playoff_odds || 0) - (a.playoff_odds || 0));
 
-// Preseason detection: no games played yet
-const isPreseason = !teams || teams.length === 0 || teams.every(t => (t.weeks_played || 0) === 0);
+// Preseason detection: no games played yet AND no active week
+const isPreseason = !teams || teams.length === 0 || 
+  (teams.every(t => (t.weeks_played || 0) === 0) && (!current_week || current_week <= 0));
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
