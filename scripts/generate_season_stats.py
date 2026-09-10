@@ -128,15 +128,17 @@ def calculate_season_stats(league_id, league_name):
     status = league.get('status', 'in_season')
     
     # Determine which weeks to process
-    # Include the current active week so stats show live/partial data during the week.
-    # Sleeper's 'leg' setting indicates the active week.
+    # Only process COMPLETED weeks for reliable stats (luck, efficiency, eliminations).
+    # The active week has partial scores that would produce garbage derived stats.
+    # The Astro pages use current_week (from Sleeper) to distinguish "season started but
+    # no completed week" from "preseason", so they won't show a preseason banner.
     if status == 'complete':
         last_week_to_process = current_week
     elif status == 'pre_draft' or current_week <= 0:
         last_week_to_process = 0
     else:
-        # Include the current (active/in-progress) week
-        last_week_to_process = current_week
+        # Only completed weeks — current week is still in progress
+        last_week_to_process = max(0, current_week - 1)
 
     # Collect matchup data
     print(f"    Fetching matchup data for weeks 1-{last_week_to_process} (Current Week: {current_week}, Status: {status})...")
@@ -290,9 +292,7 @@ def calculate_season_stats(league_id, league_name):
                 stats['total_optimal_points'] += optimal_points
                 stats['points_left_on_bench'] += missed_pts
                 stats['total_bench_points'] += bench_pts
-                # Only count as a played week if there are actual points
-                if points > 0 or any(pts > 0 for pts in players_points.values()):
-                    stats['weeks_played'] += 1
+                stats['weeks_played'] += 1
                 stats['safety_margin_sum'] += margin
                 if points > 0 and margin <= 10 and margin > 0: # Close call logic
                     stats['close_calls'] = stats.get('close_calls', 0) + 1
