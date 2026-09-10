@@ -397,6 +397,18 @@ def generate_user_lineups():
             matchups = api.get_matchups(current_week) or []
             print(f"    Found {len(matchups)} matchups for week {current_week}")
             
+            # Build matchup lookup: roster_id -> {starters, players_points, points, matchup_id}
+            matchup_by_roster = {}
+            for m in matchups:
+                rid = m.get('roster_id')
+                if rid:
+                    matchup_by_roster[rid] = {
+                        'starters': m.get('starters', []) or [],
+                        'players_points': m.get('players_points', {}) or {},
+                        'points': m.get('points', 0),
+                        'matchup_id': m.get('matchup_id')
+                    }
+
             # Fetch transaction history
             transactions = fetch_league_transactions(league_info['id'], current_week)
             player_txn_map = build_player_transaction_map(transactions, rosters, user_map)
@@ -439,6 +451,12 @@ def generate_user_lineups():
             
             for owner_id, owner_name, roster in owners_to_process:
                 roster_players = roster.get('players', []) if roster else []
+                roster_id = roster.get('roster_id') if roster else None
+                
+                # Get this team's matchup data (live scores, starters)
+                team_matchup = matchup_by_roster.get(roster_id, {})
+                team_starters = team_matchup.get('starters', [])
+                team_player_points = team_matchup.get('players_points', {})
                 
                 # Get user's players with stats
                 user_players_data = []
@@ -487,10 +505,6 @@ def generate_user_lineups():
                     if position not in ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']:
                         continue
                     
-                    # During preseason, create basic entries even without full_stats
-                    if not full_stats and not is_preseason:
-                        continue
-                    
                     # Get week matchup
                     if full_stats:
                         weekly_data = full_stats.get('weekly_points', [])
@@ -531,6 +545,10 @@ def generate_user_lineups():
                     else:
                         acquisition_status = 'Drafted'
                     
+                    # Live scoring data from Sleeper matchup
+                    live_points = team_player_points.get(sleeper_id, 0)
+                    is_starter = sleeper_id in team_starters
+
                     user_players_data.append({
                         'player_name': player_name,
                         'team': team,
@@ -554,7 +572,9 @@ def generate_user_lineups():
                         'prev_owner': prev_owner,
                         'acquisition_type': acquisition_type,
                         'acquisition_status': acquisition_status,
-                        'faab_spent': faab_spent
+                        'faab_spent': faab_spent,
+                        'live_points': round(live_points, 1) if live_points else 0,
+                        'is_starter': is_starter
                     })
                 
                 # Add user entry if they have players, if it's Chopped (eliminated teams), or during preseason
@@ -628,10 +648,14 @@ def generate_user_lineups():
                                 'players': roster_players
                             })
                     
+                    # Live team total from Sleeper matchup
+                    live_team_total = team_matchup.get('points', 0) or 0
+
                     user_lineups.append({
                         'user_id': owner_id or 'unknown',
                         'user_name': owner_name,
                         'players': user_players_data,
+                        'live_team_total': round(live_team_total, 1),
                         'weekly_transactions': weekly_txns_list,
                         'weekly_rosters': user_weekly_rosters_data
                     })
