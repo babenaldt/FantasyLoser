@@ -543,6 +543,20 @@ def generate_player_stats_json():
                 stats['trend_pct'] = 0
                 stats['trend_dir'] = "-"
             
+            # Projection accuracy summary
+            proj_weeks = [w for w in stats['weekly_points']
+                          if w.get('projected_points') and w['points'] is not None and w['points'] > 0]
+            if proj_weeks:
+                avg_proj = sum(w['projected_points'] for w in proj_weeks) / len(proj_weeks)
+                stats['avg_projected'] = round(avg_proj, 2)
+                stats['projection_delta'] = round(avg_ppg - avg_proj, 2)
+                stats['beats_projection_pct'] = round(
+                    sum(1 for w in proj_weeks if w['points'] > w['projected_points']) / len(proj_weeks) * 100, 1)
+            else:
+                stats['avg_projected'] = 0
+                stats['projection_delta'] = 0
+                stats['beats_projection_pct'] = 0
+
             # Attach postseason data
             ps = postseason_stats.get(player_id)
             if ps:

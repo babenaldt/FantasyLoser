@@ -53,6 +53,11 @@ const trend_pct = player.trend_pct || 0;
 const trend_dir = player.trend_dir || '-';
 const vs_position_avg = player.vs_position_avg || 0;
 
+// Projection stats
+const avg_projected = player.avg_projected || 0;
+const projection_delta = player.projection_delta || 0;
+const beats_projection_pct = player.beats_projection_pct || 0;
+
 // NFL Stats
 const nfl_stats = player.nfl_stats || {};
 const age = nfl_stats.age || player.age || '-'; // Kickers might have age at top level if I changed it there
@@ -156,6 +161,26 @@ const displaySeason = isPreseason ? '2025' : '2026';
             <span class="meta-label">Average PPG</span>
             <span class="meta-value">{avg_ppg.toFixed(1)}</span>
           </div>
+          {avg_projected > 0 && (
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">Avg Projected</span>
+            <span class="meta-value">{avg_projected.toFixed(1)}</span>
+          </div>
+          )}
+          {avg_projected > 0 && (
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">vs Projection</span>
+            <span class="meta-value" style={`color: ${projection_delta > 0 ? '#4CAF50' : projection_delta < 0 ? '#f44336' : 'inherit'};`}>
+              {projection_delta > 0 ? '+' : ''}{projection_delta.toFixed(1)}
+            </span>
+          </div>
+          )}
+          {avg_projected > 0 && (
+          <div class="meta-item" style="margin-top: 15px;">
+            <span class="meta-label">Beats Proj</span>
+            <span class="meta-value">{beats_projection_pct.toFixed(0)}%</span>
+          </div>
+          )}
         </div>
         
         <div class="stat-card">

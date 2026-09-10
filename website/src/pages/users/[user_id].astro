@@ -597,6 +597,7 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
               <tr>
                 <th>Week</th>
                 <th>Points</th>
+                <th>Projected</th>
                 <th>{league === 'Chopped' ? 'Highest Score' : 'Opponent Pts'}</th>
                 <th>{league === 'Chopped' ? 'Chopped Score' : 'Result'}</th>
                 <th>Optimal</th>
@@ -634,10 +635,24 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
                   .sort((a, b) => b.points - a.points)
                   .slice(0, 3);
                 
+                const projDelta = week.projected > 0 ? week.points - week.projected : null;
+                
                 return (
                   <tr class={`week-row ${resultClass}`}>
                     <td class="week-cell"><strong>{week.week}</strong></td>
                     <td class="points-cell"><strong>{week.points.toFixed(1)}</strong></td>
+                    <td>
+                      {week.projected > 0 ? (
+                        <span>
+                          {week.projected.toFixed(1)}
+                          <span style={`margin-left: 4px; font-size: 0.85em; color: ${projDelta > 0 ? '#4CAF50' : '#f44336'};`}>
+                            {projDelta > 0 ? '▲' : '▼'}
+                          </span>
+                        </span>
+                      ) : (
+                        <span style="color: #aaa;">-</span>
+                      )}
+                    </td>
                     <td>{league === 'Chopped' ? highestScore.toFixed(1) : week.opponent_points.toFixed(1)}</td>
                     <td class={league === 'Chopped' ? 'chopped-score-cell' : `result-cell ${resultClass}`}>
                       {league === 'Chopped' ? (
@@ -678,6 +693,16 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
               <tr class="totals-row">
                 <td><strong>Total/Avg</strong></td>
                 <td><strong>{teamData.total_points_scored.toFixed(1)}</strong></td>
+                <td>
+                  {(teamData.total_projected || 0) > 0 ? (
+                    <span>
+                      {teamData.total_projected.toFixed(1)}
+                      <span style={`margin-left: 4px; font-size: 0.85em; color: ${(teamData.avg_projection_delta || 0) > 0 ? '#4CAF50' : '#f44336'};`}>
+                        ({(teamData.avg_projection_delta || 0) > 0 ? '+' : ''}{(teamData.avg_projection_delta || 0).toFixed(1)}/wk)
+                      </span>
+                    </span>
+                  ) : '-'}
+                </td>
                 <td>{teamData.total_points_against.toFixed(1)}</td>
                 <td>{teamData.wins}-{teamData.losses}{teamData.ties > 0 ? `-${teamData.ties}` : ''}</td>
                 <td>{teamData.total_optimal_points.toFixed(1)}</td>
