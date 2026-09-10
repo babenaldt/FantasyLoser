@@ -143,11 +143,11 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
   {!isPreseason && !hasCompletedWeeks && (
   <div style="background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);">
     <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">🏈 Week {current_week} In Progress</div>
-    <div style="opacity: 0.9;">Games are underway! Stats, eliminations, and awards will appear once the first week completes.</div>
+    <div style="opacity: 0.9;">Games are underway! Stats below will update once the week completes.</div>
   </div>
   )}
 
-  {hasCompletedWeeks && (
+  {!isPreseason && (
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-title">League Average PPG</div>
@@ -172,35 +172,7 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
   </div>
   )}
 
-  {!isPreseason && !hasCompletedWeeks && teams && teams.length > 0 && (
-  <div class="table-container">
-    <h3 style="margin-bottom: 15px; color: #2d3748;">Teams</h3>
-    <table class="stats-table">
-      <thead>
-        <tr>
-          <th style="text-align: left;">Team Owner</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedTeams.map(team => (
-          <tr>
-            <td style="font-weight: 600;">
-              {hasUserPage(team.owner_name) ? (
-                <a href={`/users/chopped-${slugify(team.owner_name)}`} style="color: #667eea; text-decoration: none;">
-                  {team.owner_name}
-                </a>
-              ) : (
-                <span>{team.owner_name}</span>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-  )}
-
-  {hasCompletedWeeks && (
+  {!isPreseason && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
     <table class="stats-table" id="statsTable">
@@ -250,7 +222,7 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
   </div>
   )}
 
-  {hasCompletedWeeks && (
+  {!isPreseason && (
   <div class="awards-section">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
@@ -378,7 +350,7 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
   </div>
   )}
 
-  {hasCompletedWeeks && (
+  {!isPreseason && (
   <!-- Elimination Bracket Visualization -->
   <div class="elimination-bracket-section">
     <h2>⚔️ Elimination Timeline</h2>
@@ -463,7 +435,7 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
   </div>
   )}
 
-  {hasCompletedWeeks && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
+  {!isPreseason && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
   <div class="table-container">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">📊 Best Theoretical Lineup by Week</h3>
     <p style="text-align: center; color: #666; margin-bottom: 15px;">
