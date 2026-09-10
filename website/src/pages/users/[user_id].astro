@@ -307,14 +307,24 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
         <p>Roster information will be available after the draft.</p>
       </div>
     </section>
-    ) : (
-    <!-- Eliminated Player Message -->
+    ) : teamData?.eliminated_week ? (
+    <!-- Eliminated Player Message — only when actually eliminated -->
     <section class="eliminated-message">
       <div class="eliminated-card">
         <div class="eliminated-icon">❌</div>
         <h2>Team Eliminated</h2>
-        <p>This team was eliminated from the {league} league{teamData?.eliminated_week ? ` in Week ${teamData.eliminated_week}` : ''}.</p>
+        <p>This team was eliminated from the {league} league in Week {teamData.eliminated_week}.</p>
         <p>No active roster available for lineup recommendations.</p>
+      </div>
+    </section>
+    ) : (
+    <!-- Season started but no detailed roster data yet -->
+    <section class="eliminated-message">
+      <div class="eliminated-card">
+        <div class="eliminated-icon">🏈</div>
+        <h2>Season In Progress</h2>
+        <p>Roster data for this {league} league team is still loading.</p>
+        <p>Check back after games complete for full lineup details.</p>
       </div>
     </section>
     )}
