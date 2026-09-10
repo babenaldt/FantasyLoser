@@ -44,9 +44,8 @@ const playoffOdds = Object.entries(playoffProbabilities)
 // Preseason detection: no active week on Sleeper
 const isPreseason = !teams || teams.length === 0 || (!current_week || current_week <= 0);
 
-// Week in progress: season has started but no completed weeks yet (partial scores only)
-const noCompletedWeeks = teams && teams.length > 0 && teams.every(t => (t.weeks_played || 0) === 0);
-const isWeekInProgress = !isPreseason && noCompletedWeeks;
+// Has at least one completed week of data — show everything when true
+const hasCompletedWeeks = teams && teams.length > 0 && teams.some(t => (t.weeks_played || 0) > 0);
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
@@ -135,6 +134,16 @@ const validLuckiest = luckiest && luckiest.luck_factor > 0.5 ? luckiest : null;
 
 const unluckiest = activeTeams.length ? activeTeams.reduce((prev, current) => (prev.luck_factor < current.luck_factor) ? prev : current) : null;
 const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest : null;
+
+// Projection Awards
+const projectionBeater = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => 
+    ((prev.projection_beat_pct || 0) > (current.projection_beat_pct || 0)) ? prev : current) : null;
+const validProjectionBeater = projectionBeater && (projectionBeater.projection_beat_pct || 0) > 0 ? projectionBeater : null;
+
+const crystalBallTeams = qualifiedTeams.filter(t => (t.avg_abs_projection_delta || 999) < 999);
+const crystalBall = crystalBallTeams.length ? crystalBallTeams.reduce((prev, current) => 
+    ((prev.avg_abs_projection_delta || 999) < (current.avg_abs_projection_delta || 999)) ? prev : current) : null;
+const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta || 0) > 0 ? crystalBall : null;
 ---
 
 <BaseLayout title={`${league_name} - Season Stats`}>
@@ -150,14 +159,14 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
   </div>
   )}
 
-  {isWeekInProgress && (
+  {!isPreseason && !hasCompletedWeeks && (
   <div style="background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);">
     <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">🏈 Week {current_week} In Progress</div>
-    <div style="opacity: 0.9;">Games are underway! Full stats and awards will update after the week completes.</div>
+    <div style="opacity: 0.9;">Games are underway! Stats and awards will appear once the first week completes.</div>
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-title">League Average PPG</div>
@@ -182,9 +191,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
   </div>
   )}
 
-
-
-  {isWeekInProgress && teams && teams.length > 0 && (
+  {!isPreseason && !hasCompletedWeeks && teams && teams.length > 0 && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Teams</h3>
     <table class="stats-table">
@@ -214,7 +221,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
     <table class="stats-table" id="statsTable">
@@ -224,16 +231,17 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
           <th onclick="sortTable(1)" title="Win-Loss record">W-L</th>
           <th onclick="sortTable(2)" title="Total points scored across all weeks">Total Points</th>
           <th onclick="sortTable(3)" title="Average points per game">Avg PPG</th>
-          <th onclick="sortTable(4)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
-          <th onclick="sortTable(5)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
-          <th onclick="sortTable(6)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
-          <th onclick="sortTable(7)" title="Expected wins based on points for/against ratio">Pythag W-L</th>
-          <th onclick="sortTable(8)" title="Actual wins minus expected wins (positive = lucky)">Luck</th>
-          <th onclick="sortTable(9)" title="Record if playing against all teams each week">All-Play</th>
-          <th onclick="sortTable(10)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
-          <th onclick="sortTable(11)" title="FAAB dollars spent on waivers">FAAB Used</th>
-          <th onclick="sortTable(12)" title="Points per FAAB dollar spent">Pt/$</th>
-          <th onclick="sortTable(13)" title="Trend: Last 3 weeks avg vs season avg (▲ improving, ▼ declining)">Trend</th>
+          <th onclick="sortTable(4)" title="Average points above/below weekly projection">Proj +/-</th>
+          <th onclick="sortTable(5)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
+          <th onclick="sortTable(6)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
+          <th onclick="sortTable(7)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
+          <th onclick="sortTable(8)" title="Expected wins based on points for/against ratio">Pythag W-L</th>
+          <th onclick="sortTable(9)" title="Actual wins minus expected wins (positive = lucky)">Luck</th>
+          <th onclick="sortTable(10)" title="Record if playing against all teams each week">All-Play</th>
+          <th onclick="sortTable(11)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
+          <th onclick="sortTable(12)" title="FAAB dollars spent on waivers">FAAB Used</th>
+          <th onclick="sortTable(13)" title="Points per FAAB dollar spent">Pt/$</th>
+          <th onclick="sortTable(14)" title="Trend: Last 3 weeks avg vs season avg">Trend</th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -251,11 +259,12 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
             <td style="text-align: center;" data-value={team.wins}>{team.wins}-{team.losses}</td>
             <td style="text-align: center;" data-value={team.total_points_scored || 0}>{(team.total_points_scored || 0).toFixed(1)}</td>
             <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game || 0}>{(team.avg_points_per_game || 0).toFixed(1)}</td>
+            <td style={`text-align: center; color: ${(team.avg_projection_delta || 0) > 0 ? '#4CAF50' : (team.avg_projection_delta || 0) < 0 ? '#f44336' : '#888'}; font-weight: bold;`} data-value={team.avg_projection_delta || 0}>{(team.avg_projection_delta || 0) > 0 ? '+' : ''}{(team.avg_projection_delta || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.efficiency_rate || 0}>{(team.efficiency_rate || 0).toFixed(1)}%</td>
             <td style="text-align: center;" data-value={team.total_bench_points || 0}>{(team.total_bench_points || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.points_left_on_bench || 0}>{(team.points_left_on_bench || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.pythagorean_wins || 0}>{(team.pythagorean_wins || 0).toFixed(1)}-{((team.weeks_played || 0) - (team.pythagorean_wins || 0)).toFixed(1)}</td>
-            <td style={`text-align: center; color: ${(team.luck_factor || 0) > 0 ? 'green' : 'red'}; font-weight: bold;`} data-value={team.luck_factor || 0}>{(team.luck_factor || 0) > 0 ? '+' : ''}{(team.luck_factor || 0).toFixed(1)}</td>
+            <td style={`text-align: center; color: ${(team.luck_factor || 0) > 0 ? 'green' : (team.luck_factor || 0) < 0 ? 'red' : '#888'}; font-weight: bold;`} data-value={team.luck_factor || 0}>{(team.luck_factor || 0) > 0 ? '+' : ''}{(team.luck_factor || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.all_play_wins || 0}>{team.all_play_wins || 0}-{team.all_play_losses || 0} ({((team.all_play_wins / (team.all_play_wins + team.all_play_losses)) || 0).toFixed(3)})</td>
             <td style="text-align: center;" data-value={team.consistency_score || 0}>{(team.consistency_score || 0).toFixed(2)}</td>
             <td style="text-align: center;" data-value={team.faab_spent || 0}>${team.faab_spent || 0}</td>
@@ -345,7 +354,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="awards-section" style="margin-top: 40px;">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
@@ -357,7 +366,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
         <div class="award-value">{highestScorer.total_points_scored.toFixed(1)} points</div>
       </div>
       )}
-      {highestWeeklyScore && (
+      {highestWeeklyScore.score > -1 && (
       <div class="award-card">
         <div class="award-icon">🔥</div>
         <div class="award-title">Highest Weekly Score</div>
@@ -365,7 +374,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
         <div class="award-value">{highestWeeklyScore.score.toFixed(1)} pts (Week {highestWeeklyScore.week})</div>
       </div>
       )}
-      {lowestWeeklyScore && (
+      {lowestWeeklyScore.score < 9999 && (
       <div class="award-card">
         <div class="award-icon">💩</div>
         <div class="award-title">Lowest Weekly Score</div>
@@ -461,11 +470,27 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
         <div class="award-value">{benchWarmer.points_left_on_bench.toFixed(1)} pts</div>
       </div>
       )}
+      {validProjectionBeater && (
+      <div class="award-card">
+        <div class="award-icon">📈</div>
+        <div class="award-title">Projection Beater</div>
+        <div class="award-winner">{validProjectionBeater.owner_name}</div>
+        <div class="award-value">{validProjectionBeater.projection_beat_pct.toFixed(0)}% of weeks above projection</div>
+      </div>
+      )}
+      {validCrystalBall && (
+      <div class="award-card">
+        <div class="award-icon">🔮</div>
+        <div class="award-title">Crystal Ball</div>
+        <div class="award-winner">{validCrystalBall.owner_name}</div>
+        <div class="award-value">Avg {validCrystalBall.avg_abs_projection_delta.toFixed(1)} pts from projection</div>
+      </div>
+      )}
     </div>
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="chart-container" style="height: 600px; margin-top: 40px;">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
     <canvas id="leagueChart"></canvas>
@@ -510,9 +535,10 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
   
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script define:vars={{ chartTeams, weeks }}>
-    const ctx = document.getElementById('leagueChart').getContext('2d');
+    const canvasEl = document.getElementById('leagueChart');
+    if (canvasEl) {
+    const ctx = canvasEl.getContext('2d');
     
-    // Destroy existing chart if it exists
     if (Chart.getChart(ctx)) {
       Chart.getChart(ctx).destroy();
     }
@@ -590,6 +616,7 @@ const validUnluckiest = unluckiest && unluckiest.luck_factor < -0.5 ? unluckiest
         }
       }
     });
+    } // end if (canvasEl)
   </script>
 
   <style>

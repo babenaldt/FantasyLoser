@@ -3,11 +3,31 @@
 import statistics
 import json
 import os
+import requests
 from collections import defaultdict
 from core_data import (
     ensure_directories, save_json, SleeperAPI,
     OUTPUT_DIR, ASTRO_DATA_DIR
 )
+
+
+def get_sleeper_projections(week):
+    """Fetch weekly projections from Sleeper API for a given week."""
+    try:
+        url = f"https://api.sleeper.com/projections/nfl/2026/{week}?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF"
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            projections = response.json()
+            proj_by_player = {}
+            for proj in projections:
+                player_id = proj.get('player_id')
+                stats = proj.get('stats', {})
+                if player_id and stats:
+                    proj_by_player[player_id] = stats.get('pts_ppr', 0)
+            return proj_by_player
+    except Exception as e:
+        print(f"    Warning: Could not fetch projections for week {week}: {e}")
+    return {}
 
 # League configurations
 LEAGUES = {
@@ -176,6 +196,15 @@ def calculate_season_stats(league_id, league_name):
     # Initialize Best Theoretical Lineups list
     best_theoretical_lineups = []
 
+    # Fetch projections for all completed weeks (for projected vs actual tracking)
+    weekly_projections = {}
+    if last_week_to_process > 0:
+        print(f"    Fetching Sleeper projections for weeks 1-{last_week_to_process}...")
+        for w in range(1, last_week_to_process + 1):
+            weekly_projections[w] = get_sleeper_projections(w)
+        total_proj = sum(len(p) for p in weekly_projections.values())
+        print(f"    Loaded projections for {total_proj} player-weeks")
+
     # Fetch weekly data
     for week in range(1, last_week_to_process + 1):
         # Calculate Best Theoretical Lineup for this week (Chopped only)
@@ -274,6 +303,10 @@ def calculate_season_stats(league_id, league_name):
                 # Win/Loss margin (points - opponent_points)
                 win_loss_margin = points - opponent_points if opponent_points > 0 else 0
 
+                # Calculate projected total for starters
+                week_proj = weekly_projections.get(week, {})
+                projected_total = sum(week_proj.get(str(pid), 0) for pid in starters if pid and str(pid) != '0')
+
                 # Update weekly temp stats
                 w_stats = this_week_stats[roster_id]
                 w_stats['points'] = points
@@ -283,6 +316,7 @@ def calculate_season_stats(league_id, league_name):
                 w_stats['margin'] = margin
                 w_stats['win_loss_margin'] = win_loss_margin
                 w_stats['opponent_points'] = opponent_points
+                w_stats['projected'] = round(projected_total, 1)
                 w_stats['has_matchup'] = True
                 w_stats['starters'] = matchup.get('starters', [])  # Save starter player IDs
                 
@@ -388,6 +422,9 @@ def calculate_season_stats(league_id, league_name):
         team.setdefault('consistency_score', 0)
         team.setdefault('total_bench_points', 0)
         team.setdefault('win_loss_margin', 0)
+        team.setdefault('total_projected', 0)
+        team.setdefault('avg_projection_delta', 0)
+        team.setdefault('projection_beat_pct', 0)
 
         if weeks > 0:
             team['average_points'] = team['total_points_scored'] / weeks
@@ -461,6 +498,16 @@ def calculate_season_stats(league_id, league_name):
                 stdev = statistics.stdev(points)
                 if stdev > 0:
                     team['consistency_score'] = mean / stdev
+
+            # Projected vs Actual tracking
+            proj_weeks = [w for w in team['weekly_scores'] if w.get('projected', 0) > 0]
+            if proj_weeks:
+                team['total_projected'] = round(sum(w['projected'] for w in proj_weeks), 1)
+                deltas = [w['points'] - w['projected'] for w in proj_weeks]
+                team['avg_projection_delta'] = round(sum(deltas) / len(deltas), 1)
+                team['projection_beat_pct'] = round(sum(1 for d in deltas if d > 0) / len(deltas) * 100, 1)
+                abs_deltas = [abs(d) for d in deltas]
+                team['avg_abs_projection_delta'] = round(sum(abs_deltas) / len(abs_deltas), 1)
 
     # Calculate average best theoretical lineup score
     avg_best_theoretical_lineup = 0

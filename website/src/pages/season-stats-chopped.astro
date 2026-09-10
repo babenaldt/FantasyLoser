@@ -13,9 +13,8 @@ const hasUserPage = (ownerName: string) => userLineupUsers.includes(slugify(owne
 // Preseason detection: no active week on Sleeper
 const isPreseason = !teams || teams.length === 0 || (!current_week || current_week <= 0);
 
-// Week in progress: season has started but no completed weeks yet (partial scores only)
-const noCompletedWeeks = teams && teams.length > 0 && teams.every(t => (t.weeks_played || 0) === 0);
-const isWeekInProgress = !isPreseason && noCompletedWeeks;
+// Has at least one completed week of data — show everything when true
+const hasCompletedWeeks = teams && teams.length > 0 && teams.some(t => (t.weeks_played || 0) > 0);
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
@@ -117,6 +116,15 @@ teams.forEach(t => {
     }
 });
 
+// Projection Awards
+const projectionBeater = qualifiedTeams.length ? qualifiedTeams.reduce((prev, current) => 
+    ((prev.projection_beat_pct || 0) > (current.projection_beat_pct || 0)) ? prev : current) : null;
+const validProjectionBeater = projectionBeater && (projectionBeater.projection_beat_pct || 0) > 0 ? projectionBeater : null;
+
+const crystalBallTeams = qualifiedTeams.filter(t => (t.avg_abs_projection_delta || 999) < 999);
+const crystalBall = crystalBallTeams.length ? crystalBallTeams.reduce((prev, current) => 
+    ((prev.avg_abs_projection_delta || 999) < (current.avg_abs_projection_delta || 999)) ? prev : current) : null;
+const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta || 0) > 0 ? crystalBall : null;
 ---
 
 <BaseLayout title={`${league_name} - Season Stats`}>
@@ -132,14 +140,14 @@ teams.forEach(t => {
   </div>
   )}
 
-  {isWeekInProgress && (
+  {!isPreseason && !hasCompletedWeeks && (
   <div style="background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);">
     <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">🏈 Week {current_week} In Progress</div>
-    <div style="opacity: 0.9;">Games are underway! Full stats, eliminations, and awards will update after the week completes.</div>
+    <div style="opacity: 0.9;">Games are underway! Stats, eliminations, and awards will appear once the first week completes.</div>
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-title">League Average PPG</div>
@@ -164,7 +172,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {isWeekInProgress && teams && teams.length > 0 && (
+  {!isPreseason && !hasCompletedWeeks && teams && teams.length > 0 && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Teams</h3>
     <table class="stats-table">
@@ -192,7 +200,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
     <table class="stats-table" id="statsTable">
@@ -201,14 +209,15 @@ teams.forEach(t => {
           <th onclick="sortTable(0)" title="Current elimination ranking">Rank</th>
           <th style="text-align: left;" onclick="sortTable(1)" title="Team owner name">Team Owner</th>
           <th onclick="sortTable(2)" title="Average points per game">Avg PPG</th>
-          <th onclick="sortTable(3)" title="Average margin above the eliminated team each week">Safety Margin</th>
-          <th onclick="sortTable(4)" title="Number of weeks with margin ≤ 10 points">Close Calls</th>
-          <th onclick="sortTable(5)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
-          <th onclick="sortTable(6)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
-          <th onclick="sortTable(7)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
-          <th onclick="sortTable(8)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
-          <th onclick="sortTable(9)" title="FAAB dollars spent on waivers">FAAB Used</th>
-          <th onclick="sortTable(10)" title="Points per FAAB dollar spent">Pt/$</th>
+          <th onclick="sortTable(3)" title="Average points above/below weekly projection">Proj +/-</th>
+          <th onclick="sortTable(4)" title="Average margin above the eliminated team each week">Safety Margin</th>
+          <th onclick="sortTable(5)" title="Number of weeks with margin ≤ 10 points">Close Calls</th>
+          <th onclick="sortTable(6)" title="Percentage of optimal points achieved (Actual / Optimal)">Efficiency</th>
+          <th onclick="sortTable(7)" title="Points scored by bench players (not in starting lineup)">Bench Pts</th>
+          <th onclick="sortTable(8)" title="Points left on table (Optimal - Actual lineup)">Missed Pts</th>
+          <th onclick="sortTable(9)" title="Consistency score (Mean / Std Dev) - higher is better">Consistency</th>
+          <th onclick="sortTable(10)" title="FAAB dollars spent on waivers">FAAB Used</th>
+          <th onclick="sortTable(11)" title="Points per FAAB dollar spent">Pt/$</th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -225,6 +234,7 @@ teams.forEach(t => {
               )}
             </td>
             <td style="text-align: center; font-weight: bold;" data-value={team.avg_points_per_game || 0}>{(team.avg_points_per_game || 0).toFixed(1)}</td>
+            <td style={`text-align: center; color: ${(team.avg_projection_delta || 0) > 0 ? '#4CAF50' : (team.avg_projection_delta || 0) < 0 ? '#f44336' : '#888'}; font-weight: bold;`} data-value={team.avg_projection_delta || 0}>{(team.avg_projection_delta || 0) > 0 ? '+' : ''}{(team.avg_projection_delta || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.avg_safety_margin || 0}>{(team.avg_safety_margin || 0).toFixed(1)}</td>
             <td style="text-align: center;" data-value={team.close_calls || 0}>{team.close_calls || 0}</td>
             <td style="text-align: center;" data-value={team.efficiency_rate || 0}>{(team.efficiency_rate || 0).toFixed(1)}%</td>
@@ -240,7 +250,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <div class="awards-section">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
@@ -348,11 +358,27 @@ teams.forEach(t => {
         <div class="award-value">{benchWarmer.points_left_on_bench.toFixed(1)} pts</div>
       </div>
       )}
+      {validProjectionBeater && (
+      <div class="award-card">
+        <div class="award-icon">📈</div>
+        <div class="award-title">Projection Beater</div>
+        <div class="award-winner">{validProjectionBeater.owner_name}</div>
+        <div class="award-value">{validProjectionBeater.projection_beat_pct.toFixed(0)}% of weeks above projection</div>
+      </div>
+      )}
+      {validCrystalBall && (
+      <div class="award-card">
+        <div class="award-icon">🔮</div>
+        <div class="award-title">Crystal Ball</div>
+        <div class="award-winner">{validCrystalBall.owner_name}</div>
+        <div class="award-value">Avg {validCrystalBall.avg_abs_projection_delta.toFixed(1)} pts from projection</div>
+      </div>
+      )}
     </div>
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && (
+  {hasCompletedWeeks && (
   <!-- Elimination Bracket Visualization -->
   <div class="elimination-bracket-section">
     <h2>⚔️ Elimination Timeline</h2>
@@ -437,7 +463,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && !isWeekInProgress && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
+  {hasCompletedWeeks && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
   <div class="table-container">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">📊 Best Theoretical Lineup by Week</h3>
     <p style="text-align: center; color: #666; margin-bottom: 15px;">
@@ -514,9 +540,10 @@ teams.forEach(t => {
   
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script define:vars={{ chartTeams, weeks }}>
-    const ctx = document.getElementById('leagueChart').getContext('2d');
+    const canvasEl = document.getElementById('leagueChart');
+    if (canvasEl) {
+    const ctx = canvasEl.getContext('2d');
     
-    // Destroy existing chart if it exists
     if (Chart.getChart(ctx)) {
       Chart.getChart(ctx).destroy();
     }
@@ -594,6 +621,7 @@ teams.forEach(t => {
         }
       }
     });
+    } // end if (canvasEl)
   </script>
 
   <style>
