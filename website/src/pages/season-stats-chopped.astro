@@ -10,9 +10,12 @@ const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 const userLineupUsers = (userLineupsData.users || []).map((u: any) => slugify(u.user_name));
 const hasUserPage = (ownerName: string) => userLineupUsers.includes(slugify(ownerName));
 
-// Preseason detection: no games played yet AND no active week
-const isPreseason = !teams || teams.length === 0 || 
-  (teams.every(t => (t.weeks_played || 0) === 0) && (!current_week || current_week <= 0));
+// Preseason detection: no active week on Sleeper
+const isPreseason = !teams || teams.length === 0 || (!current_week || current_week <= 0);
+
+// Week in progress: season has started but no completed weeks yet (partial scores only)
+const noCompletedWeeks = teams && teams.length > 0 && teams.every(t => (t.weeks_played || 0) === 0);
+const isWeekInProgress = !isPreseason && noCompletedWeeks;
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);
@@ -129,7 +132,14 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && (
+  {isWeekInProgress && (
+  <div style="background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);">
+    <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">🏈 Week {current_week} In Progress</div>
+    <div style="opacity: 0.9;">Games are underway! Full stats, eliminations, and awards will update after the week completes.</div>
+  </div>
+  )}
+
+  {!isPreseason && !isWeekInProgress && (
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-title">League Average PPG</div>
@@ -154,7 +164,35 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && (
+  {isWeekInProgress && teams && teams.length > 0 && (
+  <div class="table-container">
+    <h3 style="margin-bottom: 15px; color: #2d3748;">Teams</h3>
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th style="text-align: left;">Team Owner</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sortedTeams.map(team => (
+          <tr>
+            <td style="font-weight: 600;">
+              {hasUserPage(team.owner_name) ? (
+                <a href={`/users/chopped-${slugify(team.owner_name)}`} style="color: #667eea; text-decoration: none;">
+                  {team.owner_name}
+                </a>
+              ) : (
+                <span>{team.owner_name}</span>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  )}
+
+  {!isPreseason && !isWeekInProgress && (
   <div class="table-container">
     <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
     <table class="stats-table" id="statsTable">
@@ -202,7 +240,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && (
+  {!isPreseason && !isWeekInProgress && (
   <div class="awards-section">
     <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">🏆 Season Awards 🏆</h3>
     <div class="awards-grid">
@@ -314,7 +352,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && (
+  {!isPreseason && !isWeekInProgress && (
   <!-- Elimination Bracket Visualization -->
   <div class="elimination-bracket-section">
     <h2>⚔️ Elimination Timeline</h2>
@@ -399,7 +437,7 @@ teams.forEach(t => {
   </div>
   )}
 
-  {!isPreseason && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
+  {!isPreseason && !isWeekInProgress && best_theoretical_lineups && best_theoretical_lineups.length > 0 && (
   <div class="table-container">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">📊 Best Theoretical Lineup by Week</h3>
     <p style="text-align: center; color: #666; margin-bottom: 15px;">
