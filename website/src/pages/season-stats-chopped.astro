@@ -10,8 +10,9 @@ const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 const userLineupUsers = (userLineupsData.users || []).map((u: any) => slugify(u.user_name));
 const hasUserPage = (ownerName: string) => userLineupUsers.includes(slugify(ownerName));
 
-// Preseason detection: no games played yet
-const isPreseason = !teams || teams.length === 0 || teams.every(t => (t.weeks_played || 0) === 0);
+// Preseason detection: no games played yet AND no active week
+const isPreseason = !teams || teams.length === 0 || 
+  (teams.every(t => (t.weeks_played || 0) === 0) && (!current_week || current_week <= 0));
 
 // Filter teams
 const activeTeams = teams.filter(t => t.weeks_played > 0);

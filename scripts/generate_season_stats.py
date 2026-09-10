@@ -127,20 +127,19 @@ def calculate_season_stats(league_id, league_name):
     current_week = league.get('settings', {}).get('leg', 1)
     status = league.get('status', 'in_season')
     
-    # Determine last completed week
-    # If league is active (in_season or post_season), 'current_week' is the active (incomplete) week.
-    # We want to process only completed weeks.
+    # Determine which weeks to process
+    # Include the current active week so stats show live/partial data during the week.
+    # Sleeper's 'leg' setting indicates the active week.
     if status == 'complete':
-        # If league is complete, we can use the current_week (which should be the last week)
-        # But usually current_week might be 18.
-        # Let's just use current_week if complete.
-        last_completed_week = current_week
+        last_week_to_process = current_week
+    elif status == 'pre_draft' or current_week <= 0:
+        last_week_to_process = 0
     else:
-        # If in_season or post_season, current_week is active.
-        last_completed_week = max(0, current_week - 1)
+        # Include the current (active/in-progress) week
+        last_week_to_process = current_week
 
     # Collect matchup data
-    print(f"    Fetching matchup data for weeks 1-{last_completed_week} (Current Week: {current_week}, Status: {status})...")
+    print(f"    Fetching matchup data for weeks 1-{last_week_to_process} (Current Week: {current_week}, Status: {status})...")
     team_stats = {}
     
     for roster in rosters:
@@ -176,7 +175,7 @@ def calculate_season_stats(league_id, league_name):
     best_theoretical_lineups = []
 
     # Fetch weekly data
-    for week in range(1, last_completed_week + 1):
+    for week in range(1, last_week_to_process + 1):
         # Calculate Best Theoretical Lineup for this week (Chopped only)
         if "Chopped" in league_name and week in dynasty_matchups_by_week:
             btl = calculate_best_theoretical_lineup(week, dynasty_matchups_by_week[week], roster_positions, player_data)
@@ -291,7 +290,9 @@ def calculate_season_stats(league_id, league_name):
                 stats['total_optimal_points'] += optimal_points
                 stats['points_left_on_bench'] += missed_pts
                 stats['total_bench_points'] += bench_pts
-                stats['weeks_played'] += 1
+                # Only count as a played week if there are actual points
+                if points > 0 or any(pts > 0 for pts in players_points.values()):
+                    stats['weeks_played'] += 1
                 stats['safety_margin_sum'] += margin
                 if points > 0 and margin <= 10 and margin > 0: # Close call logic
                     stats['close_calls'] = stats.get('close_calls', 0) + 1
@@ -318,10 +319,12 @@ def calculate_season_stats(league_id, league_name):
                 team_stats[rid]['faab_spent'] += w_stats['faab_spent']
     
     # Calculate Eliminations for Chopped League
+    # Only process completed weeks for eliminations (not the active week with partial scores)
     if "Chopped" in league_name:
         active_rosters = set(team_stats.keys())
+        last_completed_week = max(0, current_week - 1) if status != 'complete' else current_week
         
-        for week in range(1, current_week + 1):
+        for week in range(1, last_completed_week + 1):
             if not active_rosters:
                 break
                 
