@@ -9,6 +9,7 @@ from core_data import (
     ensure_directories, save_json, SleeperAPI,
     OUTPUT_DIR, ASTRO_DATA_DIR
 )
+from nfl_week_helper import get_last_completed_nfl_week
 
 
 def get_sleeper_projections(week):
@@ -147,18 +148,23 @@ def calculate_season_stats(league_id, league_name):
     current_week = league.get('settings', {}).get('leg', 1)
     status = league.get('status', 'in_season')
     
+    # Date-based completed-week check (Tuesday 6 AM after MNF = done)
+    date_completed = get_last_completed_nfl_week()
+    
     # Determine which weeks to process
     # Only process COMPLETED weeks for reliable stats (luck, efficiency, eliminations).
     # The active week has partial scores that would produce garbage derived stats.
-    # The Astro pages use current_week (from Sleeper) to distinguish "season started but
-    # no completed week" from "preseason", so they won't show a preseason banner.
+    # We use max(sleeper_based, date_based) to handle Sleeper being slow to tick
+    # its 'leg' field after MNF ends (often stays on old week until Tuesday/Wednesday).
     if status == 'complete':
         last_week_to_process = current_week
     elif status == 'pre_draft' or current_week <= 0:
         last_week_to_process = 0
     else:
-        # Only completed weeks — current week is still in progress
-        last_week_to_process = max(0, current_week - 1)
+        sleeper_completed = max(0, current_week - 1)
+        last_week_to_process = max(sleeper_completed, date_completed)
+    
+    print(f"    Sleeper leg={current_week}, date_completed={date_completed}, last_week_to_process={last_week_to_process}")
 
     # Collect matchup data
     print(f"    Fetching matchup data for weeks 1-{last_week_to_process} (Current Week: {current_week}, Status: {status})...")
@@ -523,11 +529,14 @@ def calculate_season_stats(league_id, league_name):
     
     print(f"    Processed {len(stats_list)} teams")
     
+    # Use the most accurate current week for display (Sleeper may lag)
+    display_week = max(current_week, date_completed + 1) if date_completed < 18 else current_week
+
     return {
         'league_id': league_id,
         'league_name': league_name,
         'season': league.get('season', '2026'),
-        'current_week': current_week,
+        'current_week': display_week,
         'generated_at': __import__('datetime').datetime.now().isoformat(),
         'teams': stats_list,
         'best_theoretical_lineups': best_theoretical_lineups,

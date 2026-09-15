@@ -1,44 +1,62 @@
-"""Helper function to determine current NFL week."""
+"""Helper functions to determine current NFL week and completed weeks.
+
+NFL 2026 Season: Wed Sept 9 – Sun Jan 10
+Each week's last game is Monday Night Football.
+A week is considered COMPLETE on Tuesday 6 AM ET (after MNF wraps up).
+
+Timeline:
+  Tue Sept  8 06:00 ET  →  week1_boundary  (before this = preseason)
+  Tue Sept 15 06:00 ET  →  Week 1 complete
+  Tue Sept 22 06:00 ET  →  Week 2 complete
+  ...and so on for 18 weeks.
+"""
 
 from datetime import datetime, timedelta
+
+# Tuesday 6 AM ET before Week 1 games start (first game is Wed Sept 9)
+WEEK1_BOUNDARY = datetime(2026, 9, 8, 6, 0, 0)
+
 
 def get_current_nfl_week(season_year=2026):
     """
     Determine the current NFL week based on the date.
-    Week resets after Monday Night Football (Tuesday 3 AM ET).
-    
-    Args:
-        season_year: NFL season year (default 2026)
-    
+    Returns the week whose games are currently being played or about to start.
+
     Returns:
-        int: Current week number (1-18)
+        int: Current week number (1-18). Returns 1 if preseason.
     """
-    # NFL 2026 Season Start: Wednesday, September 9, 2026
-    # Each week runs Tuesday 3 AM ET to following Tuesday 3 AM ET (after MNF)
-    
-    # Week 1 starts Tuesday Sept 8, 2026 at 3 AM ET
-    week1_start = datetime(2026, 9, 8, 3, 0, 0)
-    
-    # Get current time
     now = datetime.now()
-    
-    # If before season start, return week 1
-    if now < week1_start:
+
+    if now < WEEK1_BOUNDARY:
         return 1
-    
-    # Calculate days since week 1 start
-    days_since_start = (now - week1_start).days
-    
-    # Each week is 7 days
-    current_week = (days_since_start // 7) + 1
-    
-    # Cap at week 18
-    if current_week > 18:
-        return 18
-    
-    return current_week
+
+    days_since = (now - WEEK1_BOUNDARY).days
+    current_week = (days_since // 7) + 1
+
+    return min(max(current_week, 1), 18)
+
+
+def get_last_completed_nfl_week(season_year=2026):
+    """
+    Return the number of the last fully completed NFL week.
+    A week is complete once Tuesday 6 AM ET arrives (after MNF).
+
+    Returns:
+        int: 0 if no week has completed yet, otherwise 1-18.
+    """
+    now = datetime.now()
+
+    if now < WEEK1_BOUNDARY:
+        return 0
+
+    days_since = (now - WEEK1_BOUNDARY).days
+    completed = days_since // 7  # Week 1 completes at day 7 (next Tuesday)
+
+    return min(max(completed, 0), 18)
 
 
 if __name__ == "__main__":
     week = get_current_nfl_week()
+    completed = get_last_completed_nfl_week()
     print(f"Current NFL Week: {week}")
+    print(f"Last Completed Week: {completed}")
