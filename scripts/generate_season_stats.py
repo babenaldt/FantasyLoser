@@ -166,6 +166,16 @@ def calculate_season_stats(league_id, league_name):
     
     print(f"    Sleeper leg={current_week}, date_completed={date_completed}, last_week_to_process={last_week_to_process}")
 
+    # Pre-compute chopped elimination schedule (how many teams cut each week)
+    # 20 teams → need 19 elims in 15 weeks → weeks 1-4 cut 2, weeks 5-15 cut 1
+    total_teams = len(rosters)
+    elimination_weeks = 15
+    double_elim_weeks = max(0, (total_teams - 1) - elimination_weeks)
+    
+    def elims_for_week(w):
+        """How many teams are eliminated in a given week of the chopped league."""
+        return 2 if w <= double_elim_weeks else 1
+
     # Collect matchup data
     print(f"    Fetching matchup data for weeks 1-{last_week_to_process} (Current Week: {current_week}, Status: {status})...")
     team_stats = {}
@@ -251,11 +261,19 @@ def calculate_season_stats(league_id, league_name):
         if not matchups:
             continue
             
-        # Calculate weekly min score for safety margin (exclude 0s for Chopped)
+        # Calculate weekly elimination threshold for safety margin
         weekly_scores = [m.get('points', 0) for m in matchups]
         if "Chopped" in league_name:
-            active_scores = [s for s in weekly_scores if s > 0]
-            min_score = min(active_scores) if active_scores else 0
+            # In double-elim weeks, the danger line is the Nth-lowest score
+            # (e.g. 2 eliminated → margin = distance above 2nd-lowest)
+            active_scores = sorted([s for s in weekly_scores if s > 0])
+            num_elim = elims_for_week(week)
+            if len(active_scores) >= num_elim:
+                min_score = active_scores[num_elim - 1]
+            elif active_scores:
+                min_score = active_scores[0]
+            else:
+                min_score = 0
         else:
             min_score = min(weekly_scores) if weekly_scores else 0
         
@@ -359,33 +377,35 @@ def calculate_season_stats(league_id, league_name):
                 team_stats[rid]['faab_spent'] += w_stats['faab_spent']
     
     # Calculate Eliminations for Chopped League
-    # Only process completed weeks for eliminations (not the active week with partial scores)
+    # Uses last_week_to_process (already accounts for date-based override)
+    # elims_for_week() was defined above (before the weekly loop) for safety margins
     if "Chopped" in league_name:
         active_rosters = set(team_stats.keys())
-        last_completed_week = max(0, current_week - 1) if status != 'complete' else current_week
+        print(f"    Chopped: {total_teams} teams, double-elim weeks 1-{double_elim_weeks}, processing through week {last_week_to_process}")
         
-        for week in range(1, last_completed_week + 1):
-            if not active_rosters:
+        for week in range(1, last_week_to_process + 1):
+            if len(active_rosters) <= 1:
                 break
+            
+            num_to_eliminate = elims_for_week(week)
                 
-            # Find lowest scorer among active rosters for this week
+            # Find lowest scorer(s) among active rosters for this week
             week_scores = []
             for rid in list(active_rosters):
                 team = team_stats[rid]
-                # Find score for this week
                 score = next((w['points'] for w in team['weekly_scores'] if w['week'] == week), None)
                 
                 if score is not None:
                     week_scores.append((rid, score))
             
             if week_scores:
-                # Sort by score (ascending)
+                # Sort by score (ascending) — bottom N get eliminated
                 week_scores.sort(key=lambda x: x[1])
-                loser_id, loser_score = week_scores[0]
-                
-                # Mark as eliminated
-                team_stats[loser_id]['eliminated_week'] = week
-                active_rosters.remove(loser_id)
+                for i in range(min(num_to_eliminate, len(week_scores))):
+                    loser_id, loser_score = week_scores[i]
+                    team_stats[loser_id]['eliminated_week'] = week
+                    active_rosters.remove(loser_id)
+                    print(f"      Week {week}: Eliminated {team_stats[loser_id]['owner_name']} ({loser_score} pts)")
 
         # Recalculate stats for eliminated teams to exclude post-elimination weeks
         for rid, team in team_stats.items():
