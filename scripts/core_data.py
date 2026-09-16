@@ -168,20 +168,27 @@ def ensure_directories():
     os.makedirs(ASTRO_DATA_DIR, exist_ok=True)
 
 
-def make_request(url, timeout=30):
-    """Make HTTP request with error handling."""
-    try:
-        response = requests.get(
-            url,
-            timeout=timeout,
-            verify=certifi.where(),
-            proxies=PROXIES
-        )
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Request failed for {url}: {e}")
-        return None
+def make_request(url, timeout=30, retries=3, backoff=2):
+    """Make HTTP request with retry logic for transient failures."""
+    import time
+    for attempt in range(1, retries + 1):
+        try:
+            response = requests.get(
+                url,
+                timeout=timeout,
+                verify=certifi.where(),
+                proxies=PROXIES
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            if attempt < retries:
+                wait = backoff * attempt
+                print(f"Request failed for {url} (attempt {attempt}/{retries}): {e} — retrying in {wait}s")
+                time.sleep(wait)
+            else:
+                print(f"Request failed for {url} (attempt {attempt}/{retries}): {e}")
+                return None
 
 
 def save_json(data, filepath):

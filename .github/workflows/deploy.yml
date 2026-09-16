@@ -69,42 +69,82 @@ jobs:
           cp output/*.json website/public/data/
           # Remove enriched_player_stats.json - too large for Cloudflare (41MB > 26MB limit)
           rm -f website/public/data/enriched_player_stats.json
-          # Create placeholder files if not generated (preseason)
+          
+          # Determine if we're in-season (after Sept 8 2026).
+          # During preseason, create harmless placeholders so the site can build.
+          # During the season, FAIL the build if critical data is missing — this
+          # prevents a transient API error from deploying a broken "preseason" site.
+          # Cloudflare will keep serving the last good deployment.
+          SEASON_STARTED=false
+          if [ "$(date +%s)" -ge "$(date -d '2026-09-08' +%s)" ]; then
+            SEASON_STARTED=true
+          fi
+          
+          MISSING_CRITICAL=false
+          
+          create_or_fail() {
+            local file="$1"
+            local placeholder="$2"
+            local label="$3"
+            if [ ! -f "$file" ]; then
+              if [ "$SEASON_STARTED" = "true" ]; then
+                echo "❌ MISSING CRITICAL FILE: $label ($file) — season has started, refusing to use placeholder"
+                MISSING_CRITICAL=true
+              else
+                echo "$placeholder" > "$file"
+                echo "Created placeholder $label (preseason)"
+              fi
+            fi
+          }
+          
+          # Playoff predictions are optional (only generated mid-season)
           if [ ! -f website/public/data/dynasty_playoff_predictions.json ]; then
             echo '{"matchups":[],"team_predictions":[],"playoff_probabilities":{},"is_playoffs":false}' > website/public/data/dynasty_playoff_predictions.json
-            echo "Created placeholder dynasty_playoff_predictions.json (preseason)"
+            echo "Created placeholder dynasty_playoff_predictions.json"
           fi
-          if [ ! -f website/public/data/season_stats_dynasty.json ]; then
-            echo '{"league_id":"","league_name":"Dynasty League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' > website/public/data/season_stats_dynasty.json
-            echo "Created placeholder season_stats_dynasty.json (preseason)"
-          fi
-          if [ ! -f website/public/data/season_stats_chopped.json ]; then
-            echo '{"league_id":"","league_name":"Chopped League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' > website/public/data/season_stats_chopped.json
-            echo "Created placeholder season_stats_chopped.json (preseason)"
-          fi
+          
+          # Critical data files — must exist during the season
+          create_or_fail "website/public/data/season_stats_dynasty.json" \
+            '{"league_id":"","league_name":"Dynasty League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' \
+            "season_stats_dynasty.json"
+          
+          create_or_fail "website/public/data/season_stats_chopped.json" \
+            '{"league_id":"","league_name":"Chopped League","season":"2026","current_week":0,"generated_at":"","teams":[],"best_theoretical_lineups":[],"avg_best_theoretical_lineup":0}' \
+            "season_stats_chopped.json"
+          
+          create_or_fail "website/public/data/user_lineups_dynasty.json" \
+            '{"league_name":"Dynasty","current_week":0,"users":[]}' \
+            "user_lineups_dynasty.json"
+          
+          create_or_fail "website/public/data/user_lineups_chopped.json" \
+            '{"league_name":"Chopped","current_week":0,"users":[]}' \
+            "user_lineups_chopped.json"
+          
+          # Non-critical data files — placeholder is acceptable even in-season
+          # (player/defense stats depend on nflverse which may lag)
           if [ ! -f website/public/data/player_stats.json ]; then
             echo '{"season":"2026","generated_at":"","players":[]}' > website/public/data/player_stats.json
-            echo "Created placeholder player_stats.json (preseason)"
+            echo "Created placeholder player_stats.json"
           fi
           if [ ! -f website/public/data/kicker_stats.json ]; then
             echo '{"season":"2026","generated_at":"","players":[]}' > website/public/data/kicker_stats.json
-            echo "Created placeholder kicker_stats.json (preseason)"
+            echo "Created placeholder kicker_stats.json"
           fi
           if [ ! -f website/public/data/dst_stats.json ]; then
             echo '{"season":"2026","generated_at":"","teams":[]}' > website/public/data/dst_stats.json
-            echo "Created placeholder dst_stats.json (preseason)"
+            echo "Created placeholder dst_stats.json"
           fi
           if [ ! -f website/public/data/defense_stats.json ]; then
             echo '{"season":"2026","generated_at":"","defenses":[]}' > website/public/data/defense_stats.json
-            echo "Created placeholder defense_stats.json (preseason)"
+            echo "Created placeholder defense_stats.json"
           fi
-          if [ ! -f website/public/data/user_lineups_dynasty.json ]; then
-            echo '{"league_name":"Dynasty","current_week":0,"users":[]}' > website/public/data/user_lineups_dynasty.json
-            echo "Created placeholder user_lineups_dynasty.json (preseason)"
-          fi
-          if [ ! -f website/public/data/user_lineups_chopped.json ]; then
-            echo '{"league_name":"Chopped","current_week":0,"users":[]}' > website/public/data/user_lineups_chopped.json
-            echo "Created placeholder user_lineups_chopped.json (preseason)"
+          
+          if [ "$MISSING_CRITICAL" = "true" ]; then
+            echo ""
+            echo "🚨 Build aborted: critical data files missing during active season."
+            echo "   This is likely a transient Sleeper API failure. Cloudflare will"
+            echo "   continue serving the last good deployment. Re-run the workflow."
+            exit 1
           fi
       
       - name: Verify data files were generated
