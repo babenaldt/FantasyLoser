@@ -450,9 +450,48 @@ const eliminatedNames = new Set((elimination?.eliminated_teams || []).map((e: an
     }
 
     @media (max-width: 768px) {
-      .week-nav { flex-direction: column; gap: 10px; }
-      .awards-grid { grid-template-columns: repeat(2, 1fr); }
+      .review-container { padding: 10px; }
+      .week-nav { flex-direction: column; gap: 10px; padding: 15px; }
+      .week-selector h1 { font-size: 22px; }
+      .nav-arrow { font-size: 14px; padding: 6px 12px; }
+      .awards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .award-card { padding: 12px 8px; }
+      .award-icon { font-size: 26px; margin-bottom: 5px; }
+      .award-title { font-size: 10px; letter-spacing: 0.5px; }
+      .award-name { font-size: 13px; margin: 4px 0; word-break: break-word; }
+      .award-stat { font-size: 12px; }
+      .award-sub { font-size: 11px; }
+      .matchup-card { padding: 12px; }
+      .team-score { font-size: 17px; }
+      .section { padding: 15px; margin-bottom: 15px; }
+      .section-title { font-size: 18px; margin-bottom: 10px; }
+      .elimination-cards { gap: 12px; }
+      .elim-card { padding: 15px 20px; min-width: 140px; }
+      .elim-icon { font-size: 28px; }
+      .elim-name { font-size: 15px; }
+      .elim-score { font-size: 14px; }
       .faab-summary-cards { flex-direction: column; }
+      .faab-card { padding: 14px 16px; min-width: unset; }
+      .faab-card-value { font-size: 22px; }
+      .data-table { font-size: 12px; min-width: 500px; }
+      .data-table th, .data-table td { padding: 8px 6px; }
+    }
+
+    @media (max-width: 400px) {
+      .review-container { padding: 6px; }
+      .week-nav { padding: 12px 10px; }
+      .week-selector h1 { font-size: 18px; }
+      .awards-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .award-card { padding: 10px 6px; }
+      .award-icon { font-size: 22px; margin-bottom: 4px; }
+      .award-title { font-size: 9px; }
+      .award-name { font-size: 12px; }
+      .award-stat { font-size: 11px; }
+      .section { padding: 12px; }
+      .section-title { font-size: 16px; }
+      .team-name { font-size: 13px; }
+      .team-score { font-size: 15px; }
+      .elim-card { padding: 12px 15px; min-width: 120px; }
     }
   </style>
 </BaseLayout>
