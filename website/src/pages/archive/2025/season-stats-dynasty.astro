@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import leagueData from '../../../../public/data/archive/2025/season_stats_dynasty.json';
+import archiveFaabMoves from '../../../../public/data/archive/2025/archive_faab_dynasty_2025.json';
 
 const { league_name, season, teams: rawTeams, current_week, champion, playoffs } = leagueData;
 
@@ -84,6 +85,47 @@ const runnerUpTeam = champion ? teams.find(t => t.owner_name === champion.runner
 const winnersBracket = playoffs?.winners_bracket || [];
 const losersBracket = playoffs?.losers_bracket || [];
 const finalStandings = playoffs?.final_standings || [];
+
+// FAAB Tracker data computed from archived weekly_scores
+const faabByTeam = teams
+  .map(t => ({
+    owner_name: t.owner_name,
+    spent: t.faab_spent || 0,
+    remaining: maxFAAB - (t.faab_spent || 0),
+    moves: t.waiver_moves || 0,
+  }))
+  .sort((a, b) => b.spent - a.spent);
+
+const totalLeagueSpent = faabByTeam.reduce((sum, t) => sum + t.spent, 0);
+const totalLeagueBudget = faabByTeam.length * maxFAAB;
+const biggestSpender = faabByTeam.length > 0 ? faabByTeam[0] : null;
+const avgPerTeam = faabByTeam.length > 0 ? Math.round(totalLeagueSpent / faabByTeam.length) : 0;
+
+// Compute cumulative FAAB by week from weekly_scores
+const maxWeeks = Math.max(...teams.map(t => t.weekly_scores.length));
+const faabCumulative: { week: number; spent: number; cumulative: number }[] = [];
+let runningTotal = 0;
+for (let w = 0; w < maxWeeks; w++) {
+  const weekSpent = teams.reduce((sum, t) => {
+    const ws = t.weekly_scores[w];
+    return sum + (ws?.faab_spent || 0);
+  }, 0);
+  runningTotal += weekSpent;
+  if (weekSpent > 0 || runningTotal > 0) {
+    faabCumulative.push({ week: w + 1, spent: weekSpent, cumulative: runningTotal });
+  }
+}
+
+// Group FAAB moves by week
+const faabMovesByWeek: { week: number; moves: any[]; weekTotal: number }[] = [];
+const movesByW = new Map<number, any[]>();
+for (const m of (archiveFaabMoves as any[])) {
+  if (!movesByW.has(m.week)) movesByW.set(m.week, []);
+  movesByW.get(m.week)!.push(m);
+}
+for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0])) {
+  faabMovesByWeek.push({ week, moves: moves.sort((a: any, b: any) => b.bid - a.bid), weekTotal: moves.reduce((s: number, m: any) => s + m.bid, 0) });
+}
 ---
 
 <BaseLayout title={`${league_name} - ${season} Season Archive`}>
@@ -208,7 +250,7 @@ const finalStandings = playoffs?.final_standings || [];
     </div>
     <div class="stat-card">
       <div class="stat-title">Most FAAB Remaining</div>
-      <div class="stat-value">${mostFAABRemaining}</div>
+      <div class="stat-value">{'$'}{mostFAABRemaining}</div>
     </div>
   </div>
 
@@ -364,6 +406,79 @@ const finalStandings = playoffs?.final_standings || [];
     </div>
   </div>
 
+  {/* Waiver Wire Section */}
+  {faabMovesByWeek.length > 0 && (
+  <div class="waiver-section" style="margin-top: 40px;">
+    <h2 style="text-align: center; color: #2d3748; margin-bottom: 5px;">💰 Waiver Wire</h2>
+    <p style="text-align: center; color: #888; margin-bottom: 25px;">{(archiveFaabMoves as any[]).length} moves · {'$'}{totalLeagueSpent} total spent</p>
+
+    <div class="waiver-weeks">
+      {faabMovesByWeek.map((wk) => (
+        <div class="waiver-week-block">
+          <div class="waiver-week-header">
+            <span class="waiver-week-label">Week {wk.week}</span>
+            <span class="waiver-week-total">{wk.moves.length} move{wk.moves.length !== 1 ? 's' : ''} · {'$'}{wk.weekTotal}</span>
+          </div>
+          <div class="waiver-moves-list">
+            {wk.moves.map((m: any) => (
+              <div class="waiver-move">
+                <div class="waiver-move-bid">{'$'}{m.bid}</div>
+                <div class="waiver-move-details">
+                  <div class="waiver-move-player">
+                    {m.player_name} <span class="pos-badge">{m.position}</span>
+                  </div>
+                  <div class="waiver-move-meta">
+                    {m.owner}
+                    {m.dropped && <span class="waiver-drop"> · dropped {m.dropped}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Team Budget Summary */}
+    {faabByTeam.length > 0 && totalLeagueSpent > 0 && (
+    <div class="table-container" style="margin-top: 25px;">
+      <h3 style="color: #2c3e50; margin-bottom: 10px;">💵 Team Budgets <span style="color:#888; font-size:14px; font-weight:normal;">({'$'}{maxFAAB} per team)</span></h3>
+      <div style="overflow-x: auto;">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Team</th>
+              <th style="text-align:center;">Spent</th>
+              <th style="text-align:center;">Remaining</th>
+              <th style="text-align:center;">Moves</th>
+            </tr>
+          </thead>
+          <tbody>
+            {faabByTeam.map((t) => {
+              const pctUsed = maxFAAB > 0 ? (t.spent / maxFAAB) * 100 : 0;
+              const remainingColor = t.remaining < maxFAAB * 0.2 ? '#f44336' : t.remaining < maxFAAB * 0.5 ? '#FF9800' : '#4CAF50';
+              return (
+                <tr>
+                  <td style="font-weight: 600;">{t.owner_name}</td>
+                  <td style="text-align:center; font-weight:bold; color:#667eea;">{'$'}{t.spent}</td>
+                  <td style="text-align:center;">
+                    <span style={`color:${remainingColor}; font-weight:bold;`}>{'$'}{t.remaining}</span>
+                    <div style="background:#e2e8f0; border-radius:4px; height:6px; margin-top:4px; overflow:hidden;">
+                      <div style={`height:100%; border-radius:4px; width:${pctUsed}%; background:${pctUsed > 80 ? '#f44336' : pctUsed > 50 ? '#FF9800' : '#667eea'};`}></div>
+                    </div>
+                  </td>
+                  <td style="text-align:center;">{t.moves}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    )}
+  </div>
+  )}
+
   <div class="chart-container" style="height: 600px; margin-top: 40px;">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
     <canvas id="leagueChart"></canvas>
@@ -456,6 +571,8 @@ const finalStandings = playoffs?.final_standings || [];
       }
     });
   </script>
+
+  <!-- FAAB chart removed; acquisitions table replaces it -->
 
   <style>
     .archive-banner {
@@ -614,6 +731,71 @@ const finalStandings = playoffs?.final_standings || [];
     }
     .standing-place { min-width: 30px; text-align: center; font-weight: 700; }
     .standing-name { flex: 1; }
+
+    /* Waiver Wire */
+    .waiver-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .waiver-weeks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .waiver-week-block {
+      background: #f8f9ff;
+      border: 1px solid #e8ebff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .waiver-week-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .waiver-week-label { font-weight: 700; font-size: 15px; }
+    .waiver-week-total { font-size: 12px; opacity: 0.85; }
+    .waiver-moves-list { padding: 8px; }
+    .waiver-move {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #eef0ff;
+    }
+    .waiver-move:last-child { border-bottom: none; }
+    .waiver-move-bid {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 16px;
+      min-width: 40px;
+      text-align: right;
+    }
+    .waiver-move-details { flex: 1; min-width: 0; }
+    .waiver-move-player {
+      font-weight: 600;
+      font-size: 14px;
+      color: #2c3e50;
+    }
+    .waiver-move-meta {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+    .waiver-drop { color: #c0392b; }
+    .pos-badge {
+      background: #e8ebff;
+      color: #667eea;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
 
     @media (max-width: 768px) {
       .bracket-rounds { grid-template-columns: 1fr; }

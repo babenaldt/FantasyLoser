@@ -83,10 +83,11 @@ def calculate_optimal_score(matchup, roster_positions, player_data):
     
     # Filter roster positions to only starters (exclude BN)
     starter_slots = [p for p in roster_positions if p != 'BN']
+    flex_types = ('FLEX', 'SUPER_FLEX', 'WRTQ', 'REC_FLEX')
     
-    # Fill specific positions first
+    # Fill specific positions first (skip flex-type slots for later)
     for slot in starter_slots:
-        if slot == 'FLEX':
+        if slot in flex_types:
             continue
             
         # Find best available player for this slot
@@ -96,11 +97,19 @@ def calculate_optimal_score(matchup, roster_positions, player_data):
                 used_players.add(player['id'])
                 break
     
-    # Fill FLEX spots (RB/WR/TE)
-    flex_slots = [p for p in starter_slots if p == 'FLEX']
-    for _ in flex_slots:
+    # Fill flex spots with best remaining eligible players
+    flex_eligible = {
+        'FLEX': ['RB', 'WR', 'TE'],
+        'SUPER_FLEX': ['QB', 'RB', 'WR', 'TE'],
+        'WRTQ': ['QB', 'WR', 'RB', 'TE'],
+        'REC_FLEX': ['WR', 'TE'],
+    }
+    for slot in starter_slots:
+        if slot not in flex_types:
+            continue
+        eligible = flex_eligible.get(slot, ['RB', 'WR', 'TE'])
         for player in available_players:
-            if player['id'] not in used_players and player['pos'] in ['RB', 'WR', 'TE']:
+            if player['id'] not in used_players and player['pos'] in eligible:
                 optimal_points += player['points']
                 used_players.add(player['id'])
                 break
