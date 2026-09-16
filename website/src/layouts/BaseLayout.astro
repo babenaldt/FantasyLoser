@@ -121,30 +121,49 @@ const { title, description = "Fantasy Football Statistics and Analysis" } = Astr
       /* Mobile Responsive Styles */
       @media (max-width: 768px) {
         .nav-bar {
-          padding: 10px 15px;
+          padding: 10px 12px;
+          gap: 8px;
         }
         .nav-bar .nav-title {
           font-size: 18px;
+          width: 100%;
+          text-align: center;
         }
         .nav-links {
-          gap: 5px;
+          gap: 4px;
+          justify-content: center;
+          width: 100%;
         }
         .nav-links a {
-          padding: 6px 12px;
-          font-size: 14px;
+          padding: 5px 8px;
+          font-size: 12px;
         }
         .content-wrapper {
-          padding: 10px;
+          padding: 8px;
         }
       }
       
       @media (max-width: 480px) {
+        .nav-bar {
+          padding: 8px;
+          gap: 6px;
+        }
         .nav-bar .nav-title {
           font-size: 16px;
         }
+        .nav-links {
+          gap: 3px;
+        }
         .nav-links a {
-          padding: 5px 10px;
-          font-size: 12px;
+          padding: 4px 6px;
+          font-size: 11px;
+        }
+      }
+      
+      @media (max-width: 360px) {
+        .nav-links a {
+          padding: 3px 5px;
+          font-size: 10px;
         }
       }
     </style>

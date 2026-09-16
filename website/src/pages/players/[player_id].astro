@@ -779,24 +779,24 @@ const displaySeason = isPreseason ? '2025' : '2026';
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
       .content-wrapper {
-        padding: 10px;
+        padding: 8px;
       }
       .container {
         padding: 0;
       }
       .back-link {
-        font-size: 1em;
-        padding: 8px 15px;
-        margin-bottom: 15px;
+        font-size: 0.9em;
+        padding: 8px 12px;
+        margin-bottom: 12px;
       }
       .player-header {
-        padding: 20px 15px;
+        padding: 15px 12px;
       }
       .player-name {
-        font-size: 1.8em;
+        font-size: 1.5em;
       }
       .player-meta {
-        gap: 15px;
+        gap: 10px;
         flex-direction: column;
         align-items: flex-start;
       }
@@ -805,14 +805,29 @@ const displaySeason = isPreseason ? '2025' : '2026';
       }
       .stats-grid {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 12px;
+      }
+      .stat-card {
+        padding: 12px;
+      }
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
       table {
-        font-size: 12px;
+        font-size: 11px;
+        min-width: 500px;
       }
       th, td {
-        padding: 8px 5px;
+        padding: 6px 4px;
       }
+    }
+
+    @media (max-width: 480px) {
+      .player-name { font-size: 1.2em; }
+      .player-header { padding: 12px 10px; }
+      table { font-size: 10px; }
+      th, td { padding: 5px 3px; }
     }
   </style>
 </BaseLayout>

@@ -296,31 +296,44 @@ const topPlayers = {
 
     @media (max-width: 768px) {
       .page-header h1 {
-        font-size: 2em;
+        font-size: 1.6em;
       }
 
       .position-tabs {
-        gap: 10px;
+        gap: 6px;
+        padding: 0 10px;
       }
 
       .tab-btn {
-        padding: 10px 16px;
-        font-size: 14px;
+        padding: 8px 12px;
+        font-size: 13px;
       }
 
       .chart-container {
-        padding: 15px;
+        padding: 12px;
       }
 
       .table-container {
-        padding: 10px;
+        padding: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .stats-table {
+        min-width: 600px;
       }
 
       .stats-table th,
       .stats-table td {
-        padding: 8px 5px;
-        font-size: 14px;
+        padding: 6px 4px;
+        font-size: 12px;
       }
+    }
+
+    @media (max-width: 480px) {
+      .page-header h1 { font-size: 1.3em; }
+      .tab-btn { padding: 6px 8px; font-size: 11px; }
+      .stats-table th, .stats-table td { padding: 5px 3px; font-size: 11px; }
     }
   </style>
 

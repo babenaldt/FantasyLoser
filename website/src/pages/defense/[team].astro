@@ -697,21 +697,25 @@ const weeklyData = defense.weekly_breakdown || [];
       height: 280px;
     }
     .table-container {
-      padding: 15px;
+      padding: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
     table {
       font-size: 12px;
+      min-width: 500px;
     }
     th, td {
-      padding: 8px 5px;
+      padding: 6px 4px;
       white-space: nowrap;
     }
   }
   
   @media (max-width: 480px) {
     .header h1 {
-      font-size: 1.6em;
+      font-size: 1.4em;
     }
+    .header { padding: 20px 12px; }
     .summary-cards {
       grid-template-columns: 1fr;
     }
@@ -725,10 +729,10 @@ const weeklyData = defense.weekly_breakdown || [];
       height: 250px;
     }
     table {
-      font-size: 11px;
+      font-size: 10px;
     }
     th, td {
-      padding: 6px 3px;
+      padding: 5px 3px;
     }
   }
 </style>

@@ -969,9 +969,28 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
     }
     
     @media (max-width: 768px) {
-      .page-header h1 { font-size: 2em; }
-      th, td { padding: 8px; font-size: 0.9em; }
-      .stat-value { font-size: 1.4em; }
+      .page-header h1 { font-size: 1.6em; }
+      .page-header { padding: 20px 15px; }
+      th, td { padding: 6px 4px; font-size: 0.8em; }
+      .stat-value { font-size: 1.3em; }
+      .stat-card { padding: 12px 8px; min-width: 0; }
+      .summary-cards { gap: 8px; }
+      .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .stats-table { min-width: 700px; }
+      .awards-section { padding: 15px; }
+      .award-card { padding: 12px 8px; gap: 8px; }
+      .award-card .stat-value { font-size: 1.3em; }
+      .waiver-weeks { grid-template-columns: 1fr; }
+      .waiver-week-block { font-size: 14px; }
+      .weekly-review-links { padding: 0 10px; }
+      .week-link-btn { padding: 10px; min-width: 0; flex: 1 1 45%; }
+    }
+
+    @media (max-width: 480px) {
+      .page-header h1 { font-size: 1.3em; }
+      .stat-value { font-size: 1.1em; }
+      .stat-label { font-size: 0.7em; }
+      th, td { padding: 5px 3px; font-size: 0.75em; white-space: nowrap; }
     }
 
     /* Elimination Bracket Styles */
