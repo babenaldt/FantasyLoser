@@ -220,11 +220,9 @@ jobs:
         run: npm run build
       
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: fantasyloser
-          directory: website/dist
+          command: pages deploy website/dist --project-name=fantasyloser --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
