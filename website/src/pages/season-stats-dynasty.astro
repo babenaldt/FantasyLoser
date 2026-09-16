@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import leagueData from '../../public/data/season_stats_dynasty.json';
 import playoffData from '../../public/data/dynasty_playoff_predictions.json';
 import userLineupsData from '../../public/data/user_lineups_dynasty.json';
+import weeklyReviewData from '../../public/data/weekly_reviews_dynasty.json';
 
 const { league_name, season, teams, current_week } = leagueData;
 
@@ -144,12 +145,56 @@ const crystalBallTeams = qualifiedTeams.filter(t => (t.avg_abs_projection_delta 
 const crystalBall = crystalBallTeams.length ? crystalBallTeams.reduce((prev, current) => 
     ((prev.avg_abs_projection_delta || 999) < (current.avg_abs_projection_delta || 999)) ? prev : current) : null;
 const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta || 0) > 0 ? crystalBall : null;
+
+// FAAB Tracker data
+const faabReview = weeklyReviewData as any;
+const faabSummary = faabReview.faab_summary || {};
+const faabByTeam = faabSummary.by_team || [];
+const faabCumulative = faabSummary.cumulative_by_week || [];
+const faabTopMoves = faabSummary.top_moves || [];
+const faabMaxBudget = faabReview.league_faab_budget || 100;
+const totalLeagueBudget = faabSummary.total_league_budget || 0;
+const totalLeagueSpent = faabSummary.total_league_spent || 0;
+const biggestBid = faabTopMoves.length > 0 ? faabTopMoves[0].bid : 0;
+const avgPerTeam = faabByTeam.length > 0 ? Math.round(totalLeagueSpent / faabByTeam.length) : 0;
+
+// Weekly Review data for links
+const reviewWeeks = (weeklyReviewData as any).weeks || [];
+const latestReviewWeek = reviewWeeks.length > 0 ? reviewWeeks[reviewWeeks.length - 1].week : 1;
+
+// All FAAB player acquisitions (flattened from weekly data)
+const allMoves: any[] = reviewWeeks.flatMap((w: any) => 
+  (w.faab_activity || []).flatMap((txn: any) => 
+    (txn.added || []).map((p: any) => ({
+      week: w.week,
+      player_name: p.player_name,
+      position: p.position,
+      bid: txn.bid,
+      owner: txn.owner,
+      dropped: (txn.dropped || []).map((d: any) => d.player_name).join(', ')
+    }))
+  )
+).sort((a: any, b: any) => b.bid - a.bid);
+
+// Group FAAB moves by week
+const faabMovesByWeek: { week: number; moves: any[]; weekTotal: number }[] = [];
+const movesByW = new Map<number, any[]>();
+for (const m of allMoves) {
+  if (!movesByW.has(m.week)) movesByW.set(m.week, []);
+  movesByW.get(m.week)!.push(m);
+}
+for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0])) {
+  faabMovesByWeek.push({ week, moves: moves.sort((a: any, b: any) => b.bid - a.bid), weekTotal: moves.reduce((s: number, m: any) => s + m.bid, 0) });
+}
 ---
 
 <BaseLayout title={`${league_name} - Season Stats`}>
   <div class="page-header">
     <h1>🏆 {league_name}</h1>
     <p class="subtitle">{season} Season Statistics</p>
+    {!isPreseason && (
+      <a href="/weekly-review-dynasty/1" style="display:inline-block; margin-top:10px; padding:8px 20px; background:rgba(255,255,255,0.2); color:white; border-radius:8px; text-decoration:none; font-weight:500;">📰 Weekly Reviews</a>
+    )}
   </div>
 
   {isPreseason && (
@@ -460,6 +505,95 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
   </div>
   )}
 
+  {/* Weekly Review Links */}
+  {!isPreseason && reviewWeeks.length > 0 && (
+  <div class="weekly-review-links" style="margin-top: 40px;">
+    <h2 style="text-align: center; color: #2d3748; margin-bottom: 15px;">📰 Weekly Reviews</h2>
+    <p style="text-align: center; color: #888; margin-bottom: 20px;">Detailed awards, scoreboards, and analysis for each week</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+      {reviewWeeks.map((w: any) => (
+        <a href={`/weekly-review-dynasty/${w.week}`} class="week-link-btn">
+          <span class="week-link-num">Week {w.week}</span>
+          <span class="week-link-detail">🏆 {w.awards?.top_scorer?.owner_name || '—'} ({w.awards?.top_scorer?.points || 0} pts)</span>
+        </a>
+      ))}
+    </div>
+  </div>
+  )}
+
+  {/* Waiver Wire Section */}
+  {!isPreseason && faabMovesByWeek.length > 0 && (
+  <div class="waiver-section" style="margin-top: 40px;">
+    <h2 style="text-align: center; color: #2d3748; margin-bottom: 5px;">💰 Waiver Wire</h2>
+    <p style="text-align: center; color: #888; margin-bottom: 25px;">{allMoves.length} moves · {'$'}{totalLeagueSpent} total spent</p>
+
+    <div class="waiver-weeks">
+      {faabMovesByWeek.map((wk) => (
+        <div class="waiver-week-block">
+          <div class="waiver-week-header">
+            <span class="waiver-week-label">Week {wk.week}</span>
+            <span class="waiver-week-total">{wk.moves.length} move{wk.moves.length !== 1 ? 's' : ''} · {'$'}{wk.weekTotal}</span>
+          </div>
+          <div class="waiver-moves-list">
+            {wk.moves.map((m: any) => (
+              <div class="waiver-move">
+                <div class="waiver-move-bid">{'$'}{m.bid}</div>
+                <div class="waiver-move-details">
+                  <div class="waiver-move-player">
+                    {m.player_name} <span class="pos-badge">{m.position}</span>
+                  </div>
+                  <div class="waiver-move-meta">
+                    {m.owner}
+                    {m.dropped && <span class="waiver-drop"> · dropped {m.dropped}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Team Budget Tracker */}
+    {faabByTeam.length > 0 && (
+    <div class="table-container" style="margin-top: 25px;">
+      <h3 style="color: #2c3e50; margin-bottom: 10px;">💵 Team Budgets <span style="color:#888; font-size:14px; font-weight:normal;">({'$'}{faabMaxBudget} per team)</span></h3>
+      <div style="overflow-x: auto;">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Team</th>
+              <th style="text-align:center;">Spent</th>
+              <th style="text-align:center;">Remaining</th>
+              <th style="text-align:center;">Moves</th>
+            </tr>
+          </thead>
+          <tbody>
+            {faabByTeam.map((t: any) => {
+              const pctUsed = faabMaxBudget > 0 ? (t.spent / faabMaxBudget) * 100 : 0;
+              const remainingColor = t.remaining < faabMaxBudget * 0.2 ? '#f44336' : t.remaining < faabMaxBudget * 0.5 ? '#FF9800' : '#4CAF50';
+              return (
+                <tr>
+                  <td style="font-weight: 600;">{t.owner_name}</td>
+                  <td style="text-align:center; font-weight:bold; color:#667eea;">{'$'}{t.spent}</td>
+                  <td style="text-align:center;">
+                    <span style={`color:${remainingColor}; font-weight:bold;`}>{'$'}{t.remaining}</span>
+                    <div style="background:#e2e8f0; border-radius:4px; height:6px; margin-top:4px; overflow:hidden;">
+                      <div style={`height:100%; border-radius:4px; width:${pctUsed}%; background:${pctUsed > 80 ? '#f44336' : pctUsed > 50 ? '#FF9800' : '#667eea'};`}></div>
+                    </div>
+                  </td>
+                  <td style="text-align:center;">{t.moves}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    )}
+  </div>
+  )}
+
   {!isPreseason && (
   <div class="chart-container" style="height: 600px; margin-top: 40px;">
     <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Weekly Performance (All Teams)</h3>
@@ -589,6 +723,8 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
     } // end if (canvasEl)
   </script>
 
+  <!-- FAAB chart removed; acquisitions table replaces it -->
+
   <style>
     .page-header {
       text-align: center;
@@ -716,6 +852,99 @@ const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta ||
     .award-value {
       font-size: 0.9em;
       color: #555;
+    }
+
+    /* Weekly Review Links */
+    .weekly-review-links {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .week-link-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+      border: 1px solid #e8ebff;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #2c3e50;
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-width: 140px;
+    }
+    .week-link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+      border-color: #667eea;
+    }
+    .week-link-num { font-weight: 700; font-size: 15px; color: #667eea; }
+    .week-link-detail { font-size: 11px; color: #888; margin-top: 4px; text-align: center; }
+
+    /* Waiver Wire */
+    .waiver-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .waiver-weeks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .waiver-week-block {
+      background: #f8f9ff;
+      border: 1px solid #e8ebff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .waiver-week-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .waiver-week-label { font-weight: 700; font-size: 15px; }
+    .waiver-week-total { font-size: 12px; opacity: 0.85; }
+    .waiver-moves-list { padding: 8px; }
+    .waiver-move {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #eef0ff;
+    }
+    .waiver-move:last-child { border-bottom: none; }
+    .waiver-move-bid {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 16px;
+      min-width: 40px;
+      text-align: right;
+    }
+    .waiver-move-details { flex: 1; min-width: 0; }
+    .waiver-move-player {
+      font-weight: 600;
+      font-size: 14px;
+      color: #2c3e50;
+    }
+    .waiver-move-meta {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+    .waiver-drop { color: #c0392b; }
+    .pos-badge {
+      background: #e8ebff;
+      color: #667eea;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
     }
     
     @media (max-width: 768px) {

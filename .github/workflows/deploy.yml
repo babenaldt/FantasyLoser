@@ -138,6 +138,14 @@ jobs:
             echo '{"season":"2026","generated_at":"","defenses":[]}' > website/public/data/defense_stats.json
             echo "Created placeholder defense_stats.json"
           fi
+          if [ ! -f website/public/data/weekly_reviews_dynasty.json ]; then
+            echo '{"league_name":"Dynasty League","league_type":"dynasty","season":"2026","total_weeks":0,"league_faab_budget":100,"total_teams":0,"weeks":[],"faab_summary":{"total_league_spent":0,"total_league_budget":0,"cumulative_by_week":[],"by_team":[],"top_moves":[]}}' > website/public/data/weekly_reviews_dynasty.json
+            echo "Created placeholder weekly_reviews_dynasty.json"
+          fi
+          if [ ! -f website/public/data/weekly_reviews_chopped.json ]; then
+            echo '{"league_name":"Chopped League","league_type":"chopped","season":"2026","total_weeks":0,"league_faab_budget":150,"total_teams":0,"weeks":[],"faab_summary":{"total_league_spent":0,"total_league_budget":0,"cumulative_by_week":[],"by_team":[],"top_moves":[]}}' > website/public/data/weekly_reviews_chopped.json
+            echo "Created placeholder weekly_reviews_chopped.json"
+          fi
           
           if [ "$MISSING_CRITICAL" = "true" ]; then
             echo ""

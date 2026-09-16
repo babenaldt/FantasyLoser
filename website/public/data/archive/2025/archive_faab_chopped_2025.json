@@ -1,0 +1,986 @@
+[
+  {
+    "week": 2,
+    "player_name": "Jahmyr Gibbs",
+    "position": "RB",
+    "bid": 80,
+    "owner": "Sangha",
+    "dropped": "Kareem Hunt"
+  },
+  {
+    "week": 3,
+    "player_name": "Saquon Barkley",
+    "position": "RB",
+    "bid": 76,
+    "owner": "EliWorkman",
+    "dropped": "Cedric Tillman"
+  },
+  {
+    "week": 1,
+    "player_name": "Justin Jefferson",
+    "position": "WR",
+    "bid": 69,
+    "owner": "McInally",
+    "dropped": "Jauan Jennings"
+  },
+  {
+    "week": 2,
+    "player_name": "Justin Jefferson",
+    "position": "WR",
+    "bid": 67,
+    "owner": "agrusa17",
+    "dropped": "Travis Hunter"
+  },
+  {
+    "week": 5,
+    "player_name": "Josh Jacobs",
+    "position": "RB",
+    "bid": 58,
+    "owner": "ProfOaks",
+    "dropped": "Tyrone Tracy"
+  },
+  {
+    "week": 2,
+    "player_name": "Drake London",
+    "position": "WR",
+    "bid": 53,
+    "owner": "NLadocsi",
+    "dropped": "Marquise Brown"
+  },
+  {
+    "week": 6,
+    "player_name": "Javonte Williams",
+    "position": "RB",
+    "bid": 47,
+    "owner": "emiliosolay",
+    "dropped": "Omarion Hampton"
+  },
+  {
+    "week": 8,
+    "player_name": "CeeDee Lamb",
+    "position": "WR",
+    "bid": 47,
+    "owner": "EliWorkman",
+    "dropped": "Cam Skattebo"
+  },
+  {
+    "week": 5,
+    "player_name": "Sam LaPorta",
+    "position": "TE",
+    "bid": 45,
+    "owner": "inTreywetrust",
+    "dropped": "Brenton Strange"
+  },
+  {
+    "week": 7,
+    "player_name": "Josh Jacobs",
+    "position": "RB",
+    "bid": 45,
+    "owner": "vmaxlau",
+    "dropped": "Kenneth Walker"
+  },
+  {
+    "week": 5,
+    "player_name": "Josh Allen",
+    "position": "QB",
+    "bid": 41,
+    "owner": "SeanRabenaldt",
+    "dropped": "Jerry Jeudy"
+  },
+  {
+    "week": 6,
+    "player_name": "Justin Jefferson",
+    "position": "WR",
+    "bid": 41,
+    "owner": "NLadocsi",
+    "dropped": "Tee Higgins"
+  },
+  {
+    "week": 2,
+    "player_name": "Jameson Williams",
+    "position": "WR",
+    "bid": 40,
+    "owner": "Sangha",
+    "dropped": "Calvin Austin"
+  },
+  {
+    "week": 6,
+    "player_name": "CeeDee Lamb",
+    "position": "WR",
+    "bid": 37,
+    "owner": "B-Ray",
+    "dropped": "Chris Olave"
+  },
+  {
+    "week": 8,
+    "player_name": "Rashee Rice",
+    "position": "WR",
+    "bid": 37,
+    "owner": "inTreywetrust",
+    "dropped": "Matthew Golden"
+  },
+  {
+    "week": 2,
+    "player_name": "Travis Etienne",
+    "position": "RB",
+    "bid": 35,
+    "owner": "NLadocsi",
+    "dropped": "Justin Fields"
+  },
+  {
+    "week": 4,
+    "player_name": "Kyren Williams",
+    "position": "RB",
+    "bid": 35,
+    "owner": "emiliosolay",
+    "dropped": "Darnell Mooney"
+  },
+  {
+    "week": 8,
+    "player_name": "Kimani Vidal",
+    "position": "RB",
+    "bid": 35,
+    "owner": "inTreywetrust",
+    "dropped": "Quinshon Judkins"
+  },
+  {
+    "week": 9,
+    "player_name": "Jahmyr Gibbs",
+    "position": "RB",
+    "bid": 32,
+    "owner": "SamirNazir",
+    "dropped": "Tucker Kraft"
+  },
+  {
+    "week": 7,
+    "player_name": "Puka Nacua",
+    "position": "WR",
+    "bid": 31,
+    "owner": "SeanRabenaldt",
+    "dropped": "Mike Evans"
+  },
+  {
+    "week": 3,
+    "player_name": "Baker Mayfield",
+    "position": "QB",
+    "bid": 28,
+    "owner": "B-Ray",
+    "dropped": "Trevor Lawrence"
+  },
+  {
+    "week": 1,
+    "player_name": "Omarion Hampton",
+    "position": "RB",
+    "bid": 27,
+    "owner": "emiliosolay",
+    "dropped": "Tank Bigsby"
+  },
+  {
+    "week": 6,
+    "player_name": "Rashee Rice",
+    "position": "WR",
+    "bid": 27,
+    "owner": "B-Ray",
+    "dropped": "Romeo Doubs"
+  },
+  {
+    "week": 7,
+    "player_name": "Emeka Egbuka",
+    "position": "WR",
+    "bid": 26,
+    "owner": "SamirNazir",
+    "dropped": "Xavier Worthy"
+  },
+  {
+    "week": 8,
+    "player_name": "David Montgomery",
+    "position": "RB",
+    "bid": 26,
+    "owner": "inTreywetrust",
+    "dropped": "Jacory Croskey-Merritt"
+  },
+  {
+    "week": 10,
+    "player_name": "CeeDee Lamb",
+    "position": "WR",
+    "bid": 25,
+    "owner": "vmaxlau",
+    "dropped": "Khalil Shakir"
+  },
+  {
+    "week": 7,
+    "player_name": "Chris Olave",
+    "position": "WR",
+    "bid": 22,
+    "owner": "ProfOaks",
+    "dropped": "Trey Benson"
+  },
+  {
+    "week": 3,
+    "player_name": "Ladd McConkey",
+    "position": "WR",
+    "bid": 21,
+    "owner": "SeanRabenaldt",
+    "dropped": "Michael Mayer"
+  },
+  {
+    "week": 7,
+    "player_name": "James Cook",
+    "position": "RB",
+    "bid": 21,
+    "owner": "NLadocsi",
+    "dropped": "TreVeyon Henderson"
+  },
+  {
+    "week": 4,
+    "player_name": "Marvin Harrison",
+    "position": "WR",
+    "bid": 20,
+    "owner": "Jiggs24",
+    "dropped": "Elic Ayomanor"
+  },
+  {
+    "week": 10,
+    "player_name": "Brock Bowers",
+    "position": "TE",
+    "bid": 18,
+    "owner": "vmaxlau",
+    "dropped": "Harold Fannin"
+  },
+  {
+    "week": 6,
+    "player_name": "Jalen Hurts",
+    "position": "QB",
+    "bid": 17,
+    "owner": "vmaxlau",
+    "dropped": "Matthew Stafford"
+  },
+  {
+    "week": 2,
+    "player_name": "Daniel Jones",
+    "position": "QB",
+    "bid": 15,
+    "owner": "SamirNazir",
+    "dropped": "Sam Darnold"
+  },
+  {
+    "week": 10,
+    "player_name": "Tee Higgins",
+    "position": "WR",
+    "bid": 14,
+    "owner": "emiliosolay",
+    "dropped": "Keenan Allen"
+  },
+  {
+    "week": 2,
+    "player_name": "Quentin Johnston",
+    "position": "WR",
+    "bid": 13,
+    "owner": "B-Ray",
+    "dropped": "Romeo Doubs"
+  },
+  {
+    "week": 2,
+    "player_name": "Chris Godwin",
+    "position": "WR",
+    "bid": 13,
+    "owner": "B-Ray",
+    "dropped": "Jaydon Blue"
+  },
+  {
+    "week": 5,
+    "player_name": "J.K. Dobbins",
+    "position": "RB",
+    "bid": 13,
+    "owner": "B-Ray",
+    "dropped": "Justice Hill"
+  },
+  {
+    "week": 6,
+    "player_name": "Kimani Vidal",
+    "position": "RB",
+    "bid": 13,
+    "owner": "B-Ray",
+    "dropped": "J.K. Dobbins"
+  },
+  {
+    "week": 1,
+    "player_name": "Quentin Johnston",
+    "position": "WR",
+    "bid": 12,
+    "owner": "McInally",
+    "dropped": "Ollie Gordon"
+  },
+  {
+    "week": 2,
+    "player_name": "Tee Higgins",
+    "position": "WR",
+    "bid": 12,
+    "owner": "vmaxlau",
+    "dropped": "Rashid Shaheed"
+  },
+  {
+    "week": 3,
+    "player_name": "Tucker Kraft",
+    "position": "TE",
+    "bid": 12,
+    "owner": "SamirNazir",
+    "dropped": "RJ Harvey"
+  },
+  {
+    "week": 6,
+    "player_name": "Breece Hall",
+    "position": "RB",
+    "bid": 12,
+    "owner": "SamirNazir",
+    "dropped": "RJ Harvey"
+  },
+  {
+    "week": 1,
+    "player_name": "Dak Prescott",
+    "position": "QB",
+    "bid": 11,
+    "owner": "SeanRabenaldt",
+    "dropped": "Tyler Allgeier"
+  },
+  {
+    "week": 4,
+    "player_name": "Tony Pollard",
+    "position": "RB",
+    "bid": 11,
+    "owner": "SamirNazir",
+    "dropped": "Bhayshul Tuten"
+  },
+  {
+    "week": 1,
+    "player_name": "Tyler Lockett",
+    "position": "WR",
+    "bid": 10,
+    "owner": "SamirNazir",
+    "dropped": "Xavier Legette"
+  },
+  {
+    "week": 3,
+    "player_name": "Jakobi Meyers",
+    "position": "WR",
+    "bid": 10,
+    "owner": "Jiggs24",
+    "dropped": "Joshua Palmer"
+  },
+  {
+    "week": 4,
+    "player_name": "Sam LaPorta",
+    "position": "TE",
+    "bid": 10,
+    "owner": "Jiggs24",
+    "dropped": "Dalton Schultz"
+  },
+  {
+    "week": 8,
+    "player_name": "Tyrone Tracy",
+    "position": "RB",
+    "bid": 9,
+    "owner": "EliWorkman",
+    "dropped": "Hunter Henry"
+  },
+  {
+    "week": 11,
+    "player_name": "De'Von Achane",
+    "position": "RB",
+    "bid": 9,
+    "owner": "SeanRabenaldt",
+    "dropped": "Woody Marks"
+  },
+  {
+    "week": 12,
+    "player_name": "Jonathan Taylor",
+    "position": "RB",
+    "bid": 8,
+    "owner": "SeanRabenaldt",
+    "dropped": "Bucky Irving"
+  },
+  {
+    "week": 3,
+    "player_name": "Khalil Shakir",
+    "position": "WR",
+    "bid": 7,
+    "owner": "vmaxlau",
+    "dropped": "Tee Higgins"
+  },
+  {
+    "week": 4,
+    "player_name": "Stefon Diggs",
+    "position": "WR",
+    "bid": 7,
+    "owner": "SeanRabenaldt",
+    "dropped": "Jonnu Smith"
+  },
+  {
+    "week": 9,
+    "player_name": "Derrick Henry",
+    "position": "RB",
+    "bid": 7,
+    "owner": "SeanRabenaldt",
+    "dropped": "Alvin Kamara"
+  },
+  {
+    "week": 4,
+    "player_name": "Woody Marks",
+    "position": "RB",
+    "bid": 6,
+    "owner": "agrusa17",
+    "dropped": ""
+  },
+  {
+    "week": 11,
+    "player_name": "CeeDee Lamb",
+    "position": "WR",
+    "bid": 6,
+    "owner": "SeanRabenaldt",
+    "dropped": "Wan'Dale Robinson"
+  },
+  {
+    "week": 1,
+    "player_name": "Dalton Schultz",
+    "position": "TE",
+    "bid": 5,
+    "owner": "Jiggs24",
+    "dropped": "Evan Engram"
+  },
+  {
+    "week": 2,
+    "player_name": "Caleb Williams",
+    "position": "QB",
+    "bid": 5,
+    "owner": "HughesLineupIsItAnyway",
+    "dropped": "Michael Penix"
+  },
+  {
+    "week": 2,
+    "player_name": "Tyler Allgeier",
+    "position": "RB",
+    "bid": 5,
+    "owner": "Jiggs24",
+    "dropped": "Rico Dowdle"
+  },
+  {
+    "week": 3,
+    "player_name": "Romeo Doubs",
+    "position": "WR",
+    "bid": 5,
+    "owner": "Jiggs24",
+    "dropped": "Kayshon Boutte"
+  },
+  {
+    "week": 5,
+    "player_name": "Jakobi Meyers",
+    "position": "WR",
+    "bid": 5,
+    "owner": "vmaxlau",
+    "dropped": "DJ Moore"
+  },
+  {
+    "week": 7,
+    "player_name": "Jaxson Dart",
+    "position": "QB",
+    "bid": 5,
+    "owner": "emiliosolay",
+    "dropped": "Justin Fields"
+  },
+  {
+    "week": 9,
+    "player_name": "Jaylen Warren",
+    "position": "RB",
+    "bid": 5,
+    "owner": "EliWorkman",
+    "dropped": "Brian Thomas"
+  },
+  {
+    "week": 13,
+    "player_name": "Rashee Rice",
+    "position": "WR",
+    "bid": 5,
+    "owner": "SamirNazir",
+    "dropped": "Ladd McConkey"
+  },
+  {
+    "week": 13,
+    "player_name": "Trey McBride",
+    "position": "TE",
+    "bid": 5,
+    "owner": "SamirNazir",
+    "dropped": "Tyler Warren"
+  },
+  {
+    "week": 3,
+    "player_name": "Dallas Goedert",
+    "position": "TE",
+    "bid": 4,
+    "owner": "Sangha",
+    "dropped": "Ja'Tavion Sanders"
+  },
+  {
+    "week": 3,
+    "player_name": "David Njoku",
+    "position": "TE",
+    "bid": 4,
+    "owner": "emiliosolay",
+    "dropped": "Mike Gesicki"
+  },
+  {
+    "week": 6,
+    "player_name": "Darren Waller",
+    "position": "TE",
+    "bid": 4,
+    "owner": "emiliosolay",
+    "dropped": "Mark Andrews"
+  },
+  {
+    "week": 7,
+    "player_name": "Oronde Gadsden",
+    "position": "TE",
+    "bid": 4,
+    "owner": "inTreywetrust",
+    "dropped": "Josh Downs"
+  },
+  {
+    "week": 8,
+    "player_name": "Kyle Pitts",
+    "position": "TE",
+    "bid": 4,
+    "owner": "vmaxlau",
+    "dropped": "T.J. Hockenson"
+  },
+  {
+    "week": 8,
+    "player_name": "Tetairoa McMillan",
+    "position": "WR",
+    "bid": 4,
+    "owner": "emiliosolay",
+    "dropped": ""
+  },
+  {
+    "week": 14,
+    "player_name": "Ja'Marr Chase",
+    "position": "WR",
+    "bid": 4,
+    "owner": "SamirNazir",
+    "dropped": "DeVonta Smith"
+  },
+  {
+    "week": 14,
+    "player_name": "Travis Etienne",
+    "position": "RB",
+    "bid": 4,
+    "owner": "SamirNazir",
+    "dropped": "Patrick Mahomes"
+  },
+  {
+    "week": 3,
+    "player_name": "TreVeyon Henderson",
+    "position": "RB",
+    "bid": 3,
+    "owner": "agrusa17",
+    "dropped": "Dylan Sampson"
+  },
+  {
+    "week": 10,
+    "player_name": "Saquon Barkley",
+    "position": "RB",
+    "bid": 3,
+    "owner": "inTreywetrust",
+    "dropped": "David Montgomery"
+  },
+  {
+    "week": 10,
+    "player_name": "Jaylen Warren",
+    "position": "RB",
+    "bid": 3,
+    "owner": "vmaxlau",
+    "dropped": "Rhamondre Stevenson"
+  },
+  {
+    "week": 11,
+    "player_name": "Davante Adams",
+    "position": "WR",
+    "bid": 3,
+    "owner": "emiliosolay",
+    "dropped": "Rome Odunze"
+  },
+  {
+    "week": 11,
+    "player_name": "Brock Bowers",
+    "position": "TE",
+    "bid": 3,
+    "owner": "SeanRabenaldt",
+    "dropped": "Ladd McConkey"
+  },
+  {
+    "week": 14,
+    "player_name": "George Kittle",
+    "position": "TE",
+    "bid": 3,
+    "owner": "SeanRabenaldt",
+    "dropped": "Nico Collins"
+  },
+  {
+    "week": 1,
+    "player_name": "Juwan Johnson",
+    "position": "TE",
+    "bid": 2,
+    "owner": "agrusa17",
+    "dropped": "Woody Marks"
+  },
+  {
+    "week": 1,
+    "player_name": "Daniel Jones",
+    "position": "QB",
+    "bid": 2,
+    "owner": "McInally",
+    "dropped": "C.J. Stroud"
+  },
+  {
+    "week": 4,
+    "player_name": "Justice Hill",
+    "position": "RB",
+    "bid": 2,
+    "owner": "B-Ray",
+    "dropped": "Calvin Ridley"
+  },
+  {
+    "week": 4,
+    "player_name": "Keon Coleman",
+    "position": "WR",
+    "bid": 2,
+    "owner": "SamirNazir",
+    "dropped": "Marvin Mims"
+  },
+  {
+    "week": 5,
+    "player_name": "Darren Waller",
+    "position": "TE",
+    "bid": 2,
+    "owner": "agrusa17",
+    "dropped": "Juwan Johnson"
+  },
+  {
+    "week": 7,
+    "player_name": "J.K. Dobbins",
+    "position": "RB",
+    "bid": 2,
+    "owner": "SeanRabenaldt",
+    "dropped": "Rhamondre Stevenson"
+  },
+  {
+    "week": 8,
+    "player_name": "Chase Brown",
+    "position": "RB",
+    "bid": 2,
+    "owner": "SamirNazir",
+    "dropped": "Tony Pollard"
+  },
+  {
+    "week": 9,
+    "player_name": "Dallas Goedert",
+    "position": "TE",
+    "bid": 2,
+    "owner": "SamirNazir",
+    "dropped": "Rome Odunze"
+  },
+  {
+    "week": 12,
+    "player_name": "Travis Kelce",
+    "position": "TE",
+    "bid": 2,
+    "owner": "SamirNazir",
+    "dropped": "Dallas Goedert"
+  },
+  {
+    "week": 1,
+    "player_name": "DJ Moore",
+    "position": "WR",
+    "bid": 1,
+    "owner": "vmaxlau",
+    "dropped": "Najee Harris"
+  },
+  {
+    "week": 2,
+    "player_name": "T.J. Hockenson",
+    "position": "TE",
+    "bid": 1,
+    "owner": "vmaxlau",
+    "dropped": "Kenny Gainwell"
+  },
+  {
+    "week": 2,
+    "player_name": "Bhayshul Tuten",
+    "position": "RB",
+    "bid": 1,
+    "owner": "SamirNazir",
+    "dropped": "Tyler Lockett"
+  },
+  {
+    "week": 3,
+    "player_name": "RJ Harvey",
+    "position": "RB",
+    "bid": 1,
+    "owner": "SamirNazir",
+    "dropped": "Jeremy McNichols"
+  },
+  {
+    "week": 7,
+    "player_name": "Rico Dowdle",
+    "position": "RB",
+    "bid": 1,
+    "owner": "B-Ray",
+    "dropped": "Chase Brown"
+  },
+  {
+    "week": 10,
+    "player_name": "Rome Odunze",
+    "position": "WR",
+    "bid": 1,
+    "owner": "emiliosolay",
+    "dropped": "Terry McLaurin"
+  },
+  {
+    "week": 12,
+    "player_name": "Javonte Williams",
+    "position": "RB",
+    "bid": 1,
+    "owner": "SamirNazir",
+    "dropped": "Emeka Egbuka"
+  },
+  {
+    "week": 13,
+    "player_name": "Amon-Ra St. Brown",
+    "position": "WR",
+    "bid": 1,
+    "owner": "SeanRabenaldt",
+    "dropped": "Davante Adams"
+  },
+  {
+    "week": 13,
+    "player_name": "Josh Jacobs",
+    "position": "RB",
+    "bid": 1,
+    "owner": "SamirNazir",
+    "dropped": "Chase Brown"
+  },
+  {
+    "week": 14,
+    "player_name": "George Pickens",
+    "position": "WR",
+    "bid": 1,
+    "owner": "SamirNazir",
+    "dropped": "Javonte Williams"
+  },
+  {
+    "week": 14,
+    "player_name": "Matthew Stafford",
+    "position": "QB",
+    "bid": 1,
+    "owner": "SamirNazir",
+    "dropped": "Jalen Hurts"
+  },
+  {
+    "week": 1,
+    "player_name": "Rashee Rice",
+    "position": "WR",
+    "bid": 0,
+    "owner": "agrusa17",
+    "dropped": "Bhayshul Tuten"
+  },
+  {
+    "week": 3,
+    "player_name": "Tyquan Thornton",
+    "position": "WR",
+    "bid": 0,
+    "owner": "HughesLineupIsItAnyway",
+    "dropped": "Pat Freiermuth"
+  },
+  {
+    "week": 3,
+    "player_name": "Calvin Austin",
+    "position": "WR",
+    "bid": 0,
+    "owner": "SeanRabenaldt",
+    "dropped": "Adam Thielen"
+  },
+  {
+    "week": 4,
+    "player_name": "Darren Waller",
+    "position": "TE",
+    "bid": 0,
+    "owner": "Sangha",
+    "dropped": "Mike Evans"
+  },
+  {
+    "week": 5,
+    "player_name": "Jordan Love",
+    "position": "QB",
+    "bid": 0,
+    "owner": "Sangha",
+    "dropped": "Tua Tagovailoa"
+  },
+  {
+    "week": 7,
+    "player_name": "Joe Flacco",
+    "position": "QB",
+    "bid": 0,
+    "owner": "emiliosolay",
+    "dropped": "Michael Carter"
+  },
+  {
+    "week": 7,
+    "player_name": "Rhamondre Stevenson",
+    "position": "RB",
+    "bid": 0,
+    "owner": "vmaxlau",
+    "dropped": "Jakobi Meyers"
+  },
+  {
+    "week": 7,
+    "player_name": "Dalton Kincaid",
+    "position": "TE",
+    "bid": 0,
+    "owner": "emiliosolay",
+    "dropped": "David Njoku"
+  },
+  {
+    "week": 8,
+    "player_name": "Zach Ertz",
+    "position": "TE",
+    "bid": 0,
+    "owner": "Sangha",
+    "dropped": "Rachaad White"
+  },
+  {
+    "week": 8,
+    "player_name": "Bucky Irving",
+    "position": "RB",
+    "bid": 0,
+    "owner": "NLadocsi",
+    "dropped": "Jordan Mason"
+  },
+  {
+    "week": 8,
+    "player_name": "Khalil Shakir",
+    "position": "WR",
+    "bid": 0,
+    "owner": "vmaxlau",
+    "dropped": "Rashid Shaheed"
+  },
+  {
+    "week": 8,
+    "player_name": "Zach Ertz",
+    "position": "TE",
+    "bid": 0,
+    "owner": "B-Ray",
+    "dropped": "Kendrick Bourne"
+  },
+  {
+    "week": 9,
+    "player_name": "Lamar Jackson",
+    "position": "QB",
+    "bid": 0,
+    "owner": "NLadocsi",
+    "dropped": "Jayden Daniels"
+  },
+  {
+    "week": 11,
+    "player_name": "A.J. Brown",
+    "position": "WR",
+    "bid": 0,
+    "owner": "NLadocsi",
+    "dropped": "Travis Etienne"
+  },
+  {
+    "week": 11,
+    "player_name": "Josh Jacobs",
+    "position": "RB",
+    "bid": 0,
+    "owner": "inTreywetrust",
+    "dropped": "Oronde Gadsden"
+  },
+  {
+    "week": 11,
+    "player_name": "Ashton Jeanty",
+    "position": "RB",
+    "bid": 0,
+    "owner": "inTreywetrust",
+    "dropped": "Kimani Vidal"
+  },
+  {
+    "week": 11,
+    "player_name": "Jalen Hurts",
+    "position": "QB",
+    "bid": 0,
+    "owner": "SamirNazir",
+    "dropped": "Daniel Jones"
+  },
+  {
+    "week": 12,
+    "player_name": "Nico Collins",
+    "position": "WR",
+    "bid": 0,
+    "owner": "SeanRabenaldt",
+    "dropped": "Jake Ferguson"
+  },
+  {
+    "week": 12,
+    "player_name": "Davante Adams",
+    "position": "WR",
+    "bid": 0,
+    "owner": "SeanRabenaldt",
+    "dropped": "Stefon Diggs"
+  },
+  {
+    "week": 12,
+    "player_name": "Travis Etienne",
+    "position": "RB",
+    "bid": 0,
+    "owner": "inTreywetrust",
+    "dropped": "Quinshon Judkins"
+  },
+  {
+    "week": 13,
+    "player_name": "Dak Prescott",
+    "position": "QB",
+    "bid": 0,
+    "owner": "NLadocsi",
+    "dropped": "Lamar Jackson"
+  },
+  {
+    "week": 14,
+    "player_name": "James Cook",
+    "position": "RB",
+    "bid": 0,
+    "owner": "SamirNazir",
+    "dropped": "Josh Jacobs"
+  },
+  {
+    "week": 14,
+    "player_name": "Drake Maye",
+    "position": "QB",
+    "bid": 0,
+    "owner": "SamirNazir",
+    "dropped": "Travis Kelce"
+  },
+  {
+    "week": 14,
+    "player_name": "Tyler Warren",
+    "position": "TE",
+    "bid": 0,
+    "owner": "NLadocsi",
+    "dropped": "Dalton Kincaid"
+  },
+  {
+    "week": 14,
+    "player_name": "Davante Adams",
+    "position": "WR",
+    "bid": 0,
+    "owner": "SeanRabenaldt",
+    "dropped": "Zay Flowers"
+  }
+]
