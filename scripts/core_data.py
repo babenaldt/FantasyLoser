@@ -198,6 +198,67 @@ def save_json(data, filepath):
     print(f"  ✓ Saved: {filepath}")
 
 
+PLAYER_LOOKUP_FIELDS = (
+    'player_id',
+    'first_name',
+    'last_name',
+    'full_name',
+    'position',
+    'team',
+    'status',
+)
+
+
+def slim_sleeper_players(players):
+    """Keep only player fields used by build-time generators."""
+    lookup = {}
+    for raw_id, player in (players or {}).items():
+        if not isinstance(player, dict):
+            continue
+        player_id = str(player.get('player_id') or raw_id)
+        lookup[player_id] = {
+            field: player.get(field)
+            for field in PLAYER_LOOKUP_FIELDS
+        }
+        lookup[player_id]['player_id'] = player_id
+    return lookup
+
+
+def save_json_compact(data, filepath):
+    """Save compact JSON for large build-only lookup files."""
+    os.makedirs(os.path.dirname(filepath) or '.', exist_ok=True)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+    print(f"  Saved compact: {filepath}")
+
+
+def load_sleeper_player_lookup(paths=None):
+    """Load the compact lookup, with compatibility for the legacy full database."""
+    candidates = paths or (
+        os.path.join(OUTPUT_DIR, 'players_lookup.json'),
+        os.path.join(OUTPUT_DIR, 'players_data.json'),
+        os.path.join(ASTRO_DATA_DIR, 'players_lookup.json'),
+        os.path.join(ASTRO_DATA_DIR, 'players_data.json'),
+    )
+    for path in candidates:
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                data = {
+                    str(player['player_id']): player
+                    for player in data
+                    if isinstance(player, dict) and player.get('player_id')
+                }
+            if isinstance(data, dict):
+                return {str(player_id): player for player_id, player in data.items()}
+        except (OSError, ValueError, TypeError) as exc:
+            print(f"  Warning: Could not load player lookup {path}: {exc}")
+    return {}
+
+
 class SleeperAPI:
     """Sleeper API client."""
     BASE_URL = "https://api.sleeper.app/v1"

@@ -4,7 +4,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from core_data import SleeperAPI
+from core_data import SleeperAPI, load_sleeper_player_lookup
 
 CHOPPED_LEAGUE_ID_2025 = "1263579037352079360"
 DYNASTY_LEAGUE_ID_2025 = "1264304480178950144"
@@ -17,13 +17,9 @@ def fetch_faab_history(league_id, league_label):
         print(f"  Error: Could not fetch {league_label} league")
         return []
 
-    # Load player database for name resolution
-    players_path = 'website/public/data/players_data.json'
-    if os.path.exists(players_path):
-        with open(players_path) as f:
-            player_data = json.load(f)
-    else:
-        player_data = {}
+    # Load the build-time player lookup for name resolution.
+    player_data = load_sleeper_player_lookup()
+    if not player_data:
         print("  Warning: No player database found")
 
     # Get user/roster mapping

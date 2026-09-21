@@ -6,6 +6,19 @@ from core_data import OUTPUT_DIR, ASTRO_DATA_DIR, SleeperAPI, ensure_directories
 from nfl_week_helper import get_current_nfl_week
 
 
+def load_existing_data(filename):
+    """Load carried-forward data from output or the Astro public directory."""
+    last_error = None
+    for directory in (OUTPUT_DIR, ASTRO_DATA_DIR):
+        path = f"{directory}/{filename}"
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (OSError, ValueError) as exc:
+            last_error = exc
+    raise FileNotFoundError(f"Could not load {filename}: {last_error}")
+
+
 def get_sleeper_projections(week):
     """Fetch weekly projections from Sleeper API."""
     try:
@@ -318,11 +331,10 @@ def generate_user_lineups():
     print("  Loading player stats...")
     players_by_name_team = {}
     try:
-        with open(f"{OUTPUT_DIR}/player_stats.json", 'r', encoding='utf-8') as f:
-            player_data = json.load(f)
-            for p in player_data.get('players', []):
-                key = (p['player_name'], p['team'])
-                players_by_name_team[key] = p
+        player_data = load_existing_data('player_stats.json')
+        for p in player_data.get('players', []):
+            key = (p['player_name'], p['team'])
+            players_by_name_team[key] = p
         print(f"  Loaded {len(players_by_name_team)} players")
     except Exception as e:
         print(f"  Warning: Could not load player stats: {e}")
@@ -357,9 +369,8 @@ def generate_user_lineups():
     # Load defense stats
     print("  Loading defense stats...")
     try:
-        with open(f"{OUTPUT_DIR}/defense_stats.json", 'r') as f:
-            def_data = json.load(f)
-            defense_stats = {d['team']: d for d in def_data['defenses']}
+        def_data = load_existing_data('defense_stats.json')
+        defense_stats = {d['team']: d for d in def_data['defenses']}
         print(f"  Loaded defense stats for {len(defense_stats)} teams")
     except Exception as e:
         print(f"  Error loading defense stats: {e}")

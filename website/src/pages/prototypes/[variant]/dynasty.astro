@@ -1,0 +1,167 @@
+---
+import PrototypeLayout from '../../../layouts/PrototypeLayout.astro';
+import ScoreStrip from '../../../components/prototypes/ScoreStrip.astro';
+import AwardGrid from '../../../components/prototypes/AwardGrid.astro';
+import AlmanacDynasty from '../../../components/prototypes/AlmanacDynasty.astro';
+import seasonData from '../../../../public/data/season_stats_dynasty.json';
+import reviewData from '../../../../public/data/weekly_reviews_dynasty.json';
+
+export function getStaticPaths() {
+  return ['sunday', 'almanac'].map((variant) => ({ params: { variant } }));
+}
+
+const variant = Astro.params.variant as 'sunday' | 'almanac';
+const isSunday = variant === 'sunday';
+const teams = [...((seasonData as any).teams || [])].sort(
+  (a: any, b: any) => b.wins - a.wins || b.total_points_scored - a.total_points_scored
+);
+const latestWeek = (reviewData as any).weeks?.at(-1);
+const awards = latestWeek?.awards || {};
+const totalPoints = teams.reduce((sum: number, team: any) => sum + team.total_points_scored, 0);
+const avgEfficiency = teams.length
+  ? teams.reduce((sum: number, team: any) => sum + team.efficiency_rate, 0) / teams.length
+  : 0;
+const mostEfficient = [...teams].sort((a: any, b: any) => b.efficiency_rate - a.efficiency_rate)[0];
+const awardItems = [
+  awards.top_scorer && {
+    title: 'Top Scorer',
+    name: awards.top_scorer.owner_name,
+    stat: `${awards.top_scorer.points.toFixed(1)} points`,
+  },
+  awards.efficiency_king && {
+    title: 'Efficiency King',
+    name: awards.efficiency_king.owner_name,
+    stat: `${awards.efficiency_king.efficiency}% efficient`,
+  },
+  awards.underachiever && {
+    title: 'Points Abandoned',
+    name: awards.underachiever.owner_name,
+    stat: `${awards.underachiever.missed.toFixed(1)} left behind`,
+  },
+  awards.player_of_week && {
+    title: 'Player of the Week',
+    name: awards.player_of_week.player_name,
+    stat: `${awards.player_of_week.points.toFixed(1)} · ${awards.player_of_week.position}`,
+  },
+].filter(Boolean) as { title: string; name: string; stat: string }[];
+---
+
+<PrototypeLayout title="Dynasty Desk" variant={variant} active="dynasty">
+  {variant === 'almanac' ? (
+    <AlmanacDynasty weeklyReviewBase="/prototypes/almanac/week" />
+  ) : (
+  <>
+  <div class="edition-bar">
+    <span>IBAC Dynasty League · 2026</span>
+    <span>Standings through Week {(seasonData as any).current_week - 1}</span>
+  </div>
+
+  <section class="page-lede">
+    <div>
+      <h1>{isSunday ? 'The dynasty race, in black and white' : '2026 Dynasty League register'}</h1>
+      <p>
+        {isSunday
+          ? 'A standings page that reads like a sports desk: the result first, context close behind, and the full record one glance away.'
+          : 'Compact standings, lineup efficiency and projection accuracy arranged as a season ledger.'}
+      </p>
+    </div>
+    <aside class="lede-note">
+      <strong>Latest filing</strong>
+      Week {latestWeek?.week || 1}: {awards.top_scorer?.owner_name || '—'} led all clubs with {awards.top_scorer?.points?.toFixed(1) || '0.0'}.
+    </aside>
+  </section>
+
+  <ScoreStrip items={[
+    {
+      label: 'First Place',
+      value: teams[0]?.owner_name || '—',
+      detail: `${teams[0]?.wins || 0}-${teams[0]?.losses || 0} record`,
+    },
+    {
+      label: 'Points Logged',
+      value: totalPoints.toFixed(1),
+      detail: 'league-wide',
+    },
+    {
+      label: 'Average Efficiency',
+      value: `${avgEfficiency.toFixed(1)}%`,
+      detail: 'starter decisions',
+    },
+    {
+      label: 'Sharpest Lineup',
+      value: mostEfficient?.owner_name || '—',
+      detail: `${mostEfficient?.efficiency_rate.toFixed(1) || '0.0'}%`,
+    },
+  ]} />
+
+  <div class="section-heading">
+    <h2>Official Standings</h2>
+    <span>Sort order: record, then points scored</span>
+  </div>
+
+  <div class="retro-table-wrap">
+    <table class="retro-table">
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Manager</th>
+          <th>W-L</th>
+          <th>PF</th>
+          <th>PA</th>
+          <th>Avg</th>
+          <th>Optimal</th>
+          <th>Eff.</th>
+          <th>vs Proj.</th>
+          <th>All-Play</th>
+        </tr>
+      </thead>
+      <tbody>
+        {teams.map((team: any, index: number) => (
+          <tr>
+            <td class="rank">{index + 1}</td>
+            <td class="team-cell">{team.owner_name}</td>
+            <td>{team.wins}-{team.losses}</td>
+            <td>{team.total_points_scored.toFixed(1)}</td>
+            <td>{team.total_points_against.toFixed(1)}</td>
+            <td>{team.average_points.toFixed(1)}</td>
+            <td>{team.total_optimal_points.toFixed(1)}</td>
+            <td>{team.efficiency_rate.toFixed(1)}%</td>
+            <td class={team.avg_projection_delta >= 0 ? 'trend-up' : 'trend-down'}>
+              {team.avg_projection_delta >= 0 ? '+' : ''}{team.avg_projection_delta.toFixed(1)}
+            </td>
+            <td>{team.all_play_wins}-{team.all_play_losses}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="paper-grid">
+    <section class="span-7">
+      <div class="section-heading">
+        <h2>Weekly Honors</h2>
+        <span>Week {latestWeek?.week || 1}</span>
+      </div>
+      <AwardGrid awards={awardItems} />
+    </section>
+
+    <aside class="span-5">
+      <div class="section-heading">
+        <h2>Desk Notes</h2>
+        <span>What the numbers say</span>
+      </div>
+      <div class="paper-panel">
+        <h3>{teams[0]?.owner_name || 'The leader'} owns the opening headline</h3>
+        <p>
+          The table keeps standings primary while still exposing efficiency, projection delta
+          and all-play performance without another dashboard layer.
+        </p>
+        <a class="paper-link" href={`/prototypes/${variant}/week/${latestWeek?.week || 1}`}>
+          Read the full weekly report →
+        </a>
+      </div>
+    </aside>
+  </div>
+  </>
+  )}
+</PrototypeLayout>

@@ -1,0 +1,121 @@
+---
+import PrototypeLayout from '../../layouts/PrototypeLayout.astro';
+---
+
+<PrototypeLayout title="Choose a redesign" variant="sunday">
+  <div class="edition-bar">
+    <span>Redesign comparison desk</span>
+    <span>Two directions · Three representative views each</span>
+  </div>
+
+  <section class="page-lede">
+    <div>
+      <h1>Choose the next edition of Fantasy Loser</h1>
+      <p>
+        Both options use the same current league data and the same responsive foundation.
+        The difference is editorial tone, visual hierarchy and how tightly the information is packed.
+      </p>
+    </div>
+    <aside class="lede-note">
+      <strong>How to review</strong>
+      Open each front page, Dynasty desk and weekly report on both desktop and a narrow phone viewport.
+    </aside>
+  </section>
+
+  <div class="paper-grid">
+    <article class="story-card span-6">
+      <div class="option-label">Option A</div>
+      <h3>Sunday Sports Section</h3>
+      <p>
+        Editorial headlines, story-first hierarchy, classic rule lines and a newspaper rhythm.
+        Best if personality and weekly storytelling should lead.
+      </p>
+      <div class="option-links">
+        <a href="/prototypes/sunday">Front page</a>
+        <a href="/prototypes/sunday/dynasty">Dynasty desk</a>
+        <a href="/prototypes/sunday/week/1">Week in review</a>
+      </div>
+    </article>
+
+    <article class="story-card span-6 almanac-preview">
+      <div class="option-label">Option B</div>
+      <h3>Fantasy Almanac</h3>
+      <p>
+        Stronger grids, ledger-like panels, more tabular typography and faster scanning.
+        Best if the site should feel like a permanent fantasy record book.
+      </p>
+      <div class="option-links">
+        <a href="/prototypes/almanac">League index</a>
+        <a href="/prototypes/almanac/dynasty">Dynasty register</a>
+        <a href="/prototypes/almanac/week/1">Weekly scorecard</a>
+      </div>
+    </article>
+  </div>
+
+  <div class="section-heading">
+    <h2>Shared design principles</h2>
+    <span>What carries forward in either direction</span>
+  </div>
+  <div class="score-strip">
+    <div class="score-strip__item">
+      <div class="score-strip__label">Information density</div>
+      <div class="score-strip__detail">Less decorative whitespace, more meaningful context.</div>
+    </div>
+    <div class="score-strip__item">
+      <div class="score-strip__label">Mobile behavior</div>
+      <div class="score-strip__detail">Reflowed sections, readable cards, deliberate table scrolling.</div>
+    </div>
+    <div class="score-strip__item">
+      <div class="score-strip__label">Accessibility</div>
+      <div class="score-strip__detail">Visible focus, strong contrast and touch-sized controls.</div>
+    </div>
+    <div class="score-strip__item">
+      <div class="score-strip__label">Astro-first</div>
+      <div class="score-strip__detail">Static, fast and componentized without framework overhead.</div>
+    </div>
+  </div>
+</PrototypeLayout>
+
+<style>
+  .option-label {
+    margin-bottom: 8px;
+    color: var(--rust);
+    font: 900 11px/1 var(--sans);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .option-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .option-links a {
+    margin: 0;
+    border: 1px solid var(--ink);
+    background: var(--white);
+    padding: 8px 10px;
+    text-decoration: none;
+  }
+
+  .option-links a:hover,
+  .option-links a:focus-visible {
+    background: var(--gold);
+  }
+
+  .almanac-preview {
+    border: 1px solid var(--forest);
+    background: rgba(24, 63, 50, .06);
+    padding: 12px;
+    box-shadow: 4px 4px 0 var(--paper-deep);
+  }
+
+  @media (max-width: 760px) {
+    .option-links {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+interface Award {
+  title: string;
+  name: string;
+  stat: string;
+}
+
+interface Props {
+  awards: Award[];
+}
+
+const { awards } = Astro.props;
+---
+
+<div class="award-grid">
+  {awards.map((award) => (
+    <article class="award-cell">
+      <div class="award-cell__title">{award.title}</div>
+      <div class="award-cell__name">{award.name}</div>
+      <div class="award-cell__stat">{award.stat}</div>
+    </article>
+  ))}
+</div>

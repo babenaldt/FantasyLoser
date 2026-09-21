@@ -2,6 +2,7 @@
 
 import sys
 import os
+import json
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -15,19 +16,39 @@ from generate_kicker_stats import generate_kicker_stats
 from generate_enriched_stats import generate_enriched_player_stats
 from generate_user_lineups import generate_user_lineups
 from generate_weekly_reviews import generate_weekly_reviews
-from core_data import SleeperAPI, save_json
+from core_data import (
+    ASTRO_DATA_DIR,
+    OUTPUT_DIR,
+    SleeperAPI,
+    ensure_directories,
+    load_sleeper_player_lookup,
+    save_json_compact,
+    slim_sleeper_players,
+)
+
+
+GAMEDAY_CRITICAL_FILES = (
+    'season_stats_dynasty.json',
+    'season_stats_chopped.json',
+    'user_lineups_dynasty.json',
+    'user_lineups_chopped.json',
+    'weekly_reviews_dynasty.json',
+    'weekly_reviews_chopped.json',
+)
 
 
 def save_players_database():
-    """Save Sleeper's complete player database for use by other scripts."""
-    print("Saving Sleeper player database...")
+    """Save a compact build-only Sleeper player lookup."""
+    print("Saving compact Sleeper player lookup...")
     players = SleeperAPI.get_all_players()
     if players:
-        save_json(players, "output/players_data.json")
-        save_json(players, "website/public/data/players_data.json")
-        print(f"  ✓ Saved {len(players)} players to database")
+        lookup = slim_sleeper_players(players)
+        save_json_compact(lookup, "output/players_lookup.json")
+        print(f"  Saved {len(lookup)} players to build lookup")
+        return lookup
     else:
         print("  ⚠️ Warning: Could not fetch player database")
+        return {}
 
 
 def generate_all(current_season_only: bool = False):
@@ -78,6 +99,56 @@ def generate_all(current_season_only: bool = False):
         print("ℹ️ Some data may not have been generated (expected in preseason).")
 
 
+def _remove_stale_gameday_outputs():
+    """Ensure validation cannot pass using files left by an earlier run."""
+    for filename in GAMEDAY_CRITICAL_FILES:
+        path = os.path.join(OUTPUT_DIR, filename)
+        if os.path.exists(path):
+            os.remove(path)
+
+
+def _validate_gameday_outputs():
+    """Fail the refresh unless every live-data artifact was regenerated."""
+    failures = []
+    for filename in GAMEDAY_CRITICAL_FILES:
+        path = os.path.join(OUTPUT_DIR, filename)
+        if not os.path.exists(path):
+            failures.append(f"{filename}: missing")
+            continue
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                payload = json.load(f)
+            if not isinstance(payload, dict) or not payload:
+                failures.append(f"{filename}: empty or invalid root")
+        except (OSError, ValueError) as exc:
+            failures.append(f"{filename}: {exc}")
+    if failures:
+        raise RuntimeError("Gameday refresh validation failed: " + "; ".join(failures))
+
+
+def generate_gameday():
+    """Refresh Sleeper-driven data while carrying forward nflverse artifacts."""
+    print("=" * 80)
+    print("GAMEDAY DATA REFRESH")
+    print("=" * 80)
+    ensure_directories()
+    _remove_stale_gameday_outputs()
+
+    save_scoring_config()
+    player_lookup = load_sleeper_player_lookup()
+    if player_lookup:
+        print(f"Reusing cached player lookup ({len(player_lookup)} players)")
+    elif not save_players_database():
+        raise RuntimeError("Could not load or refresh the Sleeper player lookup")
+
+    generate_season_stats_json()
+    generate_user_lineups()
+    generate_weekly_reviews()
+    generate_playoff_predictions()
+    _validate_gameday_outputs()
+    print("GAMEDAY DATA GENERATED SUCCESSFULLY!")
+
+
 def generate_playoff_predictions():
     """Generate playoff predictions for dynasty league using simple season average model."""
     print("\n" + "="*80)
@@ -110,6 +181,7 @@ Usage:
 Options:
   --all            Generate all statistics (default, full nflverse refresh)
   --quick          Quick update: current season only from nflverse (faster)
+  --gameday        Sleeper-focused live refresh using carried-forward nflverse data
   --playoffs       Generate playoff predictions only (uses existing data)
   --enriched       Generate enriched player stats for v7 model only
   --defense        Generate defense statistics only
@@ -122,6 +194,7 @@ Options:
 Examples:
   python generate_data.py              # Full refresh (all 6 seasons)
   python generate_data.py --quick      # Quick update (current season only)
+  python generate_data.py --gameday    # Live game-day refresh
   python generate_data.py --playoffs   # Playoff predictions only
 """)
 
@@ -149,6 +222,14 @@ if __name__ == "__main__":
         elif arg == '--quick':
             generate_all(current_season_only=True)
             generate_playoff_predictions()
+        elif arg == '--gameday':
+            try:
+                generate_gameday()
+            except Exception as exc:
+                print(f"Gameday refresh failed: {exc}")
+                import traceback
+                traceback.print_exc()
+                sys.exit(1)
         elif arg == '--all':
             generate_all()
             generate_playoff_predictions()

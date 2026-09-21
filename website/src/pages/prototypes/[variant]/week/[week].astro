@@ -1,0 +1,249 @@
+---
+import PrototypeLayout from '../../../../layouts/PrototypeLayout.astro';
+import ScoreStrip from '../../../../components/prototypes/ScoreStrip.astro';
+import AwardGrid from '../../../../components/prototypes/AwardGrid.astro';
+import AlmanacWeek from '../../../../components/prototypes/AlmanacWeek.astro';
+import reviewData from '../../../../../public/data/weekly_reviews_dynasty.json';
+
+export function getStaticPaths() {
+  const weeks = (reviewData as any).weeks || [];
+  return ['sunday', 'almanac'].flatMap((variant) =>
+    (weeks.length ? weeks : [{ week: 1 }]).map((week: any) => ({
+      params: { variant, week: String(week.week) },
+    }))
+  );
+}
+
+const variant = Astro.params.variant as 'sunday' | 'almanac';
+const weekNum = Number(Astro.params.week || 1);
+const isSunday = variant === 'sunday';
+const allWeeks = (reviewData as any).weeks || [];
+const weekData = allWeeks.find((item: any) => item.week === weekNum) || allWeeks[0];
+const awards = weekData?.awards || {};
+const scoreboard = weekData?.scoreboard || [];
+const allPlay = weekData?.all_play || [];
+const faab = weekData?.faab_activity || [];
+const previous = allWeeks.some((item: any) => item.week === weekNum - 1) ? weekNum - 1 : null;
+const next = allWeeks.some((item: any) => item.week === weekNum + 1) ? weekNum + 1 : null;
+
+const awardItems = [
+  awards.top_scorer && {
+    title: 'Top Scorer',
+    name: awards.top_scorer.owner_name,
+    stat: `${awards.top_scorer.points.toFixed(1)} points`,
+  },
+  awards.bust && {
+    title: 'Bust of the Week',
+    name: awards.bust.owner_name,
+    stat: `${awards.bust.points.toFixed(1)} points`,
+  },
+  awards.efficiency_king && {
+    title: 'Efficiency King',
+    name: awards.efficiency_king.owner_name,
+    stat: `${awards.efficiency_king.efficiency}% efficient`,
+  },
+  awards.overachiever && {
+    title: 'Overachiever',
+    name: awards.overachiever.owner_name,
+    stat: `Only ${awards.overachiever.missed.toFixed(1)} missed`,
+  },
+  awards.underachiever && {
+    title: 'Underachiever',
+    name: awards.underachiever.owner_name,
+    stat: `${awards.underachiever.missed.toFixed(1)} left behind`,
+  },
+  awards.bench_boss && {
+    title: 'Bench Boss',
+    name: awards.bench_boss.owner_name,
+    stat: `${awards.bench_boss.bench_points.toFixed(1)} bench points`,
+  },
+  awards.player_of_week && {
+    title: 'Player of the Week',
+    name: awards.player_of_week.player_name,
+    stat: `${awards.player_of_week.points.toFixed(1)} · ${awards.player_of_week.position}`,
+  },
+  awards.faab_spender && {
+    title: 'FAAB Big Spender',
+    name: awards.faab_spender.owner_name,
+    stat: `$${awards.faab_spender.total_spent} spent`,
+  },
+].filter(Boolean) as { title: string; name: string; stat: string }[];
+
+const high = awards.top_scorer;
+const low = awards.bust;
+const bestPlayer = awards.player_of_week;
+const faabTotal = weekData?.faab_week_total || 0;
+---
+
+<PrototypeLayout title={`Week ${weekNum} Review`} variant={variant} active="week">
+  {variant === 'almanac' ? (
+    <AlmanacWeek weekNum={weekNum} data={reviewData as any} basePath="/prototypes/almanac/week" />
+  ) : (
+  <>
+  <div class="edition-bar">
+    <span>Week {weekNum} Review · Dynasty League</span>
+    <span>{scoreboard.length} matchups reported as final</span>
+  </div>
+
+  <nav class="week-nav" aria-label="Week navigation">
+    {previous
+      ? <a href={`/prototypes/${variant}/week/${previous}`}>← Week {previous}</a>
+      : <span></span>}
+    <strong>Volume {weekNum} · 2026</strong>
+    {next
+      ? <a href={`/prototypes/${variant}/week/${next}`}>Week {next} →</a>
+      : <span></span>}
+  </nav>
+
+  <section class="page-lede">
+    <div>
+      <h1>
+        {isSunday
+          ? `${high?.owner_name || 'The field'} posts the week’s banner score`
+          : `Week ${weekNum}: results entered into the record`}
+      </h1>
+      <p>
+        {isSunday
+          ? `${high?.points?.toFixed(1) || '0.0'} points led the league while ${low?.owner_name || 'the low scorer'} closed the weekly ledger at ${low?.points?.toFixed(1) || '0.0'}.`
+          : 'The complete weekly scorecard: final matchups, lineup honors, all-play results and waiver spending.'}
+      </p>
+    </div>
+    <aside class="lede-note">
+      <strong>Star performance</strong>
+      {bestPlayer?.player_name || '—'} · {bestPlayer?.points?.toFixed(1) || '0.0'} points · rostered by {bestPlayer?.owner || '—'}
+    </aside>
+  </section>
+
+  <ScoreStrip items={[
+    {
+      label: 'Top Club',
+      value: high?.owner_name || '—',
+      detail: `${high?.points?.toFixed(1) || '0.0'} points`,
+    },
+    {
+      label: 'Low Club',
+      value: low?.owner_name || '—',
+      detail: `${low?.points?.toFixed(1) || '0.0'} points`,
+    },
+    {
+      label: 'FAAB Spent',
+      value: `$${faabTotal}`,
+      detail: `${faab.length} transactions`,
+    },
+    {
+      label: 'Biggest Win',
+      value: awards.blowout?.winner || '—',
+      detail: awards.blowout ? `by ${awards.blowout.margin.toFixed(1)}` : 'No result',
+    },
+  ]} />
+
+  <div class="section-heading">
+    <h2>Match Reports</h2>
+    <span>Final scores</span>
+  </div>
+  <div class="matchup-grid">
+    {scoreboard.map((matchup: any) => (
+      <article class="matchup">
+        <div class="matchup__row matchup__row--winner">
+          <span>{matchup.winner?.owner_name}</span>
+          <span class="matchup__score">{matchup.winner?.points?.toFixed(1)}</span>
+        </div>
+        <div class="matchup__row">
+          <span>{matchup.loser?.owner_name}</span>
+          <span class="matchup__score">{matchup.loser?.points?.toFixed(1)}</span>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <div class="section-heading">
+    <h2>Weekly Honors</h2>
+    <span>Decisions, performances and consequences</span>
+  </div>
+  <AwardGrid awards={awardItems} />
+
+  <div class="paper-grid">
+    <section class="span-7">
+      <div class="section-heading">
+        <h2>All-Play Table</h2>
+        <span>Against every club</span>
+      </div>
+      <div class="retro-table-wrap">
+        <table class="retro-table">
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Manager</th>
+              <th>Points</th>
+              <th>W</th>
+              <th>L</th>
+              <th>T</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allPlay.map((team: any, index: number) => (
+              <tr>
+                <td class="rank">{index + 1}</td>
+                <td class="team-cell">{team.owner_name}</td>
+                <td>{team.points.toFixed(1)}</td>
+                <td>{team.all_play_wins}</td>
+                <td>{team.all_play_losses}</td>
+                <td>{team.all_play_ties}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="span-5">
+      <div class="section-heading">
+        <h2>Waiver Wire</h2>
+        <span>Winning bids</span>
+      </div>
+      <div class="paper-panel">
+        {faab.length ? (
+          <div class="story-list">
+            {faab.slice(0, 6).map((transaction: any, index: number) => (
+              <div class="story-list__transaction">
+                <span class="story-list__index">{String(index + 1).padStart(2, '0')}</span>
+                <span>
+                  <strong>{transaction.owner} · ${transaction.bid}</strong>
+                  <small>
+                    Added {(transaction.added || []).map((player: any) => player.player_name).join(', ') || '—'}
+                  </small>
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No successful FAAB transactions were filed for this week.</p>
+        )}
+      </div>
+    </aside>
+  </div>
+  </>
+  )}
+</PrototypeLayout>
+
+<style>
+  .story-list__transaction {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .story-list__transaction strong {
+    font: 800 13px/1.2 var(--sans);
+    text-transform: uppercase;
+  }
+
+  .story-list__transaction small {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+</style>

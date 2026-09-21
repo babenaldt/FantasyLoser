@@ -20,20 +20,25 @@ on:
       - 'requirements.txt'
       - '.github/workflows/deploy.yml'
   
-  # Nightly updates at 3 AM EST (8 AM UTC)
-  # Game day updates (EST times, converted to UTC):
-  #   - Thursday Night Football: ~12:00am EST Friday = 05:00 UTC Friday
-  #   - Sunday 1pm games: ~4:30pm EST = 21:30 UTC
-  #   - Sunday 4:15pm games: ~8:00pm EST = 01:00 UTC Monday
-  #   - Sunday Night Football: ~12:00am EST Monday = 05:00 UTC Monday
-  #   - Monday Night Football: ~12:00am EST Tuesday = 05:00 UTC Tuesday
+  # Timezone-aware hybrid refresh schedule.
+  # Live runs avoid the top of the hour because scheduled Actions are more
+  # likely to be delayed then. Full current-season runs happen nightly and
+  # shortly after each prime-time game window.
   schedule:
-    - cron: '0 8 * * *'       # Daily 3 AM EST
-    - cron: '0 5 * * 5'       # Friday 12:00am EST (after Thursday Night Football)
-    - cron: '30 21 * * 0'     # Sunday 4:30pm EST (after 1pm games)
-    - cron: '0 1 * * 1'       # Monday 8:00pm EST / Sunday (after 4:15pm games)
-    - cron: '0 5 * * 1'       # Monday 12:00am EST (after SNF)
-    - cron: '0 5 * * 2'       # Tuesday 12:00am EST (after Monday Night Football)
+    - cron: '17 3 * * *'
+      timezone: 'America/New_York'
+    - cron: '17 0 * * 1,2,5'
+      timezone: 'America/New_York'
+    - cron: '17,47 20-23 * * 4'
+      timezone: 'America/New_York'
+    - cron: '17,47 13-23 * * 0'
+      timezone: 'America/New_York'
+    - cron: '17,47 20-23 * * 1'
+      timezone: 'America/New_York'
+
+concurrency:
+  group: fantasy-loser-production
+  cancel-in-progress: true
 
 jobs:
   generate-data:
@@ -53,22 +58,89 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Run data helper tests
+        run: python -m unittest discover -s scripts/tests -p "test_*.py"
       
       - name: Create output directories
         run: |
           mkdir -p output
           mkdir -p website/public/data
-      
-      - name: Generate all data files (quick update only)
+
+      - name: Select player lookup cache date
+        id: player-cache-date
+        shell: bash
+        run: echo "date=$(TZ=America/New_York date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore daily player lookup
+        uses: actions/cache@v4
+        with:
+          path: output/players_lookup.json
+          key: sleeper-player-lookup-${{ steps.player-cache-date.outputs.date }}
+          restore-keys: |
+            sleeper-player-lookup-
+
+      - name: Select refresh mode
+        id: refresh-mode
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          FULL_REFRESH: ${{ inputs.full_refresh }}
         run: |
-          echo "Running quick update (current season only from nflverse)..."
-          python scripts/generate_data.py --quick
+          mode="$(python scripts/select_refresh_mode.py \
+            --event-name "$EVENT_NAME" \
+            --schedule "$SCHEDULE" \
+            --full-refresh "$FULL_REFRESH")"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Selected refresh mode: $mode"
+
+      - name: Restore last deployed nflverse data
+        if: steps.refresh-mode.outputs.mode == 'gameday'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://fantasyloser.pages.dev/data"
+          files=(
+            player_stats.json
+            defense_stats.json
+            dst_stats.json
+            kicker_stats.json
+            scoring_config.json
+            dynasty_playoff_predictions.json
+          )
+          for file in "${files[@]}"; do
+            echo "Restoring $file from the last good deployment..."
+            if [[ "$file" == "dynasty_playoff_predictions.json" ]]; then
+              curl --fail --silent --show-error --location \
+                --retry 3 --retry-delay 2 \
+                "$base_url/$file" \
+                --output "website/public/data/$file"
+            else
+              curl --fail --silent --show-error --location \
+                --retry 3 --retry-delay 2 \
+                "$base_url/$file" \
+                --output "output/$file"
+              cp "output/$file" "website/public/data/$file"
+            fi
+          done
+
+      - name: Generate data files
+        env:
+          REFRESH_MODE: ${{ steps.refresh-mode.outputs.mode }}
+        run: |
+          echo "Running $REFRESH_MODE refresh..."
+          python scripts/generate_data.py "--$REFRESH_MODE"
       
       - name: Copy data to website
         run: |
           cp output/*.json website/public/data/
-          # Remove enriched_player_stats.json - too large for Cloudflare (41MB > 26MB limit)
-          rm -f website/public/data/enriched_player_stats.json
+          # Build-only databases are not consumed by Astro and must not be
+          # deployed. The enriched file is also above the Pages file limit.
+          rm -f \
+            website/public/data/enriched_player_stats.json \
+            website/public/data/players_data.json \
+            website/public/data/players_lookup.json
           
           # Determine if we're in-season (after Sept 8 2026).
           # During preseason, create harmless placeholders so the site can build.
@@ -154,6 +226,14 @@ jobs:
             echo "   continue serving the last good deployment. Re-run the workflow."
             exit 1
           fi
+
+          echo "Checking Cloudflare Pages 25 MiB per-file limit (24 MiB guard)..."
+          oversized="$(find website/public/data -type f -size +24M -print)"
+          if [ -n "$oversized" ]; then
+            echo "Files exceed the 24 MiB deployment guard:"
+            echo "$oversized"
+            exit 1
+          fi
       
       - name: Verify data files were generated
         run: |
@@ -175,7 +255,7 @@ jobs:
         with:
           name: fantasy-data
           path: website/public/data/
-          retention-days: 7
+          retention-days: 2
   
   deploy:
     name: Build and Deploy to Cloudflare
@@ -218,6 +298,16 @@ jobs:
       - name: Build Astro site
         working-directory: ./website
         run: npm run build
+
+      - name: Verify Cloudflare deployment file sizes
+        shell: bash
+        run: |
+          oversized="$(find website/dist -type f -size +24M -print)"
+          if [ -n "$oversized" ]; then
+            echo "Built files exceed the 24 MiB deployment guard:"
+            echo "$oversized"
+            exit 1
+          fi
       
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4

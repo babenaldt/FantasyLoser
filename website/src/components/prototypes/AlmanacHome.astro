@@ -1,0 +1,185 @@
+---
+interface Props {
+  prototypeLinks?: boolean;
+}
+
+const { prototypeLinks = false } = Astro.props;
+const dynastyHref = prototypeLinks ? '/prototypes/almanac/dynasty' : '/season-stats-dynasty';
+const weeklyHref = prototypeLinks ? '/prototypes/almanac/week/1' : '/weekly-review-dynasty/1';
+---
+
+<div class="edition-bar">
+  <span>IBAC Fantasy Football Reports</span>
+  <span>League Analysis &amp; Player Statistics</span>
+</div>
+
+<header class="page-lede almanac-page-title">
+  <div>
+    <h1>IBAC Fantasy Football Reports</h1>
+    <p>League Analysis &amp; Player Statistics</p>
+  </div>
+</header>
+
+<div class="report-index">
+  <article class="report-entry">
+    <span class="report-entry__number">01</span>
+    <div>
+      <h2>Player Statistics</h2>
+      <p>Comprehensive player stats for 2026 season including PPR scoring, ownership tracking, snap counts, and advanced metrics for all NFL players.</p>
+      <a href="/player-stats">View Player Stats →</a>
+    </div>
+  </article>
+
+  <article class="report-entry">
+    <span class="report-entry__number">02</span>
+    <div>
+      <h2>Defense Statistics</h2>
+      <p>NFL defense rankings and analysis. See which teams allow the most fantasy points by position, yards allowed, and TDs allowed.</p>
+      <a href="/defense-stats">View Defense Stats →</a>
+    </div>
+  </article>
+
+  <article class="report-entry">
+    <span class="report-entry__number">03</span>
+    <div>
+      <h2>IBAC Dynasty League</h2>
+      <p>Season standings, weekly performance, award winners, efficiency metrics, and advanced analytics for the Dynasty league.</p>
+      <a href={dynastyHref}>View Dynasty Stats →</a>
+    </div>
+  </article>
+
+  <article class="report-entry">
+    <span class="report-entry__number">04</span>
+    <div>
+      <h2>IBAC Chopped League</h2>
+      <p>Elimination-style league standings with safety margins, close calls, and weekly survival analysis.</p>
+      <a href="/season-stats-chopped">View Chopped Stats →</a>
+    </div>
+  </article>
+
+  <article class="report-entry">
+    <span class="report-entry__number">05</span>
+    <div>
+      <h2>Weekly Review - Dynasty</h2>
+      <p>Week-by-week awards, scoreboards, all-play rankings, and FAAB activity for the Dynasty league.</p>
+      <a href={weeklyHref}>View Dynasty Reviews →</a>
+    </div>
+  </article>
+
+  <article class="report-entry">
+    <span class="report-entry__number">06</span>
+    <div>
+      <h2>Weekly Review - Chopped</h2>
+      <p>Week-by-week awards, elimination updates, all-play rankings, and FAAB activity for the Chopped league.</p>
+      <a href="/weekly-review-chopped/1">View Chopped Reviews →</a>
+    </div>
+  </article>
+</div>
+
+<div class="section-heading">
+  <h2>Past Seasons</h2>
+</div>
+
+<div class="report-index report-index--archive">
+  <article class="report-entry">
+    <span class="report-entry__number">2025</span>
+    <div>
+      <h2>2025 Dynasty</h2>
+      <p>Archived final standings, awards, and weekly performance from the 2025 Dynasty League season.</p>
+      <a href="/archive/2025/season-stats-dynasty">View 2025 Dynasty →</a>
+    </div>
+  </article>
+  <article class="report-entry">
+    <span class="report-entry__number">2025</span>
+    <div>
+      <h2>2025 Chopped</h2>
+      <p>Archived elimination timeline, awards, and stats from the 2025 Chopped League season.</p>
+      <a href="/archive/2025/season-stats-chopped">View 2025 Chopped →</a>
+    </div>
+  </article>
+</div>
+
+<p class="github-entry">
+  <a href="https://github.com/babenaldt/FantasyLoser" target="_blank" rel="noreferrer">View on GitHub</a>
+</p>
+
+<style>
+  .almanac-page-title {
+    grid-template-columns: 1fr;
+  }
+
+  .report-index {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 3px solid var(--forest);
+    border-left: 1px solid var(--rule);
+  }
+
+  .report-entry {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 14px;
+    min-width: 0;
+    padding: 16px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: rgba(255,255,255,.34);
+  }
+
+  .report-entry__number {
+    color: var(--rust);
+    font: 900 18px/1 var(--mono);
+  }
+
+  .report-entry > div {
+    min-width: 0;
+  }
+
+  .report-entry h2 {
+    margin: 0 0 6px;
+    font: 900 20px/1 var(--sans);
+    text-transform: uppercase;
+  }
+
+  .report-entry p {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .report-entry a,
+  .github-entry a {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--rust);
+    font: 900 11px/1 var(--sans);
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+
+  .report-index--archive .report-entry {
+    background: rgba(24,63,50,.07);
+  }
+
+  .github-entry {
+    margin: 22px 0 0;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .report-index {
+      grid-template-columns: 1fr;
+    }
+
+    .report-entry {
+      grid-template-columns: 42px 1fr;
+      gap: 9px;
+      padding: 13px 10px;
+    }
+
+    .report-entry h2 {
+      font-size: 17px;
+    }
+  }
+</style>

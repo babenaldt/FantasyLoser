@@ -191,14 +191,14 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
 }, 0);
 ---
 
-<BaseLayout title={isPagePreseason ? `${user.user_name} - ${league} Roster` : `${user.user_name} - Week ${current_week} Lineup Advisor`}>
+<BaseLayout title={isPagePreseason ? `${user.user_name} - ${league} Roster` : `${user.user_name} - Week ${current_week} Lineup Advisor`} bodyClass="user-report-page">
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <div class="page-header">
     <a href={league === 'Dynasty' ? '/season-stats-dynasty' : '/season-stats-chopped'} class="back-link">
       ← Back to {league} Stats
     </a>
-    <h1>🏈 {user.user_name}'s {isPagePreseason ? 'Roster' : 'Lineup'}</h1>
+    <h1>{user.user_name}'s {isPagePreseason ? 'Roster' : 'Lineup'}</h1>
     <p>{isPagePreseason ? `2026 Preseason - ${league} League` : `Week ${current_week} Matchup Advisor - ${league} League`}</p>
     {!isPagePreseason && (user.live_team_total || 0) > 0 && (
       <div style="margin-top: 10px; font-size: 1.4em; font-weight: 700; color: #ffd700;">
@@ -211,10 +211,10 @@ const totalProjectedPoints = recommendedLineup.reduce((sum, player) => {
     {isPagePreseason && user.players.length > 0 ? (
     <!-- Preseason Roster View with Week 1 matchups & projections -->
     <section class="recommended-section">
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
-        <strong>🏈 Week {current_week} Preview</strong> — Season starts soon. Here's the roster with matchups and projections.
+      <div class="roster-preview-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+        <strong>Week {current_week} Preview</strong> — Season starts soon. Here's the roster with matchups and projections.
       </div>
-      <h2>📋 Roster ({user.players.length} players)</h2>
+      <h2>Roster ({user.players.length} players)</h2>
       <div class="recommended-grid">
         {user.players.sort((a, b) => {
           const posOrder = { QB: 1, RB: 2, WR: 3, TE: 4, K: 5, DEF: 6 };
