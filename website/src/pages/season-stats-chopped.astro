@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import AwardGrid from '../components/prototypes/AwardGrid.astro';
 import leagueData from '../../public/data/season_stats_chopped.json';
 import userLineupsData from '../../public/data/user_lineups_chopped.json';
 import weeklyReviewData from '../../public/data/weekly_reviews_chopped.json';
@@ -131,6 +132,24 @@ const crystalBall = crystalBallTeams.length ? crystalBallTeams.reduce((prev, cur
     ((prev.avg_abs_projection_delta || 999) < (current.avg_abs_projection_delta || 999)) ? prev : current) : null;
 const validCrystalBall = crystalBall && (crystalBall.avg_abs_projection_delta || 0) > 0 ? crystalBall : null;
 
+const awardItems = [
+  highestScorer && { title: 'Highest Scorer', name: highestScorer.owner_name, stat: `${highestScorer.total_points_scored.toFixed(1)} points` },
+  highestWeeklyScore.score > -1 && { title: 'Highest Weekly Score', name: highestWeeklyScore.owner, stat: `${highestWeeklyScore.score.toFixed(1)} pts (Week ${highestWeeklyScore.week})` },
+  lowestWeeklyScore.score < 9999 && { title: 'Lowest Weekly Score', name: lowestWeeklyScore.owner, stat: `${lowestWeeklyScore.score.toFixed(1)} pts (Week ${lowestWeeklyScore.week})` },
+  highestAvgScore && { title: 'Highest Average Score', name: highestAvgScore.owner_name, stat: `${highestAvgScore.avg_points_per_game.toFixed(1)} ppg` },
+  bestManager && { title: 'Best Manager', name: bestManager.owner_name, stat: `${bestManager.efficiency_rate.toFixed(1)}% efficiency` },
+  unluckiestChop.owner && { title: 'Unluckiest Chop', name: unluckiestChop.owner, stat: `${unluckiestChop.elimScore.toFixed(1)} pts (Week ${unluckiestChop.week})` },
+  livingOnEdge && { title: 'Living on the Edge', name: livingOnEdge.owner_name, stat: `${livingOnEdge.avg_safety_margin.toFixed(1)} avg margin` },
+  validDangerZone && { title: 'Danger Zone', name: validDangerZone.owner_name, stat: `${validDangerZone.close_calls} close calls` },
+  boomOrBust && { title: 'Boom or Bust', name: boomOrBust.owner_name, stat: `${boomOrBust.consistency_score.toFixed(2)} consistency` },
+  mostAverage && { title: 'Most Average Team', name: mostAverage.owner_name, stat: `${mostAverage.avg_points_per_game.toFixed(1)} ppg` },
+  mostConsistent && { title: 'Most Consistent', name: mostConsistent.owner_name, stat: `${mostConsistent.consistency_score.toFixed(2)} score` },
+  validWaiverWizard && { title: 'Waiver Wire Wizard', name: validWaiverWizard.owner_name, stat: `${validWaiverWizard.points_per_faab.toFixed(2)} Pt/$` },
+  benchWarmer && { title: 'Bench Warmer', name: benchWarmer.owner_name, stat: `${benchWarmer.points_left_on_bench.toFixed(1)} pts` },
+  validProjectionBeater && { title: 'Projection Beater', name: validProjectionBeater.owner_name, stat: `${validProjectionBeater.projection_beat_pct.toFixed(0)}% of weeks above projection` },
+  validCrystalBall && { title: 'Crystal Ball', name: validCrystalBall.owner_name, stat: `Avg ${validCrystalBall.avg_abs_projection_delta.toFixed(1)} pts from projection` },
+].filter(Boolean) as { title: string; name: string; stat: string }[];
+
 // FAAB Tracker data
 const faabReview = weeklyReviewData as any;
 const faabSummary = faabReview.faab_summary || {};
@@ -178,57 +197,48 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
 ---
 
 <BaseLayout title={`${league_name} - Season Stats`} bodyClass="chopped-stats-page">
-  <div class="page-header">
-    <h1>{league_name}</h1>
-    <p class="subtitle">{season} Season Statistics</p>
-    {!isPreseason && (
-      <a href="/weekly-review-chopped/1" style="display:inline-block; margin-top:10px; padding:8px 20px; background:rgba(255,255,255,0.2); color:white; border-radius:8px; text-decoration:none; font-weight:500;">Weekly Reviews</a>
-    )}
+  <div class="edition-bar">
+    <span>{league_name}</span>
+    <span>{season} Season Statistics</span>
   </div>
 
+  <header class="almanac-title">
+    <div>
+      <h1>{league_name}</h1>
+      <p>{season} Season Statistics</p>
+    </div>
+    {!isPreseason && <a href="/weekly-review-chopped/1">Weekly Reviews</a>}
+  </header>
+
   {isPreseason && (
-  <div class="season-status-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-    <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">Preseason</div>
-    <div style="opacity: 0.9;">The {season} season hasn't started yet. Stats will populate once games begin.</div>
-  </div>
+    <div class="status-banner">
+      <strong>Preseason</strong>
+      <span>The {season} season hasn't started yet. Stats will populate once games begin.</span>
+    </div>
   )}
 
   {!isPreseason && !hasCompletedWeeks && (
-  <div class="season-status-banner" style="background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); color: white; padding: 20px 24px; border-radius: 12px; margin: 0 auto 24px; max-width: 900px; text-align: center; box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);">
-    <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 6px;">Week {current_week} In Progress</div>
-    <div style="opacity: 0.9;">Games are underway! Stats below will update once the week completes.</div>
-  </div>
+    <div class="status-banner">
+      <strong>Week {current_week} In Progress</strong>
+      <span>Games are underway! Stats below will update once the week completes.</span>
+    </div>
   )}
 
   {!isPreseason && (
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-title">League Average PPG</div>
-      <div class="stat-value">{avgPPG.toFixed(1)}</div>
+    <div class="score-strip summary-strip">
+      <div class="score-strip__item"><div class="score-strip__label">League Average PPG</div><div class="score-strip__value">{avgPPG.toFixed(1)}</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Highest Efficiency</div><div class="score-strip__value">{highestEfficiency.toFixed(1)}%</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Total Bench Points</div><div class="score-strip__value">{totalBenchPoints.toFixed(0)}</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Most FAAB Remaining</div><div class="score-strip__value">{'$'}{mostFAABRemaining}</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Best Theoretical Avg</div><div class="score-strip__value">{bestTheoreticalAvg.toFixed(1)}</div></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-title">Highest Efficiency</div>
-      <div class="stat-value">{highestEfficiency.toFixed(1)}%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Total Bench Points</div>
-      <div class="stat-value">{totalBenchPoints.toFixed(0)}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Most FAAB Remaining</div>
-      <div class="stat-value">{'$'}{mostFAABRemaining}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Best Theoretical Avg</div>
-      <div class="stat-value">{bestTheoreticalAvg.toFixed(1)}</div>
-    </div>
-  </div>
   )}
 
   {!isPreseason && (
-  <div class="table-container">
-    <h3 style="margin-bottom: 15px; color: #2d3748;">Detailed Team Statistics</h3>
-    <table class="stats-table" id="statsTable">
+  <section>
+    <div class="section-heading"><h2>Detailed Team Statistics</h2><span>Click a heading to sort</span></div>
+    <div class="retro-table-wrap">
+    <table class="retro-table" id="statsTable">
       <thead>
         <tr>
           <th onclick="sortTable(0)" title="Current elimination ranking">Rank</th>
@@ -272,142 +282,22 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
         ))}
       </tbody>
     </table>
-  </div>
+    </div>
+  </section>
   )}
 
   {!isPreseason && (
-  <div class="awards-section">
-    <h3 style="text-align: center; color: #2d3748; margin-bottom: 20px;">Season Awards</h3>
-    <div class="awards-grid">
-      {highestScorer && (
-      <div class="award-card">
-        <div class="award-icon">🏆</div>
-        <div class="award-title">Highest Scorer</div>
-        <div class="award-winner">{highestScorer.owner_name}</div>
-        <div class="award-value">{highestScorer.total_points_scored.toFixed(1)} points</div>
-      </div>
-      )}
-      {highestWeeklyScore.score > -1 && (
-      <div class="award-card">
-        <div class="award-icon">🔥</div>
-        <div class="award-title">Highest Weekly Score</div>
-        <div class="award-winner">{highestWeeklyScore.owner}</div>
-        <div class="award-value">{highestWeeklyScore.score.toFixed(1)} pts (Week {highestWeeklyScore.week})</div>
-      </div>
-      )}
-      {lowestWeeklyScore.score < 9999 && (
-      <div class="award-card">
-        <div class="award-icon">💩</div>
-        <div class="award-title">Lowest Weekly Score</div>
-        <div class="award-winner">{lowestWeeklyScore.owner}</div>
-        <div class="award-value">{lowestWeeklyScore.score.toFixed(1)} pts (Week {lowestWeeklyScore.week})</div>
-      </div>
-      )}
-      {highestAvgScore && (
-      <div class="award-card">
-        <div class="award-icon">⭐</div>
-        <div class="award-title">Highest Average Score</div>
-        <div class="award-winner">{highestAvgScore.owner_name}</div>
-        <div class="award-value">{highestAvgScore.avg_points_per_game.toFixed(1)} ppg</div>
-      </div>
-      )}
-      {bestManager && (
-      <div class="award-card">
-        <div class="award-icon">🎯</div>
-        <div class="award-title">Best Manager</div>
-        <div class="award-winner">{bestManager.owner_name}</div>
-        <div class="award-value">{bestManager.efficiency_rate.toFixed(1)}% efficiency</div>
-      </div>
-      )}
-      {unluckiestChop.owner && (
-      <div class="award-card">
-        <div class="award-icon">🪓</div>
-        <div class="award-title">Unluckiest Chop</div>
-        <div class="award-winner">{unluckiestChop.owner}</div>
-        <div class="award-value">{unluckiestChop.elimScore.toFixed(1)} pts (Week {unluckiestChop.week})</div>
-      </div>
-      )}
-      {livingOnEdge && (
-      <div class="award-card">
-        <div class="award-icon">🔪</div>
-        <div class="award-title">Living on the Edge</div>
-        <div class="award-winner">{livingOnEdge.owner_name}</div>
-        <div class="award-value">{livingOnEdge.avg_safety_margin.toFixed(1)} avg margin</div>
-      </div>
-      )}
-      {validDangerZone && (
-      <div class="award-card">
-        <div class="award-icon">⚠️</div>
-        <div class="award-title">Danger Zone</div>
-        <div class="award-winner">{validDangerZone.owner_name}</div>
-        <div class="award-value">{validDangerZone.close_calls} close calls</div>
-      </div>
-      )}
-      {boomOrBust && (
-      <div class="award-card">
-        <div class="award-icon">💥</div>
-        <div class="award-title">Boom or Bust</div>
-        <div class="award-winner">{boomOrBust.owner_name}</div>
-        <div class="award-value">{boomOrBust.consistency_score.toFixed(2)} consistency</div>
-      </div>
-      )}
-      {mostAverage && (
-      <div class="award-card">
-        <div class="award-icon">😐</div>
-        <div class="award-title">Most Average Team</div>
-        <div class="award-winner">{mostAverage.owner_name}</div>
-        <div class="award-value">{mostAverage.avg_points_per_game.toFixed(1)} ppg</div>
-      </div>
-      )}
-      {mostConsistent && (
-      <div class="award-card">
-        <div class="award-icon">📊</div>
-        <div class="award-title">Most Consistent</div>
-        <div class="award-winner">{mostConsistent.owner_name}</div>
-        <div class="award-value">{mostConsistent.consistency_score.toFixed(2)} score</div>
-      </div>
-      )}
-      {validWaiverWizard && (
-      <div class="award-card">
-        <div class="award-icon">🔮</div>
-        <div class="award-title">Waiver Wire Wizard</div>
-        <div class="award-winner">{validWaiverWizard.owner_name}</div>
-        <div class="award-value">{validWaiverWizard.points_per_faab.toFixed(2)} Pt/$</div>
-      </div>
-      )}
-      {benchWarmer && (
-      <div class="award-card">
-        <div class="award-icon">🪑</div>
-        <div class="award-title">Bench Warmer</div>
-        <div class="award-winner">{benchWarmer.owner_name}</div>
-        <div class="award-value">{benchWarmer.points_left_on_bench.toFixed(1)} pts</div>
-      </div>
-      )}
-      {validProjectionBeater && (
-      <div class="award-card">
-        <div class="award-icon">📈</div>
-        <div class="award-title">Projection Beater</div>
-        <div class="award-winner">{validProjectionBeater.owner_name}</div>
-        <div class="award-value">{validProjectionBeater.projection_beat_pct.toFixed(0)}% of weeks above projection</div>
-      </div>
-      )}
-      {validCrystalBall && (
-      <div class="award-card">
-        <div class="award-icon">🔮</div>
-        <div class="award-title">Crystal Ball</div>
-        <div class="award-winner">{validCrystalBall.owner_name}</div>
-        <div class="award-value">Avg {validCrystalBall.avg_abs_projection_delta.toFixed(1)} pts from projection</div>
-      </div>
-      )}
-    </div>
-  </div>
+    <section>
+      <div class="section-heading"><h2>Season Awards</h2></div>
+      <AwardGrid awards={awardItems} />
+    </section>
   )}
 
   {!isPreseason && (
   <!-- Elimination Bracket Visualization -->
-  <div class="elimination-bracket-section">
-    <h2>Elimination Timeline</h2>
-    <p class="subtitle">Watch the competition narrow week by week</p>
+  <section class="elimination-bracket-section">
+    <div class="section-heading"><h2>Elimination Timeline</h2></div>
+    <p class="section-copy">Watch the competition narrow week by week</p>
     
     <div class="bracket-container">
       {Array.from({ length: current_week - 1 }).map((_, weekIndex) => {
@@ -480,15 +370,15 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
         </div>
       )}
     </div>
-  </div>
+  </section>
   )}
 
   {/* Weekly Review Links */}
   {!isPreseason && reviewWeeks.length > 0 && (
-  <div class="weekly-review-links" style="margin-top: 40px;">
-    <h2 style="text-align: center; color: #2d3748; margin-bottom: 15px;">Weekly Reviews</h2>
-    <p style="text-align: center; color: #888; margin-bottom: 20px;">Detailed awards, scoreboards, and analysis for each week</p>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+  <section class="weekly-review-links">
+    <div class="section-heading"><h2>Weekly Reviews</h2></div>
+    <p class="section-copy">Detailed awards, scoreboards, and analysis for each week</p>
+    <div class="review-links">
       {reviewWeeks.map((w: any) => (
         <a href={`/weekly-review-chopped/${w.week}`} class="week-link-btn">
           <span class="week-link-num">Week {w.week}</span>
@@ -499,14 +389,14 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
         </a>
       ))}
     </div>
-  </div>
+  </section>
   )}
 
   {/* Waiver Wire Section */}
   {!isPreseason && faabMovesByWeek.length > 0 && (
-  <div class="waiver-section" style="margin-top: 40px;">
-    <h2 style="text-align: center; color: #2d3748; margin-bottom: 5px;">Waiver Wire</h2>
-    <p style="text-align: center; color: #888; margin-bottom: 25px;">{allMoves.length} moves · {'$'}{totalLeagueSpent} total spent</p>
+  <details class="secondary-section waiver-section" open>
+    <summary>Waiver Wire</summary>
+    <p class="section-copy">{allMoves.length} moves · {'$'}{totalLeagueSpent} total spent</p>
 
     <div class="waiver-weeks">
       {faabMovesByWeek.map((wk) => (
@@ -537,10 +427,10 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
 
     {/* Active Team Budgets */}
     {activeFaabTeams.length > 0 && (
-    <div class="table-container" style="margin-top: 25px;">
-      <h3 style="color: #2c3e50; margin-bottom: 10px;">💵 Active Team Budgets <span style="color:#888; font-size:14px; font-weight:normal;">({'$'}{maxFAAB} per team)</span></h3>
-      <div style="overflow-x: auto;">
-        <table class="stats-table">
+    <div class="budget-panel">
+      <div class="section-heading"><h2>Active Team Budgets</h2><span>{'$'}{maxFAAB} per team</span></div>
+      <div class="retro-table-wrap">
+        <table class="retro-table">
           <thead>
             <tr>
               <th style="text-align:left;">Team</th>
@@ -571,13 +461,13 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
         </table>
       </div>
       {eliminatedFaabTeams.length > 0 && (
-        <p style="color: #999; font-size: 13px; margin-top: 10px; text-align: center;">
+        <p class="section-copy budget-note">
           {eliminatedFaabTeams.length} eliminated team{eliminatedFaabTeams.length > 1 ? 's' : ''} excluded from budget tracker
         </p>
       )}
     </div>
     )}
-  </div>
+  </details>
   )}
 
   {!isPreseason && (
