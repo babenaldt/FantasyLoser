@@ -979,6 +979,301 @@ select {
   color: var(--site-ink) !important;
 }
 
+.chopped-stats-page .almanac-title,
+.archive-chopped-page .almanac-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 3px solid var(--site-forest);
+  padding: 14px 0;
+}
+
+.chopped-stats-page .almanac-title h1,
+.archive-chopped-page .almanac-title h1 {
+  margin: 0;
+  color: var(--site-ink);
+  font: 900 clamp(2rem, 5vw, 4rem)/.95 var(--site-sans);
+  letter-spacing: -.04em;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .almanac-title p,
+.archive-chopped-page .almanac-title p {
+  margin: 5px 0 0;
+  color: var(--site-muted);
+}
+
+.chopped-stats-page .almanac-title a {
+  flex: 0 0 auto;
+  border: 1px solid var(--site-ink);
+  background: var(--site-white);
+  box-shadow: 2px 2px 0 var(--site-gold);
+  color: var(--site-ink);
+  padding: 8px 11px;
+  font: 900 11px var(--site-sans);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .almanac-title a:hover {
+  background: var(--site-gold);
+}
+
+.chopped-stats-page .status-banner {
+  display: grid;
+  gap: 4px;
+  margin: 14px 0;
+  border-left: 5px solid var(--site-rust);
+  background: var(--site-white);
+  padding: 12px 14px;
+}
+
+.chopped-stats-page .status-banner strong {
+  font: 900 14px var(--site-sans);
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .summary-strip,
+.archive-chopped-page .summary-strip {
+  margin-top: 16px;
+}
+
+.chopped-stats-page .retro-table,
+.archive-chopped-page .retro-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.chopped-stats-page .retro-table th,
+.chopped-stats-page .retro-table td,
+.archive-chopped-page .retro-table th,
+.archive-chopped-page .retro-table td {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.chopped-stats-page .retro-table th:nth-child(2),
+.chopped-stats-page .retro-table td:nth-child(2),
+.archive-chopped-page .retro-table th:nth-child(2),
+.archive-chopped-page .retro-table td:nth-child(2) {
+  text-align: left;
+}
+
+.chopped-stats-page .elimination-bracket-section,
+.chopped-stats-page .weekly-review-links,
+.archive-chopped-page .elimination-bracket-section {
+  margin: 30px 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.chopped-stats-page .elimination-bracket-section .section-heading,
+.chopped-stats-page .weekly-review-links .section-heading,
+.archive-chopped-page .elimination-bracket-section .section-heading {
+  margin-top: 0;
+}
+
+.chopped-stats-page .section-copy,
+.archive-chopped-page .section-copy {
+  margin: -4px 0 12px !important;
+  color: var(--site-muted) !important;
+  text-align: left !important;
+}
+
+.chopped-stats-page .bracket-container,
+.archive-chopped-page .bracket-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  gap: 10px !important;
+  margin-top: 0 !important;
+}
+
+.chopped-stats-page .week-elimination,
+.archive-chopped-page .week-elimination {
+  min-width: 0;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--site-rule) !important;
+  background: var(--site-white) !important;
+}
+
+.chopped-stats-page .week-header,
+.archive-chopped-page .week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px !important;
+  border-bottom: 1px solid var(--site-rule) !important;
+  background: var(--site-paper-deep) !important;
+}
+
+.chopped-stats-page .week-label,
+.archive-chopped-page .week-label {
+  color: var(--site-forest) !important;
+  font: 900 12px/1 var(--site-sans) !important;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .remaining-count,
+.archive-chopped-page .remaining-count {
+  padding: 4px 7px !important;
+  font: 800 10px/1 var(--site-sans) !important;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .elimination-content,
+.archive-chopped-page .elimination-content {
+  display: grid !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+.chopped-stats-page .eliminated-player,
+.archive-chopped-page .eliminated-player {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px !important;
+  border: 0 !important;
+  border-top: 1px solid var(--site-paper-deep) !important;
+  background: transparent !important;
+  text-decoration: none;
+}
+
+.chopped-stats-page .eliminated-player:first-child,
+.archive-chopped-page .eliminated-player:first-child {
+  border-top: 0 !important;
+}
+
+.chopped-stats-page .eliminated-player .player-name,
+.archive-chopped-page .eliminated-player .player-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--site-ink) !important;
+  font: 900 13px/1.15 var(--site-sans) !important;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .elimination-score,
+.archive-chopped-page .elimination-score {
+  color: var(--site-muted) !important;
+  font: 700 12px/1 var(--site-mono) !important;
+}
+
+.chopped-stats-page .eliminated-badge,
+.archive-chopped-page .eliminated-badge {
+  padding: 4px 6px !important;
+  border: 1px solid rgba(155,63,40,.25);
+  background: rgba(155,63,40,.08) !important;
+  color: var(--site-rust) !important;
+  font: 800 9px/1 var(--site-sans) !important;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .review-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.chopped-stats-page .week-link-btn {
+  align-items: start !important;
+  min-width: 0 !important;
+  padding: 10px !important;
+  text-align: left !important;
+}
+
+.chopped-stats-page .week-link-num {
+  color: var(--site-rust) !important;
+  font: 900 12px/1 var(--site-sans) !important;
+}
+
+.chopped-stats-page .week-link-detail {
+  color: var(--site-muted) !important;
+  font: 700 11px/1.25 var(--site-sans) !important;
+  text-align: left !important;
+  text-transform: none;
+}
+
+.chopped-stats-page .secondary-section,
+.archive-chopped-page .secondary-section {
+  margin-top: 30px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-top: 4px solid var(--site-forest) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.chopped-stats-page .secondary-section > summary,
+.archive-chopped-page .secondary-section > summary {
+  padding: 9px 10px;
+  background: var(--site-forest);
+  color: var(--site-white);
+  cursor: pointer;
+  font: 900 18px/1 var(--site-sans);
+  list-style-position: inside;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .secondary-section[open] > summary,
+.archive-chopped-page .secondary-section[open] > summary {
+  margin-bottom: 12px;
+}
+
+.chopped-stats-page .waiver-weeks,
+.archive-chopped-page .waiver-weeks {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.chopped-stats-page .waiver-week-block,
+.archive-chopped-page .waiver-week-block {
+  overflow: hidden;
+  border: 1px solid var(--site-rule) !important;
+}
+
+.chopped-stats-page .waiver-week-header,
+.archive-chopped-page .waiver-week-header {
+  padding: 8px 10px !important;
+  background: var(--site-paper-deep) !important;
+  color: var(--site-ink) !important;
+  font: 800 11px/1.2 var(--site-sans) !important;
+  text-transform: uppercase;
+}
+
+.chopped-stats-page .waiver-move,
+.archive-chopped-page .waiver-move {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 8px 10px !important;
+  border-top: 1px solid var(--site-paper-deep) !important;
+}
+
+.chopped-stats-page .waiver-move-bid,
+.archive-chopped-page .waiver-move-bid {
+  color: var(--site-rust) !important;
+  font-family: var(--site-mono) !important;
+}
+
+.chopped-stats-page .budget-panel,
+.archive-chopped-page .budget-panel {
+  margin-top: 24px;
+}
+
+.chopped-stats-page .budget-note {
+  margin-top: 10px !important;
+}
+
 .chopped-stats-page .chart-container:has(#leagueChart) {
   height: auto !important;
   overflow: hidden;
@@ -1143,6 +1438,12 @@ summary:focus-visible {
   .archive-page .awards-grid,
   .chopped-stats-page .awards-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .chopped-stats-page .almanac-title,
+  .archive-chopped-page .almanac-title {
+    align-items: start;
+    flex-direction: column;
   }
 
   .site-brand {
