@@ -7,7 +7,7 @@ import requests
 from collections import defaultdict
 from core_data import (
     ensure_directories, save_json, SleeperAPI,
-    OUTPUT_DIR, ASTRO_DATA_DIR
+    OUTPUT_DIR, ASTRO_DATA_DIR, load_sleeper_player_lookup
 )
 from nfl_week_helper import get_last_completed_nfl_week
 
@@ -43,19 +43,8 @@ LEAGUES = {
 }
 
 def load_player_data():
-    """Load player data from generated player data."""
-    try:
-        path = os.path.join(ASTRO_DATA_DIR, 'players_data.json')
-        if os.path.exists(path):
-            with open(path, 'r') as f:
-                data = json.load(f)
-                if isinstance(data, dict):
-                    return data
-                elif isinstance(data, list):
-                    return {p['player_id']: p for p in data}
-    except Exception as e:
-        print(f"    Warning: Could not load player data: {e}")
-    return {}
+    """Load the shared compact Sleeper player lookup."""
+    return load_sleeper_player_lookup()
 
 def calculate_optimal_score(matchup, roster_positions, player_data):
     """Calculate optimal score for a matchup."""
@@ -67,10 +56,11 @@ def calculate_optimal_score(matchup, roster_positions, player_data):
     players_points = matchup.get('players_points', {}) or {}
     
     for pid, points in players_points.items():
-        if pid in player_data:
-            p_info = player_data[pid]
+        player_id = str(pid)
+        if player_id in player_data:
+            p_info = player_data[player_id]
             available_players.append({
-                'id': pid,
+                'id': player_id,
                 'pos': p_info.get('position'),
                 'points': points
             })
@@ -592,6 +582,7 @@ def calculate_best_theoretical_lineup(week, dynasty_matchups, roster_positions, 
     # Group players by position
     position_players = {}
     for player_id, pts in all_player_scores.items():
+        player_id = str(player_id)
         player_info = player_data.get(player_id, {})
         position = player_info.get('position', 'UNKNOWN')
         if position not in position_players:

@@ -128,11 +128,11 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
 }
 ---
 
-<BaseLayout title={`${league_name} - ${season} Season Archive`}>
+<BaseLayout title={`${league_name} - ${season} Season Archive`} bodyClass="archive-page archive-chopped-page">
   <div class="archive-banner">
     <span>Archived Season - {season}</span>
     <div class="archive-banner-links">
-      <a href="/archive/2025/season-stats-dynasty">🏆 2025 Dynasty</a>
+      <a href="/archive/2025/season-stats-dynasty">2025 Dynasty</a>
       <a href="/season-stats-chopped">View Current Season &rarr;</a>
     </div>
   </div>
@@ -382,7 +382,7 @@ for (const [week, moves] of [...movesByW.entries()].sort((a, b) => a[0] - b[0]))
   {/* Waiver Wire Section */}
   {faabMovesByWeek.length > 0 && (
   <div class="waiver-section" style="margin-top: 40px;">
-    <h2 style="text-align: center; color: #2d3748; margin-bottom: 5px;">💰 Waiver Wire</h2>
+    <h2 style="text-align: center; color: #2d3748; margin-bottom: 5px;">Waiver Wire</h2>
     <p style="text-align: center; color: #888; margin-bottom: 25px;">{(archiveFaabMoves as any[]).length} moves · {'$'}{totalLeagueSpent} total spent</p>
 
     <div class="waiver-weeks">

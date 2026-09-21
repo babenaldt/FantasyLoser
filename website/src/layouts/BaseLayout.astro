@@ -1,10 +1,15 @@
 ---
+import '../styles/retro-prototypes.css';
+import '../styles/almanac-site.css';
+
 interface Props {
   title: string;
   description?: string;
+  bodyClass?: string;
 }
 
-const { title, description = "Fantasy Football Statistics and Analysis" } = Astro.props;
+const { title, description = "Fantasy Football Statistics and Analysis", bodyClass } = Astro.props;
+const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -168,26 +173,34 @@ const { title, description = "Fantasy Football Statistics and Analysis" } = Astr
       }
     </style>
   </head>
-  <body>
-    <nav class="nav-bar">
-      <div class="nav-title">🏈 Fantasy Loser</div>
-      <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/player-stats">Player Stats</a>
-        <a href="/defense-stats">Defense Stats</a>
-        <a href="/season-stats-chopped">Chopped Stats</a>
-        <a href="/season-stats-dynasty">Dynasty Stats</a>
-        <a href="/stats-guide">Stats Guide</a>
-        <div class="nav-dropdown">
-          <a href="#" class="nav-dropdown-toggle">2025 Archive ▾</a>
-          <div class="nav-dropdown-menu">
-            <a href="/archive/2025/season-stats-dynasty">🏆 Dynasty</a>
-            <a href="/archive/2025/season-stats-chopped">🔪 Chopped</a>
-          </div>
+  <body class={bodyClass}>
+    <header class="site-masthead">
+      <div class="site-brand">
+        <div class="site-brand__mark" aria-hidden="true">FL</div>
+        <div>
+          <a class="site-brand__name" href="/">Fantasy Loser</a>
         </div>
-        <a href="#" id="settingsBtn" class="settings-link">⚙️ Scoring Settings</a>
+        <div class="site-brand__tagline">League Analysis &amp; Player Statistics</div>
       </div>
-    </nav>
+      <nav class="site-nav" aria-label="Main navigation">
+        <div class="site-nav__inner">
+          <a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>Home</a>
+          <a href="/player-stats" aria-current={currentPath.startsWith('/player') ? 'page' : undefined}>Player Stats</a>
+          <a href="/defense-stats" aria-current={currentPath.startsWith('/defense') ? 'page' : undefined}>Defense Stats</a>
+          <a href="/season-stats-chopped" aria-current={currentPath === '/season-stats-chopped' ? 'page' : undefined}>Chopped Stats</a>
+          <a href="/season-stats-dynasty" aria-current={currentPath === '/season-stats-dynasty' ? 'page' : undefined}>Dynasty Stats</a>
+          <a href="/stats-guide" aria-current={currentPath === '/stats-guide' ? 'page' : undefined}>Stats Guide</a>
+          <div class="site-nav__dropdown">
+            <button type="button" class="site-nav__dropdown-toggle" aria-expanded="false">2025 Archive</button>
+            <div class="site-nav__dropdown-menu">
+              <a href="/archive/2025/season-stats-dynasty">Dynasty</a>
+              <a href="/archive/2025/season-stats-chopped">Chopped</a>
+            </div>
+          </div>
+          <a href="#" id="settingsBtn" class="settings-link">Scoring Settings</a>
+        </div>
+      </nav>
+    </header>
 
     <!-- Scoring Settings Modal -->
     <div id="scoringModal" class="modal">
@@ -614,8 +627,16 @@ const { title, description = "Fantasy Football Statistics and Analysis" } = Astr
         const settingsBtn = document.getElementById('settingsBtn');
         const closeBtn = document.getElementById('closeModal');
 
-        settingsBtn?.addEventListener('click', () => {
+        settingsBtn?.addEventListener('click', (event) => {
+          event.preventDefault();
           modal.classList.add('show');
+        });
+
+        const archiveDropdown = document.querySelector('.site-nav__dropdown');
+        const archiveToggle = document.querySelector('.site-nav__dropdown-toggle');
+        archiveToggle?.addEventListener('click', () => {
+          const isOpen = archiveDropdown?.classList.toggle('is-open') || false;
+          archiveToggle.setAttribute('aria-expanded', String(isOpen));
         });
 
         closeBtn?.addEventListener('click', () => {

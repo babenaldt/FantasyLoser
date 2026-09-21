@@ -1,0 +1,94 @@
+---
+import '../styles/retro-prototypes.css';
+
+interface Props {
+  title: string;
+  variant: 'sunday' | 'almanac';
+  active?: 'home' | 'dynasty' | 'week';
+}
+
+const { title, variant, active = 'home' } = Astro.props;
+const base = variant === 'sunday' ? '/prototypes/sunday' : '/prototypes/almanac';
+const variantName = variant === 'sunday' ? 'Sunday Sports Section' : 'Fantasy Almanac';
+const alternateHref = variant === 'sunday' ? '/prototypes/almanac' : '/prototypes/sunday';
+const alternateName = variant === 'sunday' ? 'Fantasy Almanac' : 'Sunday Sports Section';
+const today = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+}).format(new Date());
+---
+
+<!doctype html>
+<html lang="en" class={`variant-${variant}`}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={`Fantasy Loser ${variantName} redesign prototype`} />
+    <title>{title} | {variantName}</title>
+  </head>
+  <body>
+    <a class="retro-skip" href="#prototype-content">Skip to content</a>
+    <div class="retro-shell">
+      <div class="prototype-ribbon">
+        <span>Design prototype — real league data</span>
+        <a href={alternateHref}>Compare: {alternateName}</a>
+        <a href="/prototypes">All options</a>
+      </div>
+
+      <header class="retro-masthead">
+        <div class="retro-masthead__topline">
+          <span>{today}</span>
+          <span>{variant === 'almanac' ? 'IBAC Fantasy Football Reports' : 'Independent fantasy football coverage'}</span>
+          <span>2026 season · Week 2</span>
+        </div>
+        <div class="retro-brand">
+          <div>
+            <div class="retro-brand__kicker">{variantName}</div>
+            <div class="retro-brand__name">Fantasy Loser</div>
+          </div>
+          <div class="retro-brand__tagline">
+            {variant === 'almanac'
+              ? 'League Analysis & Player Statistics'
+              : 'Scores, standings, bad beats & questionable management'}
+          </div>
+        </div>
+        <nav class="retro-nav" aria-label="Prototype navigation">
+          <div class="retro-nav__inner">
+            {variant === 'almanac' ? (
+              <>
+                <a href={base} aria-current={active === 'home' ? 'page' : undefined}>Home</a>
+                <a href="/player-stats">Player Stats</a>
+                <a href="/defense-stats">Defense Stats</a>
+                <a href="/season-stats-chopped">Chopped Stats</a>
+                <a href={`${base}/dynasty`} aria-current={active === 'dynasty' ? 'page' : undefined}>Dynasty Stats</a>
+                <a href="/stats-guide">Stats Guide</a>
+                <a href={`${base}/week/1`} aria-current={active === 'week' ? 'page' : undefined}>Weekly Reviews</a>
+                <a href="/archive/2025/season-stats-dynasty">2025 Archive</a>
+                <a href="/">Scoring Settings</a>
+              </>
+            ) : (
+              <>
+                <a href={base} aria-current={active === 'home' ? 'page' : undefined}>Front Page</a>
+                <a href={`${base}/dynasty`} aria-current={active === 'dynasty' ? 'page' : undefined}>Dynasty Desk</a>
+                <a href={`${base}/week/1`} aria-current={active === 'week' ? 'page' : undefined}>Week in Review</a>
+                <a href="/player-stats">Player Index</a>
+                <a href="/season-stats-chopped">Chopped League</a>
+                <a href="/">Live Site</a>
+              </>
+            )}
+          </div>
+        </nav>
+      </header>
+
+      <main id="prototype-content" class="retro-main">
+        <slot />
+      </main>
+
+      <footer class="retro-footer">
+        Fantasy Loser · Experimental design proof · Production pages remain unchanged
+      </footer>
+    </div>
+  </body>
+</html>

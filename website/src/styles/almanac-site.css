@@ -1,0 +1,1265 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap');
+
+:root {
+  --site-paper: #efe5cb;
+  --site-paper-deep: #d9c9a5;
+  --site-ink: #17261e;
+  --site-muted: #6a685d;
+  --site-forest: #153c2c;
+  --site-forest-light: #2c6a4d;
+  --site-rust: #a14724;
+  --site-gold: #d0a23b;
+  --site-rule: #998f78;
+  --site-white: #fffdf5;
+  --site-serif: "Spectral", Georgia, serif;
+  --site-sans: "Spectral", Georgia, serif;
+  --site-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --serif: "Spectral", Georgia, serif;
+  --sans: "Spectral", Georgia, serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+html {
+  background: var(--site-paper-deep);
+}
+
+body {
+  min-width: 320px;
+  overflow-x: clip;
+  background-color: var(--site-paper) !important;
+  background-image:
+    linear-gradient(to right, rgba(21,60,44,.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(21,60,44,.035) 1px, transparent 1px) !important;
+  background-size: 18px 18px !important;
+  color: var(--site-ink) !important;
+  font-family: var(--site-serif) !important;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--site-serif) !important;
+}
+
+.site-masthead {
+  border-bottom: 5px double var(--site-ink);
+  background: var(--site-paper);
+}
+
+.site-brand {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 16px 0;
+}
+
+.site-brand__mark {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border: 4px double var(--site-forest);
+  border-radius: 50%;
+  color: var(--site-forest);
+  font: 900 24px/1 var(--site-serif);
+}
+
+.site-brand__name {
+  display: block;
+  margin-top: 0;
+  color: var(--site-ink);
+  font: 900 clamp(2rem, 5vw, 4rem)/.9 var(--site-sans);
+  letter-spacing: -.045em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.site-brand__tagline {
+  color: var(--site-muted);
+  font: 11px/1.35 var(--site-mono);
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.site-nav {
+  background: var(--site-forest);
+  color: var(--site-white);
+}
+
+.site-nav__inner {
+  display: flex;
+  justify-content: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+@media (min-width: 761px) {
+  .site-nav__inner {
+    overflow: visible;
+  }
+}
+
+.site-nav a,
+.site-nav button {
+  flex: 0 0 auto;
+  border: 0;
+  border-right: 1px solid rgba(255,255,255,.18);
+  border-radius: 0 !important;
+  background: transparent;
+  color: var(--site-white) !important;
+  padding: 11px 14px !important;
+  cursor: pointer;
+  font: 800 11px/1 var(--site-sans) !important;
+  letter-spacing: .05em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible,
+.site-nav a[aria-current="page"],
+.site-nav button:hover,
+.site-nav button:focus-visible,
+.site-nav__dropdown.is-open > button {
+  background: var(--site-gold) !important;
+  color: var(--site-ink) !important;
+}
+
+.site-nav__dropdown {
+  position: relative;
+  display: flex;
+}
+
+.site-nav__dropdown-menu {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  left: 0;
+  min-width: 150px;
+  border: 1px solid var(--site-ink);
+  background: var(--site-white);
+  box-shadow: 4px 4px 0 var(--site-paper-deep);
+}
+
+.site-nav__dropdown-menu a {
+  display: block;
+  border-bottom: 1px solid var(--site-paper-deep);
+  color: var(--site-ink) !important;
+}
+
+.site-nav__dropdown:hover .site-nav__dropdown-menu,
+.site-nav__dropdown:focus-within .site-nav__dropdown-menu,
+.site-nav__dropdown.is-open .site-nav__dropdown-menu {
+  display: block;
+}
+
+.content-wrapper {
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 22px 0 48px !important;
+}
+
+.content-wrapper .content-wrapper {
+  width: 100%;
+  padding: 0 !important;
+}
+
+/* Common production surfaces */
+.page-header,
+.header {
+  border-top: 3px solid var(--site-ink) !important;
+  border-bottom: 1px solid var(--site-ink) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--site-ink) !important;
+  padding: 14px 0 !important;
+  margin-bottom: 18px !important;
+  text-align: left !important;
+}
+
+.page-header h1,
+.header h1 {
+  color: var(--site-ink) !important;
+  font-family: var(--site-sans) !important;
+  font-size: clamp(2rem, 5vw, 4rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.04em !important;
+  line-height: .95 !important;
+  text-shadow: none !important;
+  text-transform: uppercase;
+}
+
+.page-header p,
+.page-header .subtitle,
+.header p,
+.subtitle {
+  color: var(--site-muted) !important;
+}
+
+.page-header > a[href^="/weekly-review-"] {
+  border: 1px solid var(--site-ink) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  color: var(--site-ink) !important;
+  box-shadow: 2px 2px 0 var(--site-gold) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  text-transform: uppercase;
+}
+
+.page-header > a[href^="/weekly-review-"]:hover {
+  background: var(--site-gold) !important;
+}
+
+.report-card,
+.stat-card,
+.award-card,
+.awards-section,
+.section,
+.table-container,
+.chart-container,
+.chart-container-full,
+.chart-card,
+.recommended-section,
+.charts-section,
+.roster-section,
+.weekly-breakdown-section,
+.eliminated-message,
+.roster-changes-section,
+.guide-section,
+.filter-section,
+.filters {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: rgba(255,253,245,.74) !important;
+  box-shadow: 3px 3px 0 var(--site-paper-deep) !important;
+}
+
+.player-header,
+.stats-container,
+.chart-section,
+.weekly-table,
+.postseason-section,
+.prev-season-section,
+.related-links,
+.scoring-notice {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: rgba(255,253,245,.74) !important;
+  box-shadow: 3px 3px 0 var(--site-paper-deep) !important;
+}
+
+.player-header h1,
+.player-name {
+  color: var(--site-ink) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+}
+
+.stat-card h2,
+.stat-card h3,
+.stats-grid h2,
+.stats-grid h3 {
+  color: var(--site-forest) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase;
+}
+
+.player-header .position,
+.season-badge {
+  border: 1px solid var(--site-rust) !important;
+  border-radius: 999px !important;
+  background: var(--site-paper-deep) !important;
+  color: var(--site-rust) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 900 !important;
+}
+
+.meta-label,
+.stat-label,
+.ps-label {
+  color: var(--site-muted) !important;
+  font-family: var(--site-sans) !important;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.award-icon {
+  display: none !important;
+}
+
+.awards-section > h2,
+.awards-section > h3 {
+  color: var(--site-forest) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 600 !important;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.award-title {
+  color: var(--site-muted) !important;
+  font-family: var(--site-sans) !important;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.award-winner,
+.award-name {
+  color: var(--site-forest) !important;
+}
+
+.award-value,
+.award-stat,
+.award-sub {
+  color: var(--site-muted) !important;
+}
+
+.report-card:hover,
+.award-card:hover,
+.stat-card:hover {
+  transform: none !important;
+  border-color: var(--site-forest) !important;
+}
+
+.report-card h2,
+.section-title,
+.table-container > h3,
+.chart-container h3,
+.chart-container-full h2,
+.recommended-section h2,
+.charts-section h2,
+.roster-section h2 {
+  color: var(--site-forest) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 900 !important;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.stats-table a,
+.data-table a,
+.weekly-table a,
+table a {
+  color: var(--site-rust) !important;
+}
+
+.recommended-card {
+  border: 1px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  box-shadow: 3px 3px 0 var(--site-gold) !important;
+}
+
+.recommended-card:hover {
+  transform: none !important;
+  border-color: var(--site-gold) !important;
+}
+
+.recommended-card .player-info {
+  border-radius: 0 !important;
+  background: rgba(0,0,0,.2) !important;
+}
+
+.recommended-card .position-badge,
+.player-position-badge,
+.pos-badge {
+  border-radius: 0 !important;
+  background: var(--site-gold) !important;
+  color: var(--site-ink) !important;
+  font-family: var(--site-sans) !important;
+}
+
+.recommended-section > div[style*="linear-gradient"],
+.preseason-banner,
+.in-progress-banner {
+  border: 1px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  box-shadow: 3px 3px 0 var(--site-gold) !important;
+  color: var(--site-white) !important;
+}
+
+.review-header .week-nav,
+.empty-state {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: rgba(255,253,245,.74) !important;
+  box-shadow: 3px 3px 0 var(--site-paper-deep) !important;
+}
+
+.week-selector h1,
+.guide-header h1 {
+  color: var(--site-ink) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+}
+
+.elimination-section {
+  border: 2px solid var(--site-rust) !important;
+  background: rgba(161,71,36,.06) !important;
+}
+
+.elim-card {
+  border: 2px solid var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+}
+
+.faab-card {
+  border: 1px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  box-shadow: 3px 3px 0 var(--site-gold) !important;
+  color: var(--site-white) !important;
+}
+
+.matchup-card,
+.roster-week-card,
+.roster-week-card-compact,
+.week-elimination,
+.bracket-card,
+.playoff-card {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  box-shadow: 3px 3px 0 var(--site-paper-deep) !important;
+}
+
+.roster-week-header,
+.waiver-week-header {
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  color: var(--site-white) !important;
+}
+
+.stat-section {
+  border-top: 4px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-top: 12px !important;
+}
+
+.guide-container,
+.guide-content {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.guide-header {
+  border-top: 3px solid var(--site-ink) !important;
+  border-bottom: 1px solid var(--site-ink) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.stat-section > h2,
+.guide-header h1 {
+  color: var(--site-forest) !important;
+}
+
+.formula {
+  border-radius: 0 !important;
+  background: var(--site-paper-deep) !important;
+  color: var(--site-ink) !important;
+  font-family: var(--site-mono) !important;
+}
+
+.insight {
+  border-left-color: var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: rgba(208,162,59,.12) !important;
+}
+
+.report-link,
+.back-link,
+.week-link-btn,
+.tab-btn,
+.btn,
+.btn-primary {
+  border: 1px solid var(--site-ink) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  color: var(--site-ink) !important;
+  box-shadow: none !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+}
+
+.report-link:hover,
+.back-link:hover,
+.week-link-btn:hover,
+.tab-btn:hover,
+.tab-btn.active,
+.btn:hover {
+  background: var(--site-gold) !important;
+  color: var(--site-ink) !important;
+}
+
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-table,
+.data-table,
+.weekly-table,
+#defenseTable {
+  border-collapse: collapse !important;
+  background: var(--site-white) !important;
+  font-family: var(--site-mono) !important;
+}
+
+.stats-table th,
+.data-table th,
+.weekly-table th,
+#defenseTable th,
+table th {
+  border-right: 1px solid rgba(255,255,255,.2) !important;
+  border-bottom: 0 !important;
+  background: var(--site-forest) !important;
+  color: var(--site-white) !important;
+  font-family: var(--site-sans) !important;
+  font-size: 10px !important;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.stats-table td,
+.data-table td,
+.weekly-table td,
+#defenseTable td,
+table td {
+  border-right: 1px solid var(--site-paper-deep) !important;
+  border-bottom: 1px solid var(--site-paper-deep) !important;
+  padding: 7px 8px !important;
+}
+
+.stats-table tbody tr:nth-child(even),
+.data-table tbody tr:nth-child(even),
+.weekly-table tbody tr:nth-child(even),
+#defenseTable tbody tr:nth-child(even) {
+  background: rgba(217,201,165,.28) !important;
+}
+
+.stats-table tbody tr:hover,
+.data-table tbody tr:hover,
+.weekly-table tbody tr:hover,
+#defenseTable tbody tr:hover {
+  background: rgba(208,162,59,.18) !important;
+}
+
+.position-tabs,
+.filter-buttons {
+  gap: 6px !important;
+}
+
+.stat-box {
+  border: 1px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  box-shadow: 3px 3px 0 var(--site-gold) !important;
+  color: var(--site-white) !important;
+}
+
+.link-btn {
+  border: 1px solid var(--site-ink) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  color: var(--site-ink) !important;
+  box-shadow: none !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+}
+
+.modal-content {
+  border: 2px solid var(--site-ink) !important;
+  border-radius: 0 !important;
+  background: var(--site-paper) !important;
+  box-shadow: 8px 8px 0 rgba(23,38,30,.32) !important;
+}
+
+.modal-header {
+  background: var(--site-forest) !important;
+  color: var(--site-white) !important;
+}
+
+.modal-header h2 {
+  color: inherit !important;
+}
+
+input,
+select {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  color: var(--site-ink) !important;
+}
+
+/* Responsive containment for legacy production reports. */
+.player-stats-page .page-header,
+.player-stats-page .page-header h1,
+.player-stats-page .page-header p,
+.defense-stats-page .header,
+.defense-stats-page .header h1,
+.defense-stats-page .header p,
+.user-report-page .page-header,
+.user-report-page .page-header h1 {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.player-stats-page .player-controls,
+.player-stats-page .player-search-wrap {
+  min-width: 0 !important;
+}
+
+.player-stats-page .player-search-wrap {
+  position: relative;
+}
+
+.player-stats-page #searchResults {
+  right: 0;
+  left: 0;
+  width: 100%;
+  max-width: none !important;
+  box-sizing: border-box;
+}
+
+.player-stats-page #compareBtn {
+  border: 1px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  color: var(--site-white) !important;
+}
+
+.player-stats-page #clearCompare,
+.player-stats-page #closeModal {
+  border: 1px solid var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: var(--site-rust) !important;
+  color: var(--site-white) !important;
+}
+
+.player-stats-page .position-table h2,
+.player-stats-page .chart-container h3,
+.defense-stats-page .chart-section h2 {
+  color: var(--site-forest) !important;
+  font-family: var(--site-sans) !important;
+  text-shadow: none !important;
+}
+
+.player-stats-page .chart-container,
+.defense-stats-page .chart-section {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.player-stats-page .player-chart-wrap {
+  height: 400px;
+}
+
+.defense-stats-page .scoring-notice {
+  border: 1px solid var(--site-rule) !important;
+  border-left: 5px solid var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  box-shadow: 2px 2px 0 var(--site-paper-deep);
+}
+
+.defense-stats-page .scoring-notice span {
+  color: var(--site-ink) !important;
+}
+
+.defense-stats-page .chart-wrapper {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.defense-stats-page #defenseChart {
+  max-width: 100% !important;
+}
+
+.defense-detail-page .breadcrumb a {
+  color: var(--site-rust) !important;
+}
+
+.defense-detail-page .detail-status-banner,
+.user-report-page .roster-preview-banner {
+  border: 1px solid var(--site-rule) !important;
+  border-left: 5px solid var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: var(--site-paper-deep) !important;
+  box-shadow: none !important;
+  color: var(--site-ink) !important;
+  overflow-wrap: anywhere;
+}
+
+.user-report-page .container,
+.user-report-page .recommended-section,
+.user-report-page .recommended-grid,
+.user-report-page .recommended-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.user-report-page .recommended-section {
+  overflow: hidden;
+}
+
+.user-report-page .player-name,
+.user-report-page .player-team {
+  overflow-wrap: anywhere;
+  white-space: normal !important;
+}
+
+.weekly-chopped-page .review-container,
+.weekly-chopped-page .section,
+.weekly-chopped-page .week-nav {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.weekly-chopped-page .section {
+  overflow: hidden;
+}
+
+.weekly-chopped-page .elimination-cards {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  width: 100%;
+}
+
+.weekly-chopped-page .elim-card {
+  width: auto;
+  min-width: 0 !important;
+  max-width: 100%;
+}
+
+.weekly-chopped-page .elim-name,
+.weekly-chopped-page .survival-line,
+.weekly-chopped-page .team-name {
+  overflow-wrap: anywhere;
+}
+
+.weekly-chopped-page .awards-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.archive-page .champ-stats {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, max-content));
+}
+
+.archive-page .archive-banner-links {
+  min-width: 0;
+}
+
+.archive-page .archive-banner-links a {
+  overflow-wrap: anywhere;
+}
+
+.archive-page .bracket-rounds,
+.archive-page .bracket-round,
+.archive-page .matchup-team,
+.archive-page .standing-row {
+  min-width: 0;
+}
+
+.archive-page .team-name,
+.archive-page .standing-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.odds-row {
+  grid-template-columns: minmax(0, 130px) minmax(0, 1fr) auto !important;
+}
+
+.odds-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.matchup__row > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Archived seasons and the Chopped report use the same Almanac structure. */
+.archive-page .archive-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--site-rule) !important;
+  border-left: 5px solid var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: var(--site-paper-deep) !important;
+  color: var(--site-ink) !important;
+  box-shadow: none !important;
+  font-family: var(--site-sans) !important;
+  text-transform: uppercase;
+}
+
+.archive-page .archive-banner a {
+  color: var(--site-rust) !important;
+}
+
+.archive-page .championship-section,
+.archive-page .playoff-section,
+.archive-page .elimination-bracket-section,
+.archive-page .waiver-section,
+.chopped-stats-page .elimination-bracket-section,
+.chopped-stats-page .weekly-review-links,
+.chopped-stats-page .waiver-section {
+  border: 1px solid var(--site-rule) !important;
+  border-top: 4px solid var(--site-forest) !important;
+  border-radius: 0 !important;
+  background: rgba(255,253,245,.74) !important;
+  box-shadow: 3px 3px 0 var(--site-paper-deep) !important;
+  color: var(--site-ink) !important;
+}
+
+.archive-page .championship-section {
+  text-align: left !important;
+}
+
+.archive-page .trophy-icon {
+  display: none !important;
+}
+
+.archive-page .champ-title,
+.archive-page .playoff-title,
+.archive-page .bracket-label,
+.archive-page .elimination-bracket-section h2,
+.archive-page .waiver-section h2,
+.chopped-stats-page .elimination-bracket-section h2,
+.chopped-stats-page .weekly-review-links h2,
+.chopped-stats-page .waiver-section h2,
+.chopped-stats-page .chart-container h3 {
+  color: var(--site-forest) !important;
+  font-family: var(--site-sans) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em;
+  text-align: left !important;
+  text-transform: uppercase;
+}
+
+.archive-page .champ-name {
+  color: var(--site-ink) !important;
+  font-family: var(--site-sans) !important;
+  text-shadow: none !important;
+}
+
+.archive-page .champ-stats {
+  justify-content: flex-start !important;
+}
+
+.archive-page .champ-stats span {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  color: var(--site-ink) !important;
+}
+
+.archive-page .runner-up,
+.archive-page .champ-matchup {
+  color: var(--site-muted) !important;
+}
+
+.archive-page .stats-grid,
+.chopped-stats-page .stats-grid {
+  gap: 0 !important;
+  border: 1px solid var(--site-rule);
+  background: var(--site-white);
+}
+
+.archive-page .stats-grid .stat-card,
+.chopped-stats-page .stats-grid .stat-card {
+  border-width: 0 1px 0 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.archive-page .awards-grid,
+.chopped-stats-page .awards-grid {
+  gap: 0 !important;
+}
+
+.archive-page .award-card,
+.chopped-stats-page .award-card {
+  border-width: 1px 1px 1px 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.archive-page .bracket-round,
+.archive-page .matchup-card,
+.archive-page .standing-row,
+.archive-page .week-elimination,
+.archive-page .eliminated-player,
+.archive-page .finalist,
+.archive-page .waiver-week-block,
+.chopped-stats-page .week-elimination,
+.chopped-stats-page .eliminated-player,
+.chopped-stats-page .finalist,
+.chopped-stats-page .waiver-week-block,
+.chopped-stats-page .week-link-btn {
+  border: 1px solid var(--site-rule) !important;
+  border-radius: 0 !important;
+  background: var(--site-white) !important;
+  box-shadow: none !important;
+  color: var(--site-ink) !important;
+  transform: none !important;
+}
+
+.archive-page .round-label,
+.archive-page .waiver-week-header,
+.chopped-stats-page .waiver-week-header {
+  border-radius: 0 !important;
+  background: var(--site-forest) !important;
+  color: var(--site-white) !important;
+}
+
+.archive-page .standing-row.champion-row,
+.archive-page .standing-row.podium-row,
+.archive-page .matchup-card.championship-matchup,
+.archive-page .matchup-card.consolation,
+.archive-page .week-elimination.finals,
+.chopped-stats-page .week-elimination.finals {
+  border-color: var(--site-gold) !important;
+  background: rgba(208,162,59,.12) !important;
+}
+
+.archive-page .remaining-count,
+.chopped-stats-page .remaining-count,
+.archive-page .seed-tag {
+  border-radius: 0 !important;
+  background: var(--site-paper-deep) !important;
+  color: var(--site-ink) !important;
+}
+
+.archive-page .eliminated-badge,
+.archive-page .finalist-badge,
+.chopped-stats-page .eliminated-badge,
+.chopped-stats-page .finalist-badge {
+  border-radius: 0 !important;
+}
+
+.chopped-stats-page .season-status-banner {
+  border: 1px solid var(--site-rule) !important;
+  border-left: 5px solid var(--site-rust) !important;
+  border-radius: 0 !important;
+  background: var(--site-paper-deep) !important;
+  box-shadow: none !important;
+  color: var(--site-ink) !important;
+}
+
+.chopped-stats-page .chart-container:has(#leagueChart) {
+  height: auto !important;
+  overflow: hidden;
+}
+
+.chart-team-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+  margin-bottom: 12px;
+  color: var(--site-muted);
+  font: 500 12px/1.25 var(--site-serif);
+}
+
+.chart-team-legend span {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chart-team-legend i {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border: 2px solid var(--team-color);
+  border-radius: 50%;
+}
+
+.chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 440px;
+}
+
+.chart-canvas-wrap canvas {
+  max-width: 100%;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--site-gold) !important;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .user-report-page .charts-grid-2x2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .site-nav__inner {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .site-nav a,
+  .site-nav button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    padding: 8px 6px !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .site-nav__dropdown {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .player-stats-page .player-controls {
+    flex-direction: column;
+    gap: 12px !important;
+  }
+
+  .player-stats-page .player-controls > div {
+    width: 100%;
+  }
+
+  .player-stats-page .player-controls > div:last-child {
+    flex-wrap: wrap;
+  }
+
+  .player-stats-page #compareBtn {
+    flex: 1 1 220px;
+  }
+
+  .player-stats-page .position-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 !important;
+  }
+
+  .player-stats-page .tab-btn {
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .player-stats-page .player-chart-wrap {
+    height: 300px;
+  }
+
+  .weekly-chopped-page .elimination-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-page .champ-stats {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .archive-page .champ-stats span {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .defense-detail-page .summary-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .chart-team-legend {
+    justify-content: flex-start;
+    gap: 5px 10px;
+    font-size: 11px;
+  }
+
+  .chart-canvas-wrap {
+    height: 320px;
+  }
+
+  .archive-page .archive-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .archive-page .archive-banner-links {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .archive-page .stats-grid,
+  .chopped-stats-page .stats-grid,
+  .archive-page .awards-grid,
+  .chopped-stats-page .awards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .site-brand {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    width: calc(100% - 20px);
+    padding: 13px 0;
+  }
+
+  .site-brand__mark {
+    width: 48px;
+    height: 48px;
+    border-width: 3px;
+    font-size: 18px;
+  }
+
+  .site-brand__name {
+    font-size: clamp(1.5rem, 6.5vw, 2.25rem);
+    overflow-wrap: anywhere;
+  }
+
+  .site-brand__tagline {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+
+  .site-nav__inner {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: stretch;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .site-nav a,
+  .site-nav button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 6px !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .site-nav__dropdown {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .site-nav__dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 180px;
+  }
+
+  .content-wrapper {
+    width: calc(100% - 20px);
+    padding-top: 14px !important;
+  }
+
+  .page-header h1,
+  .header h1 {
+    font-size: clamp(1.65rem, 8.5vw, 2.6rem) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .report-card,
+  .stat-card,
+  .award-card,
+  .section,
+  .table-container,
+  .chart-container,
+  .chart-container-full,
+  .chart-card,
+  .recommended-section,
+  .charts-section,
+  .roster-section,
+  .weekly-breakdown-section,
+  .guide-section {
+    padding: 13px !important;
+  }
+
+  .table-container,
+  .table-wrapper,
+  .weekly-table-wrapper,
+  .position-table {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 390px) {
+  .player-stats-page .position-tabs,
+  .defense-detail-page .summary-cards,
+  .weekly-chopped-page .awards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .archive-page .stats-grid,
+  .chopped-stats-page .stats-grid,
+  .archive-page .awards-grid,
+  .chopped-stats-page .awards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .content-wrapper {
+    width: calc(100% - 12px);
+  }
+
+  .site-brand {
+    width: calc(100% - 12px);
+  }
+}

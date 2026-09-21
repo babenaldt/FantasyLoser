@@ -1,0 +1,160 @@
+---
+import PrototypeLayout from '../../../layouts/PrototypeLayout.astro';
+import ScoreStrip from '../../../components/prototypes/ScoreStrip.astro';
+import AlmanacHome from '../../../components/prototypes/AlmanacHome.astro';
+import seasonData from '../../../../public/data/season_stats_dynasty.json';
+import reviewData from '../../../../public/data/weekly_reviews_dynasty.json';
+
+export function getStaticPaths() {
+  return ['sunday', 'almanac'].map((variant) => ({ params: { variant } }));
+}
+
+const variant = Astro.params.variant as 'sunday' | 'almanac';
+const teams = [...((seasonData as any).teams || [])].sort(
+  (a: any, b: any) => b.wins - a.wins || b.total_points_scored - a.total_points_scored
+);
+const latestWeek = (reviewData as any).weeks?.at(-1);
+const awards = latestWeek?.awards || {};
+const leader = teams[0];
+const highScore = awards.top_scorer;
+const playerWeek = awards.player_of_week;
+const leagueAverage = teams.length
+  ? teams.reduce((sum: number, team: any) => sum + team.average_points, 0) / teams.length
+  : 0;
+const base = `/prototypes/${variant}`;
+const isSunday = variant === 'sunday';
+---
+
+<PrototypeLayout
+  title={isSunday ? 'Front Page' : 'League Index'}
+  variant={variant}
+  active="home"
+>
+  {variant === 'almanac' ? (
+    <AlmanacHome prototypeLinks={true} />
+  ) : (
+  <>
+  <div class="edition-bar">
+    <span>{isSunday ? 'Sunday Fantasy Edition' : '2026 League Record Book'}</span>
+    <span>Price: one humiliating last-place punishment</span>
+  </div>
+
+  <section class="page-lede">
+    <div>
+      <h1>
+        {isSunday
+          ? `${leader?.owner_name || 'The field'} sets the early pace`
+          : 'Every score. Every manager. One permanent record.'}
+      </h1>
+      <p>
+        {isSunday
+          ? `Week ${latestWeek?.week || 1} delivered ${highScore?.points || 0} points at the top and plenty of decisions worth second-guessing.`
+          : 'A compact command center for standings, weekly honors, roster efficiency and league-wide transactions.'}
+      </p>
+    </div>
+    <aside class="lede-note">
+      <strong>{isSunday ? 'Editor’s note' : 'Index status'}</strong>
+      {isSunday
+        ? 'The paper is old-school. The numbers are live.'
+        : `${teams.length} clubs tracked through Week ${(seasonData as any).current_week || 1}.`}
+    </aside>
+  </section>
+
+  <ScoreStrip items={[
+    {
+      label: 'League Leader',
+      value: leader?.owner_name || '—',
+      detail: `${leader?.wins || 0}-${leader?.losses || 0}`,
+    },
+    {
+      label: 'High Score',
+      value: highScore ? highScore.points.toFixed(1) : '—',
+      detail: highScore?.owner_name || 'Awaiting results',
+    },
+    {
+      label: 'League Average',
+      value: leagueAverage.toFixed(1),
+      detail: 'points per club',
+    },
+    {
+      label: 'Player of Week',
+      value: playerWeek?.player_name || '—',
+      detail: playerWeek ? `${playerWeek.points} pts · ${playerWeek.position}` : 'Awaiting results',
+    },
+  ]} />
+
+  <div class="section-heading">
+    <h2>{isSunday ? 'Today’s Lead Stories' : 'League Departments'}</h2>
+    <span>Updated from live season files</span>
+  </div>
+
+  <div class={isSunday ? 'news-grid' : 'paper-grid'}>
+    <div class={isSunday ? '' : 'span-8'}>
+      <article class="story-card">
+        <h3>Dynasty race opens with no room for quiet weeks</h3>
+        <p>
+          Scan the table, compare actual scoring to optimal lineups, and see which managers
+          gained the most ground in the opening results.
+        </p>
+        <a href={`${base}/dynasty`}>Open the Dynasty desk →</a>
+      </article>
+
+      <div class="section-heading">
+        <h2>Top of the Table</h2>
+        <span>First five clubs</span>
+      </div>
+      <div class="retro-table-wrap">
+        <table class="retro-table">
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Club</th>
+              <th>W-L</th>
+              <th>PF</th>
+              <th>Avg</th>
+              <th>Eff.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teams.slice(0, 5).map((team: any, index: number) => (
+              <tr>
+                <td class="rank">{index + 1}</td>
+                <td class="team-cell">{team.owner_name}</td>
+                <td>{team.wins}-{team.losses}</td>
+                <td>{team.total_points_scored.toFixed(1)}</td>
+                <td>{team.average_points.toFixed(1)}</td>
+                <td>{team.efficiency_rate.toFixed(1)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class={isSunday ? '' : 'span-4'}>
+      <article class="paper-panel">
+        <h3>{isSunday ? 'Around the League' : 'Quick Index'}</h3>
+        <div class="story-list">
+          <a href={`${base}/week/${latestWeek?.week || 1}`}>
+            <span class="story-list__index">01</span>
+            <span><strong>Week in Review</strong><small>Awards, matchups and bad beats.</small></span>
+          </a>
+          <a href="/player-stats">
+            <span class="story-list__index">02</span>
+            <span><strong>Player Register</strong><small>Season leaders and projections.</small></span>
+          </a>
+          <a href="/season-stats-chopped">
+            <span class="story-list__index">03</span>
+            <span><strong>Chopped Dispatch</strong><small>Survival lines and eliminations.</small></span>
+          </a>
+          <a href="/archive/2025/season-stats-dynasty">
+            <span class="story-list__index">04</span>
+            <span><strong>2025 Archive</strong><small>The complete prior-season record.</small></span>
+          </a>
+        </div>
+      </article>
+    </aside>
+  </div>
+  </>
+  )}
+</PrototypeLayout>

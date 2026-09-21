@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core_data import (
     ensure_directories, save_json, SleeperAPI,
-    OUTPUT_DIR, ASTRO_DATA_DIR
+    OUTPUT_DIR, ASTRO_DATA_DIR, load_sleeper_player_lookup
 )
 from nfl_week_helper import get_last_completed_nfl_week
 
@@ -37,16 +37,8 @@ LEAGUES = {
 
 
 def load_player_data():
-    """Load Sleeper player database for name resolution."""
-    path = os.path.join(ASTRO_DATA_DIR, 'players_data.json')
-    if os.path.exists(path):
-        with open(path, 'r') as f:
-            return json.load(f)
-    path2 = os.path.join(OUTPUT_DIR, 'players_data.json')
-    if os.path.exists(path2):
-        with open(path2, 'r') as f:
-            return json.load(f)
-    return {}
+    """Load the shared compact Sleeper player lookup."""
+    return load_sleeper_player_lookup()
 
 
 def player_name(player_data, pid):

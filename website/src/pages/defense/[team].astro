@@ -31,7 +31,7 @@ const postseason = defense.postseason || prevDefense?.postseason || null;
 const weeklyData = defense.weekly_breakdown || [];
 ---
 
-<BaseLayout title={`${team} Defense Stats - ${displaySeason}`}>
+<BaseLayout title={`${team} Defense Stats - ${displaySeason}`} bodyClass="defense-detail-page">
   <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
   <div class="defense-detail-container">
     <div class="header">
@@ -40,7 +40,7 @@ const weeklyData = defense.weekly_breakdown || [];
       </div>
       <h1>{team} Defense</h1>
       <p class="subtitle">{displaySeason} Season - Detailed Weekly Performance</p>
-      {isPreseason && <div style="margin-top: 10px; padding: 8px 16px; background: rgba(243,156,18,0.25); border-radius: 6px; display: inline-block; color: white; font-weight: 500;">Preseason — Showing 2025 data</div>}
+      {isPreseason && <div class="detail-status-banner" style="margin-top: 10px; padding: 8px 16px; background: rgba(243,156,18,0.25); border-radius: 6px; display: inline-block; color: white; font-weight: 500;">Preseason — Showing 2025 data</div>}
     </div>
 
     <!-- Season Summary Cards -->
