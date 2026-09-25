@@ -446,6 +446,52 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
     prior_chops = chops_in_week(completed) if completed else 0
     cut_line = alive_scores[prior_chops - 1]["points"] if completed and len(alive_scores) >= prior_chops else None
 
+    # Chop watch: likeliest next victims and the players they'd dump.
+    # A team projecting low with its current starters (bye-depleted, hurt)
+    # is both chop-prone and holding the best vulture targets.
+    chop_watch = []
+    for view in views:
+        if view["owner"] == owner_name:
+            continue
+        last = view["scores"].get(completed) or 0
+        if last <= 0 or not view["player_ids"]:
+            continue  # already chopped, roster emptied
+        proj_total = 0.0
+        ranked = []
+        for pid in view["player_ids"]:
+            info = players.get(pid, {})
+            if (info.get("position") or "") not in ("QB", "RB", "WR", "TE"):
+                continue
+            pr = proj_points(proj_by_id.get(pid, {}), rec_points)
+            ranked.append((pr, pid))
+            if pid in view["starters"]:
+                proj_total += pr
+        ranked.sort(key=lambda t: -t[0])
+        targets = []
+        for pr, pid in ranked[:4]:
+            info = players.get(pid, {})
+            targets.append({
+                "name": player_name(players, pid),
+                "pos": info.get("position"),
+                "team": info.get("team"),
+                "proj": round(pr, 1),
+            })
+        chop_watch.append({
+            "owner": view["owner"],
+            "last_week": round(last, 1),
+            "proj_starters": round(proj_total, 1),
+            "faab": view["faab_remaining"],
+            "vulture_targets": targets,
+        })
+    chop_watch.sort(key=lambda r: (r["proj_starters"], r["last_week"]))
+    alive_ids = {v["roster_id"] for v in views if v["player_ids"]}
+    faab_board = sorted(
+        ({"owner": r["owner"], "faab": r["faab"]} for r in alive_scores
+         if next((v for v in views if v["owner"] == r["owner"]
+                  and v["roster_id"] in alive_ids), None)),
+        key=lambda r: -r["faab"],
+    )
+
     current_bids = fetch_bids(LEAGUE_ID, players, through_week=max(week, 1))
     history_auctions = auctions_from(history.get("bids") or [])
     current_auctions = auctions_from(current_bids)
@@ -553,6 +599,8 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
             "players": sean_players,
         },
         "alive_last_week": alive_scores,
+        "chop_watch": chop_watch,
+        "faab_board": faab_board,
         "pool": pool[:30],
         "xcheck": xcheck_rows,
         "xcheck_note": (
@@ -633,6 +681,22 @@ def print_report(brief: dict) -> None:
         f"last week cut line {brief['last_week_cut_line']}"
     )
     print("Scores", sean["scores"])
+    print("\nCHOP WATCH (likeliest victims -> vulture targets)")
+    for team in brief["chop_watch"][:5]:
+        tgts = ", ".join(
+            f"{t['name']} ({t['pos']}, {t['proj']})"
+            for t in team["vulture_targets"]
+        )
+        print(
+            f"  {team['owner']}: last wk {team['last_week']}, proj starters "
+            f"{team['proj_starters']}, FAAB ${team['faab']} -> {tgts}"
+        )
+    board = brief["faab_board"]
+    my_rank = next(
+        (i for i, r in enumerate(board, 1) if r["owner"] == sean["owner"]), None
+    )
+    top = ", ".join(f"{r['owner']} ${r['faab']}" for r in board[:5])
+    print(f"FAAB board: {top} ... you are #{my_rank} at ${sean['faab_remaining']}")
     print("\nROSTER")
     for row in sean["players"]:
         print(fmt_player(row))
