@@ -98,11 +98,15 @@ Failed bids do not spend FAAB.
 
 Sean is in survival mode, and FAAB is more valuable later. Default to spending $0.
 
-Spend only when the add changes whether he is among the teams getting chopped this week. A flex upgrade on a safe score is not that. Last year the bids that mattered were Josh Allen at $41 in week 5, when the second QB slot opened, and Puka Nacua at $31 in week 7. From week 11 on, stars such as Jonathan Taylor, Amon-Ra, and Kittle cleared for $0 to $8 because he still had budget. Do not repeat the week 3 Ladd McConkey win ($21 when $13 would have cleared) while the lineup is safe.
+**Two-tier spending (guillotine consensus: never pay for mediocrity, overpay for the best):**
+1. **Stars — overspend to win.** When a genuine difference-maker hits the wire (top-30ish fantasy player, clear every-week role — the Jefferson/Henry/JT tier), bid to WIN, not to value. 20-30% of remaining budget is fair; more for the last starting-caliber RB. Blind bidding means the clearing price *is* the winning bid — there is no "vanity number" at this tier. Why: cut lines rise every week, only the very best give an edge late, and in a shrinking league you are also denying a rival the star.
+2. **Everything else — $0 or $1.** The real budget killer is not one big swing, it is death by a thousand papercuts: ten $8-15 bids on flex-tier players vaporizes half the budget with no game-changer to show. Kill the middle tier entirely. If the lineup is safe, the only acceptable claims are $0/$1 on a player he would actually start, ordered so a lucky win fills the open spot. Losing those claims is the intended result.
 
-If the lineup is safe, the only acceptable claims are $0 or $1 on a player he would actually start, ordered so a lucky win fills the one open spot. Losing those claims is the intended result. Do not bid $5 or more just to be involved.
+**Vulture system (the guillotine edge).** Every week the brief's CHOP WATCH ranks the likeliest chop victims by projected starters and lists their best players. Pre-rank those targets before waivers run — treat each week like a second draft. The signal is bye-week depletion: a good roster projecting low is both likely to get chopped *and* holding the best players to vulture. Prefer targets whose byes have already passed (they're available for every remaining elimination round) and players with clear existing roles over buried upside.
 
-When he is on the bubble, pay the clearing price for the one player who raises the floor, and still do not pay the winner's vanity number from a past auction.
+**FAAB bullying.** The enviable late-season position is having the most money when stars clear for cheap (2025: Taylor, Amon-Ra, Kittle went $0-8 from week 11 because he still had budget). Stay in the top FAAB tier; never drop out of it chasing tier-2 players.
+
+Spend triggers (exceptions to $0 default): the week-5 bye hole, fewer than 2 startable RBs entering week 9, or an injury to a starter. The 2025 bids that mattered — Josh Allen $41 in week 5, Puka Nacua $31 in week 7 — were tier-1 overspends, and they were correct.
 
 ### Waiver shopping list (from the starter-slot chart)
 Positional demand ramps as starters grow 5 -> 11. Build in this order:
