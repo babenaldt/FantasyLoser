@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core_data import OUTPUT_DIR, SleeperAPI, make_request
 from nfl_week_helper import get_current_nfl_week, get_last_completed_nfl_week
+import xcheck
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
@@ -423,6 +424,49 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         pool.append(row)
     pool.sort(key=lambda row: -(row["proj"] + row.get("w1", 0) + row.get("w2", 0)))
 
+    # Second-opinion projections: ESPN (free, no key) vs Sleeper.
+    sleeper_universe = []
+    for pid, stats in proj_by_id.items():
+        info = players.get(pid, {})
+        pos = info.get("position")
+        team = info.get("team")
+        proj = proj_points(stats, rec_points)
+        if proj > 0 and pos in ("QB", "RB", "WR", "TE") and team:
+            sleeper_universe.append(
+                {"name": player_name(players, pid), "team": team,
+                 "pos": pos, "proj": round(proj, 2)}
+            )
+    xc_table = xcheck.build_xcheck(sleeper_universe, week, rec_points)
+
+    def xc_row(row: dict) -> dict | None:
+        key = (xcheck.norm_name(row["name"]),
+               xcheck.norm_team(row.get("team")), row.get("pos"))
+        return xc_table.get(key)
+
+    xcheck_rows = []
+    for row in sorted(sean_players, key=lambda r: -r["proj"]):
+        xc = xc_row(row)
+        if not xc or xc["espn_proj"] is None:
+            continue
+        xcheck_rows.append({
+            "name": row["name"], "pos": row.get("pos"), "team": row.get("team"),
+            "starting": row["starting"],
+            "sleeper_proj": xc["sleeper_proj"], "sleeper_rank": xc["sleeper_rank"],
+            "espn_proj": xc["espn_proj"], "espn_rank": xc["espn_rank"],
+            "mean": xc["mean"], "disagree": xc["disagree"],
+        })
+    for row in pool[:10]:
+        xc = xc_row(row)
+        if not xc or xc["espn_proj"] is None:
+            continue
+        xcheck_rows.append({
+            "name": row["name"], "pos": row.get("pos"), "team": row.get("team"),
+            "starting": False, "waiver_target": True,
+            "sleeper_proj": xc["sleeper_proj"], "sleeper_rank": xc["sleeper_rank"],
+            "espn_proj": xc["espn_proj"], "espn_rank": xc["espn_rank"],
+            "mean": xc["mean"], "disagree": xc["disagree"],
+        })
+
     counts = defaultdict(int)
     for row in sean_players:
         if row["pos"]:
@@ -454,6 +498,13 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         },
         "alive_last_week": alive_scores,
         "pool": pool[:30],
+        "xcheck": xcheck_rows,
+        "xcheck_note": (
+            "ESPN standard-scoring projections converted to league PPR via "
+            "projected receptions. Ranks are positional. '!' = sources differ "
+            "by 3+ pts or 6+ rank spots."
+            if xcheck_rows else "ESPN cross-check unavailable (fetch failed)"
+        ),
         "auctions_this_season": current_auctions,
         "auctions_last_season_this_week": [row for row in history_auctions if row["week"] == week],
         "market_2025": market_summary(history_auctions, owner_name),
@@ -524,6 +575,16 @@ def print_report(brief: dict) -> None:
     print("\nROSTER")
     for row in sean["players"]:
         print(fmt_player(row))
+    print("\nPROJECTION CROSS-CHECK (Sleeper vs ESPN)")
+    print(f"  {brief['xcheck_note']}")
+    for row in brief["xcheck"]:
+        flag = " !" if row["disagree"] else "  "
+        tag = "starting" if row["starting"] else ("wire    " if row.get("waiver_target") else "bench   ")
+        print(
+            f" {flag} {tag} {row['name']:<24} {row['pos']:<3} {row['team']:<4}"
+            f"Sleeper {row['sleeper_proj']:<6} (#{row['sleeper_rank']})  "
+            f"ESPN {row['espn_proj']:<6} (#{row['espn_rank']})  mean {row['mean']}"
+        )
     print("\nLAST WEEK, LOWEST FIRST")
     for row in brief["alive_last_week"]:
         print(f"  {row['points']:7}  {row['owner']:<28} FAAB ${row['faab']}  roster {row['rostered']}")
