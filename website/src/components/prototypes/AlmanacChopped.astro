@@ -1,0 +1,486 @@
+---
+import AwardGrid from './AwardGrid.astro';
+import leagueData from '../../../public/data/season_stats_chopped.json';
+import userLineupsData from '../../../public/data/user_lineups_chopped.json';
+import weeklyReviewData from '../../../public/data/weekly_reviews_chopped.json';
+import survivalDataRaw from '../../../public/data/chopped_survival_odds.json';
+
+const { league_name, season, teams, current_week, best_theoretical_lineups, avg_best_theoretical_lineup } = leagueData as any;
+const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const userLineupUsers = ((userLineupsData as any).users || []).map((u: any) => slugify(u.user_name));
+const hasUserPage = (ownerName: string) => userLineupUsers.includes(slugify(ownerName));
+
+// Monte Carlo survival odds for the current week (written by scripts/chopped_week.py).
+const survivalData = survivalDataRaw as any;
+const survivalTeams = (survivalData.teams || []).slice().sort((a: any, b: any) => b.p_survive - a.p_survive);
+const showSurvival = survivalTeams.length > 0;
+
+const isPreseason = !teams?.length || !current_week || current_week <= 0;
+const hasCompletedWeeks = teams?.some((t: any) => (t.weeks_played || 0) > 0);
+const activeTeams = (teams || []).filter((t: any) => t.weeks_played > 0);
+const qualifiedTeams = (teams || []).filter((t: any) => t.weeks_played >= 5);
+const sortedTeams = [...(teams || [])].sort((a: any, b: any) => b.total_points_scored - a.total_points_scored);
+const avgPPG = teams?.length ? teams.reduce((sum: number, t: any) => sum + (t.avg_points_per_game || 0), 0) / teams.length : 0;
+const highestEfficiency = teams?.length ? Math.max(...teams.map((t: any) => t.efficiency_rate || 0)) : 0;
+const totalBenchPoints = (teams || []).reduce((sum: number, t: any) => sum + (t.points_left_on_bench || 0), 0);
+const maxFAAB = 150;
+const mostFAABRemaining = teams?.length ? Math.max(...teams.map((t: any) => maxFAAB - (t.faab_spent || 0))) : maxFAAB;
+const bestTheoreticalAvg = activeTeams.length ? Math.max(...activeTeams.map((t: any) => t.total_optimal_points / t.weeks_played)) : 0;
+
+const reduceMax = (items: any[], key: string) => items.length ? items.reduce((a, b) => (a[key] > b[key] ? a : b)) : null;
+const reduceMin = (items: any[], key: string) => items.length ? items.reduce((a, b) => (a[key] < b[key] ? a : b)) : null;
+const highestScorer = reduceMax(qualifiedTeams, 'total_points_scored');
+const bestManager = reduceMax(qualifiedTeams, 'efficiency_rate');
+const mostConsistent = reduceMax(qualifiedTeams, 'consistency_score');
+const benchWarmer = reduceMax(qualifiedTeams, 'points_left_on_bench');
+const waiverWizard = reduceMax(qualifiedTeams, 'points_per_faab');
+const validWaiverWizard = waiverWizard?.points_per_faab > 0 ? waiverWizard : null;
+const livingOnEdge = reduceMax(qualifiedTeams, 'avg_safety_margin');
+const dangerZone = reduceMax(qualifiedTeams, 'close_calls');
+const validDangerZone = dangerZone?.close_calls > 0 ? dangerZone : null;
+const boomOrBust = reduceMin(qualifiedTeams, 'consistency_score');
+const mostAverage = qualifiedTeams.length
+  ? qualifiedTeams.reduce((a: any, b: any) => Math.abs(a.avg_points_per_game - avgPPG) < Math.abs(b.avg_points_per_game - avgPPG) ? a : b)
+  : null;
+const highestAvgScore = reduceMax(activeTeams, 'avg_points_per_game');
+const projectionBeater = reduceMax(qualifiedTeams, 'projection_beat_pct');
+const validProjectionBeater = (projectionBeater?.projection_beat_pct || 0) > 0 ? projectionBeater : null;
+const crystalBallCandidates = qualifiedTeams.filter((t: any) => (t.avg_abs_projection_delta || 999) < 999);
+const crystalBall = reduceMin(crystalBallCandidates, 'avg_abs_projection_delta');
+const validCrystalBall = (crystalBall?.avg_abs_projection_delta || 0) > 0 ? crystalBall : null;
+
+let highestWeeklyScore = { score: -1, owner: '', week: 0 };
+let lowestWeeklyScore = { score: 9999, owner: '', week: 0 };
+activeTeams.forEach((team: any) => team.weekly_scores.forEach((week: any) => {
+  if (week.week >= current_week) return;
+  if (week.points > highestWeeklyScore.score) highestWeeklyScore = { score: week.points, owner: team.owner_name, week: week.week };
+  if (week.points > 0 && week.points < lowestWeeklyScore.score) lowestWeeklyScore = { score: week.points, owner: team.owner_name, week: week.week };
+}));
+
+// Unluckiest Chop: eliminated team whose score was closest to that week's league average.
+let unluckiestChop = { owner: '', diff: 9999, elimScore: 0, leagueAvg: 0, week: 0 };
+(teams || []).forEach((t: any) => {
+  if (!t.eliminated_week) return;
+  const elimScoreObj = t.weekly_scores.find((w: any) => w.week === t.eliminated_week);
+  const elimScore = elimScoreObj?.points || 0;
+  if (elimScore <= 0) return;
+  let weekSum = 0, weekCount = 0;
+  (teams || []).forEach((other: any) => {
+    const wScore = other.weekly_scores.find((w: any) => w.week === t.eliminated_week);
+    if (wScore && wScore.points > 0) { weekSum += wScore.points; weekCount++; }
+  });
+  if (!weekCount) return;
+  const leagueAvg = weekSum / weekCount;
+  const diff = Math.abs(elimScore - leagueAvg);
+  if (diff < unluckiestChop.diff) unluckiestChop = { owner: t.owner_name, diff, elimScore, leagueAvg, week: t.eliminated_week };
+});
+
+const awardItems = [
+  highestScorer && { title: 'Highest Scorer', name: highestScorer.owner_name, stat: `${highestScorer.total_points_scored.toFixed(1)} points` },
+  highestWeeklyScore.score > -1 && { title: 'Highest Weekly Score', name: highestWeeklyScore.owner, stat: `${highestWeeklyScore.score.toFixed(1)} pts (Week ${highestWeeklyScore.week})` },
+  lowestWeeklyScore.score < 9999 && { title: 'Lowest Weekly Score', name: lowestWeeklyScore.owner, stat: `${lowestWeeklyScore.score.toFixed(1)} pts (Week ${lowestWeeklyScore.week})` },
+  highestAvgScore && { title: 'Highest Average Score', name: highestAvgScore.owner_name, stat: `${highestAvgScore.avg_points_per_game.toFixed(1)} ppg` },
+  bestManager && { title: 'Best Manager', name: bestManager.owner_name, stat: `${bestManager.efficiency_rate.toFixed(1)}% efficiency` },
+  unluckiestChop.owner && { title: 'Unluckiest Chop', name: unluckiestChop.owner, stat: `${unluckiestChop.elimScore.toFixed(1)} pts (Week ${unluckiestChop.week})` },
+  livingOnEdge && { title: 'Living on the Edge', name: livingOnEdge.owner_name, stat: `${livingOnEdge.avg_safety_margin.toFixed(1)} avg margin` },
+  validDangerZone && { title: 'Danger Zone', name: validDangerZone.owner_name, stat: `${validDangerZone.close_calls} close calls` },
+  boomOrBust && { title: 'Boom or Bust', name: boomOrBust.owner_name, stat: `${boomOrBust.consistency_score.toFixed(2)} consistency` },
+  mostAverage && { title: 'Most Average Team', name: mostAverage.owner_name, stat: `${mostAverage.avg_points_per_game.toFixed(1)} ppg` },
+  mostConsistent && { title: 'Most Consistent', name: mostConsistent.owner_name, stat: `${mostConsistent.consistency_score.toFixed(2)} score` },
+  validWaiverWizard && { title: 'Waiver Wire Wizard', name: validWaiverWizard.owner_name, stat: `${validWaiverWizard.points_per_faab.toFixed(2)} Pt/$` },
+  benchWarmer && { title: 'Bench Warmer', name: benchWarmer.owner_name, stat: `${benchWarmer.points_left_on_bench.toFixed(1)} pts` },
+  validProjectionBeater && { title: 'Projection Beater', name: validProjectionBeater.owner_name, stat: `${validProjectionBeater.projection_beat_pct.toFixed(0)}% of weeks above projection` },
+  validCrystalBall && { title: 'Crystal Ball', name: validCrystalBall.owner_name, stat: `Avg ${validCrystalBall.avg_abs_projection_delta.toFixed(1)} pts from projection` },
+].filter(Boolean) as { title: string; name: string; stat: string }[];
+
+// Elimination timeline rows: one per chopped team.
+const elimRows: any[] = [];
+for (let week = 1; week < (current_week || 1); week++) {
+  const eliminated = (teams || []).filter((t: any) => t.eliminated_week === week);
+  const remaining = (teams || []).filter((t: any) => !t.eliminated_week || t.eliminated_week > week).length;
+  eliminated.forEach((t: any) => {
+    const weekScore = t.weekly_scores.find((w: any) => w.week === week);
+    elimRows.push({ week, owner: t.owner_name, points: weekScore?.points || 0, remaining });
+  });
+}
+
+const review = weeklyReviewData as any;
+const reviewWeeks = review.weeks || [];
+const faabSummary = review.faab_summary || {};
+const faabByTeam = faabSummary.by_team || [];
+const totalLeagueSpent = faabSummary.total_league_spent || 0;
+const eliminatedOwners = new Set((teams || []).filter((t: any) => t.eliminated_week).map((t: any) => t.owner_name));
+const allMoves = reviewWeeks.flatMap((week: any) =>
+  (week.faab_activity || []).flatMap((transaction: any) =>
+    (transaction.added || []).map((player: any) => ({
+      week: week.week,
+      player_name: player.player_name,
+      position: player.position,
+      bid: transaction.bid,
+      owner: transaction.owner,
+      dropped: (transaction.dropped || []).map((item: any) => item.player_name).join(', '),
+    }))
+  )
+);
+const movesByWeek = new Map<number, any[]>();
+allMoves.forEach((move: any) => {
+  if (!movesByWeek.has(move.week)) movesByWeek.set(move.week, []);
+  movesByWeek.get(move.week)?.push(move);
+});
+const faabMovesByWeek = [...movesByWeek.entries()].sort((a, b) => a[0] - b[0]).map(([week, moves]) => ({
+  week,
+  moves: moves.sort((a: any, b: any) => b.bid - a.bid),
+  total: moves.reduce((sum: number, move: any) => sum + move.bid, 0),
+}));
+
+const chartLabels = sortedTeams[0]?.weekly_scores.map((week: any) => week.week) || [];
+const chartPayload = sortedTeams.map((team: any) => ({
+  label: team.owner_name,
+  data: team.weekly_scores.map((week: any) => week.points),
+}));
+---
+
+<div class="edition-bar">
+  <span>{league_name}</span>
+  <span>{season} Season Statistics</span>
+</div>
+
+<header class="almanac-title">
+  <div>
+    <h1>{league_name}</h1>
+    <p>{season} Season Statistics</p>
+  </div>
+  {!isPreseason && <a href="/weekly-review-chopped/1">Weekly Reviews</a>}
+</header>
+
+{isPreseason && (
+  <div class="status-banner">
+    <strong>Preseason</strong>
+    <span>The {season} season hasn't started yet. Stats will populate once games begin.</span>
+  </div>
+)}
+
+{!isPreseason && !hasCompletedWeeks && (
+  <div class="status-banner">
+    <strong>Week {current_week} In Progress</strong>
+    <span>Games are underway! Stats below will update once the week completes.</span>
+  </div>
+)}
+
+{!isPreseason && (
+  <>
+    <div class="score-strip summary-strip">
+      <div class="score-strip__item"><div class="score-strip__label">League Average PPG</div><div class="score-strip__value">{avgPPG.toFixed(1)}</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Highest Efficiency</div><div class="score-strip__value">{highestEfficiency.toFixed(1)}%</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Total Bench Points</div><div class="score-strip__value">{totalBenchPoints.toFixed(0)}</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Most FAAB Remaining</div><div class="score-strip__value">${mostFAABRemaining}</div></div>
+      <div class="score-strip__item"><div class="score-strip__label">Best Theoretical Avg</div><div class="score-strip__value">{bestTheoreticalAvg.toFixed(1)}</div></div>
+    </div>
+
+    <section>
+      <div class="section-heading"><h2>Detailed Team Statistics</h2><span>Click a heading to sort</span></div>
+      <div class="retro-table-wrap">
+        <table class="retro-table" id="almanacStatsTable">
+          <thead>
+            <tr>
+              {['Rank','Team','Avg PPG','Proj +/-','Safety Margin','Close Calls','Efficiency','Bench Pts','Missed Pts','Consistency','FAAB Used','Pt/$'].map((label, index) => (
+                <th data-sort-column={index} tabindex="0">{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedTeams.map((team: any, index: number) => (
+              <tr>
+                <td class="rank" data-value={index + 1}>{index + 1}</td>
+                <td class="team-cell">
+                  {hasUserPage(team.owner_name)
+                    ? <a href={`/users/chopped-${slugify(team.owner_name)}`}>{team.owner_name}</a>
+                    : team.owner_name}
+                </td>
+                <td data-value={team.avg_points_per_game || 0}>{(team.avg_points_per_game || 0).toFixed(1)}</td>
+                <td data-value={team.avg_projection_delta || 0}>{(team.avg_projection_delta || 0) > 0 ? '+' : ''}{(team.avg_projection_delta || 0).toFixed(1)}</td>
+                <td data-value={team.avg_safety_margin || 0}>{(team.avg_safety_margin || 0).toFixed(1)}</td>
+                <td data-value={team.close_calls || 0}>{team.close_calls || 0}</td>
+                <td data-value={team.efficiency_rate || 0}>{(team.efficiency_rate || 0).toFixed(1)}%</td>
+                <td data-value={team.total_bench_points || 0}>{(team.total_bench_points || 0).toFixed(1)}</td>
+                <td data-value={team.points_left_on_bench || 0}>{(team.points_left_on_bench || 0).toFixed(1)}</td>
+                <td data-value={team.consistency_score || 0}>{(team.consistency_score || 0).toFixed(2)}</td>
+                <td data-value={team.faab_spent || 0}>${team.faab_spent || 0}</td>
+                <td data-value={team.points_per_faab || 0}>{(team.points_per_faab || 0).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {showSurvival && (
+      <section>
+        <div class="section-heading"><h2>Survival Odds</h2><span>{(survivalData.n_sims || 0).toLocaleString()} sims · {survivalData.chops} chop{survivalData.chops !== 1 ? 's' : ''}</span></div>
+        <p class="section-copy">
+          Monte Carlo probability of surviving the Week {survivalData.week} chop · cut line {survivalData.cut_mean} ± {survivalData.cut_sd} · {survivalData.need_95} pts for 95% safety
+        </p>
+        <div class="odds-grid">
+          {survivalTeams.map((team: any) => {
+            const probability = (team.p_survive || 0) * 100;
+            return (
+              <div class="odds-row">
+                <span>{team.owner}</span><i><b style={`width:${probability}%`}></b></i><strong>{probability.toFixed(1)}%</strong>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    <section>
+      <div class="section-heading"><h2>Season Awards</h2></div>
+      <AwardGrid awards={awardItems} />
+    </section>
+
+    {elimRows.length > 0 && (
+      <section>
+        <div class="section-heading"><h2>Elimination Timeline</h2><span>{elimRows.length} chopped</span></div>
+        <p class="section-copy">Who got chopped each week, and how many teams remained</p>
+        <div class="retro-table-wrap">
+          <table class="retro-table">
+            <thead><tr><th>Week</th><th>Team</th><th>Score</th><th>Teams Remaining</th></tr></thead>
+            <tbody>
+              {elimRows.map((row: any) => (
+                <tr>
+                  <td class="rank">{row.week}</td>
+                  <td class="team-cell">
+                    {hasUserPage(row.owner)
+                      ? <a href={`/users/chopped-${slugify(row.owner)}`}>{row.owner}</a>
+                      : row.owner}
+                  </td>
+                  <td>{row.points.toFixed(1)}</td>
+                  <td>{row.remaining}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+
+    {reviewWeeks.length > 0 && (
+      <section>
+        <div class="section-heading"><h2>Weekly Reviews</h2></div>
+        <p class="section-copy">Detailed awards, scoreboards, and analysis for each week</p>
+        <div class="review-links">
+          {reviewWeeks.map((week: any) => (
+            <a href={`/weekly-review-chopped/${week.week}`}>
+              <strong>Week {week.week}</strong>
+              <span>{week.awards?.top_scorer?.owner_name || '—'} ({week.awards?.top_scorer?.points || 0} pts)</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {faabMovesByWeek.length > 0 && (
+      <details class="secondary-section" open>
+        <summary>Waiver Wire</summary>
+        <p class="section-copy">{allMoves.length} moves · ${totalLeagueSpent} total spent</p>
+        <div class="waiver-weeks">
+          {faabMovesByWeek.map((week) => (
+            <article class="waiver-week">
+              <header><strong>Week {week.week}</strong><span>{week.moves.length} move{week.moves.length !== 1 ? 's' : ''} · ${week.total}</span></header>
+              {week.moves.map((move: any) => (
+                <div class="waiver-move">
+                  <b>${move.bid}</b>
+                  <span><strong>{move.player_name} ({move.position})</strong><small>{move.owner}{move.dropped ? ` · dropped ${move.dropped}` : ''}</small></span>
+                </div>
+              ))}
+            </article>
+          ))}
+        </div>
+        {faabByTeam.length > 0 && (
+          <>
+            <div class="section-heading"><h2>Team Budgets</h2><span>${maxFAAB} per team</span></div>
+            <div class="retro-table-wrap">
+              <table class="retro-table budget-table">
+                <thead><tr><th>Team</th><th>Status</th><th>Spent</th><th>Remaining</th><th>Moves</th></tr></thead>
+                <tbody>
+                  {faabByTeam.map((team: any) => (
+                    <tr>
+                      <td class="team-cell">{team.owner_name}</td>
+                      <td>{eliminatedOwners.has(team.owner_name) ? <span class="status-chopped">Chopped</span> : <span class="status-safe">Active</span>}</td>
+                      <td>${team.spent}</td>
+                      <td>${team.remaining}</td>
+                      <td>{team.moves}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </details>
+    )}
+
+    <details class="secondary-section chart-section" open>
+      <summary>Weekly Performance (All Teams)</summary>
+      <div class="chart-frame"><canvas id="almanacLeagueChart"></canvas></div>
+    </details>
+
+    {(best_theoretical_lineups || []).length > 0 && (
+      <section>
+        <div class="section-heading"><h2>Best Theoretical Lineup by Week</h2></div>
+        <p class="section-copy">
+          The highest possible scoring lineup constructed from ALL players in the Chopped league.
+          {' '}<strong>Season Average: {avg_best_theoretical_lineup} pts</strong>
+        </p>
+        <div class="retro-table-wrap">
+          <table class="retro-table">
+            <thead><tr><th>Week</th><th>Total Points</th><th>Optimal Lineup</th></tr></thead>
+            <tbody>
+              {(best_theoretical_lineups || []).map((weekData: any) => (
+                <tr>
+                  <td class="rank">Week {weekData.week}</td>
+                  <td><strong>{weekData.points}</strong></td>
+                  <td class="lineup-cell">
+                    {(weekData.lineup || []).map((player: any) => (
+                      <span class="lineup-chip"><strong>{player.slot}:</strong> {player.player} ({player.points})</span>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+  </>
+)}
+
+<script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script define:vars={{ chartLabels, chartPayload }}>
+  const statsTable = document.getElementById('almanacStatsTable');
+  if (statsTable) {
+    const headers = statsTable.querySelectorAll('[data-sort-column]');
+    let sortState = { column: -1, ascending: true };
+    const sort = (column) => {
+      const tbody = statsTable.querySelector('tbody');
+      const rows = [...tbody.querySelectorAll('tr')];
+      const ascending = sortState.column === column ? !sortState.ascending : column === 0;
+      rows.sort((a, b) => {
+        const aCell = a.children[column];
+        const bCell = b.children[column];
+        const aValue = aCell.dataset.value ?? aCell.textContent.trim();
+        const bValue = bCell.dataset.value ?? bCell.textContent.trim();
+        const aNumber = Number(aValue);
+        const bNumber = Number(bValue);
+        const result = Number.isNaN(aNumber) || Number.isNaN(bNumber)
+          ? aValue.localeCompare(bValue)
+          : aNumber - bNumber;
+        return ascending ? result : -result;
+      });
+      rows.forEach((row) => tbody.appendChild(row));
+      sortState = { column, ascending };
+    };
+    headers.forEach((header) => {
+      const column = Number(header.dataset.sortColumn);
+      header.addEventListener('click', () => sort(column));
+      header.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') sort(column);
+      });
+    });
+  }
+
+  if (window.matchMedia('(max-width: 760px)').matches) {
+    document.querySelectorAll('.secondary-section').forEach((section) => section.removeAttribute('open'));
+  }
+
+  const chartCanvas = document.getElementById('almanacLeagueChart');
+  if (chartCanvas && window.Chart) {
+    const colors = ['#183f32','#9b3f28','#c49a42','#2f6450','#6b4d32','#586b79','#824f66','#6a685d','#3d5a6c','#7b6634'];
+    new window.Chart(chartCanvas, {
+      type: 'line',
+      data: {
+        labels: chartLabels.map((week) => `Week ${week}`),
+        datasets: chartPayload.map((team, index) => ({
+          ...team,
+          borderColor: colors[index % colors.length],
+          backgroundColor: colors[index % colors.length],
+          tension: .2,
+        })),
+      },
+      options: { responsive: true, maintainAspectRatio: false },
+    });
+  }
+</script>
+
+<style>
+  .almanac-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: end;
+    border-bottom: 3px solid var(--forest);
+    padding: 14px 0;
+  }
+  .almanac-title h1 { margin: 0; font: 900 clamp(2rem, 5vw, 4rem)/.95 var(--sans); text-transform: uppercase; }
+  .almanac-title p { margin: 5px 0 0; color: var(--muted); }
+  .almanac-title a { border: 1px solid var(--ink); background: var(--white); padding: 8px 11px; font: 900 11px var(--sans); text-transform: uppercase; }
+  .status-banner { display: grid; gap: 4px; margin: 14px 0; border-left: 5px solid var(--rust); background: var(--white); padding: 12px 14px; }
+  .status-banner strong { font: 900 14px var(--sans); text-transform: uppercase; }
+  .summary-strip { margin-top: 16px; }
+  .section-copy { margin: -4px 0 12px; color: var(--muted); }
+  .odds-grid { border: 1px solid var(--rule); background: var(--white); padding: 12px; }
+  .odds-row { display: grid; grid-template-columns: 130px 1fr 58px; gap: 10px; align-items: center; padding: 6px 0; font: 800 12px var(--sans); }
+  .odds-row i { height: 12px; background: var(--paper-deep); }
+  .odds-row i b { display: block; height: 100%; background: var(--rust); }
+  .odds-row strong { text-align: right; font-family: var(--mono); }
+  .review-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+  .review-links a { border: 1px solid var(--ink); background: var(--white); padding: 10px; text-decoration: none; }
+  .review-links strong, .review-links span { display: block; }
+  .review-links strong { color: var(--rust); font: 900 12px var(--sans); text-transform: uppercase; }
+  .review-links span { margin-top: 4px; font-size: 12px; }
+  .secondary-section { margin-top: 26px; border-top: 4px solid var(--forest); }
+  .secondary-section > summary { background: var(--forest); color: var(--white); cursor: pointer; padding: 9px 10px; font: 900 18px var(--sans); text-transform: uppercase; }
+  .secondary-section[open] > summary { margin-bottom: 12px; }
+  .waiver-weeks { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .waiver-week { border: 1px solid var(--rule); background: var(--white); }
+  .waiver-week header { display: flex; justify-content: space-between; background: var(--paper-deep); padding: 8px 10px; font: 800 11px var(--sans); text-transform: uppercase; }
+  .waiver-move { display: grid; grid-template-columns: 42px 1fr; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--paper-deep); }
+  .waiver-move > b { color: var(--rust); font-family: var(--mono); }
+  .waiver-move span strong, .waiver-move small { display: block; }
+  .waiver-move span strong { font: 800 13px var(--sans); }
+  .waiver-move small { color: var(--muted); margin-top: 2px; }
+  .budget-table { min-width: 460px; }
+  .chart-frame { height: 480px; border: 1px solid var(--rule); background: var(--white); padding: 12px; }
+  #almanacStatsTable {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+  }
+  #almanacStatsTable th,
+  #almanacStatsTable td,
+  #almanacStatsTable .team-cell {
+    padding-right: 12px;
+    padding-left: 12px;
+    text-align: center !important;
+    white-space: nowrap;
+  }
+  .retro-table th[data-sort-column] { cursor: pointer; }
+  .status-chopped { color: var(--rust); font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
+  .status-safe { color: var(--forest); font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
+  .lineup-cell { text-align: left !important; white-space: normal !important; }
+  .lineup-chip {
+    display: inline-block;
+    border: 1px solid var(--rule);
+    background: var(--white);
+    padding: 3px 8px;
+    margin: 2px 4px 2px 0;
+    font: 700 11px var(--sans);
+    white-space: nowrap;
+  }
+  @media (max-width: 760px) {
+    .almanac-title { align-items: start; flex-direction: column; }
+    .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .odds-row { grid-template-columns: 90px 1fr 48px; }
+    .chart-frame { height: 310px; }
+  }
+</style>
