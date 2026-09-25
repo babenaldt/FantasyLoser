@@ -33,6 +33,15 @@ live Sleeper lineup differs. Apply injury judgment on top: a Questionable tag
 can override a small projection edge (e.g. a Q Nico Collins at 14.09 vs a
 healthy Jaylen Waddle at 13.17 is a real call, not an auto-start).
 
+## Projection cross-check
+
+The report's cross-check section lines up Sleeper's projections against ESPN's
+(free, no key; standard scoring converted to league PPR via projected
+receptions). Both sources usually agree; a `!` flag means they differ by 3+
+points or 6+ positional rank spots — treat that as a real second opinion, not
+a tiebreak. ESPN sometimes zeroes out players it expects to miss, which is
+signal, not a bug. Shared logic lives in `scripts/xcheck.py`.
+
 ## FAAB posture
 
 No standing doctrine yet like Chopped's. Default posture: Sean is 2-0 with a
@@ -66,6 +75,13 @@ python scripts/chopped_week.py --refresh-history
 That file is every 2025 waiver bid, including bids that lost. The winning-only archive (`archive_faab_chopped_2025.json`) is for the website and is the wrong file for pricing.
 
 `python scripts/generate_data.py --quick` refreshes the site. It is not required for the weekly advice. Dynasty playoff projections can fail on a local NumPy/SciPy mismatch; ignore that for Chopped.
+
+## Projection cross-check
+
+Same as Dynasty's: the report carries a Sleeper-vs-ESPN section (see above).
+`!` flags mark real disagreements — useful for the wire, where ESPN sometimes
+zeroes out a player it expects benched (e.g. a backup QB Sleeper still
+projects). Shared logic lives in `scripts/xcheck.py`.
 
 ## How to price a bid
 

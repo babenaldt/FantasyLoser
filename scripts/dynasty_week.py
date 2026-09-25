@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core_data import OUTPUT_DIR, SleeperAPI, make_request
 from nfl_week_helper import get_current_nfl_week, get_last_completed_nfl_week
+import xcheck
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
@@ -435,6 +436,45 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         pool.append(row)
     pool.sort(key=lambda row: -row["proj"])
 
+    # Second-opinion projections: ESPN (free, no key) vs Sleeper.
+    sleeper_universe = []
+    for pid, stats in proj_by_id.items():
+        info = players.get(pid, {})
+        pos = info.get("position")
+        team = info.get("team")
+        proj = proj_points(stats, rec_points)
+        if proj > 0 and pos in ("QB", "RB", "WR", "TE") and team:
+            sleeper_universe.append(
+                {"name": player_name(players, pid), "team": team,
+                 "pos": pos, "proj": round(proj, 2)}
+            )
+    xc_table = xcheck.build_xcheck(sleeper_universe, week, rec_points)
+
+    def xc_row(row: dict) -> dict | None:
+        key = (xcheck.norm_name(row["name"]),
+               xcheck.norm_team(row.get("team")), row.get("pos"))
+        return xc_table.get(key)
+
+    for row in sit_start_diffs:
+        xc = xc_row(row)
+        row["espn_proj"] = xc["espn_proj"] if xc else None
+        row["espn_rank"] = xc["espn_rank"] if xc else None
+        row["xcheck_mean"] = xc["mean"] if xc else None
+        row["xcheck_disagree"] = xc["disagree"] if xc else None
+
+    xcheck_rows = []
+    for row in sorted(sean_players, key=lambda r: -r["proj"])[:24]:
+        xc = xc_row(row)
+        if not xc or xc["espn_proj"] is None:
+            continue
+        xcheck_rows.append({
+            "name": row["name"], "pos": row.get("pos"), "team": row.get("team"),
+            "starting": row["starting"],
+            "sleeper_proj": xc["sleeper_proj"], "sleeper_rank": xc["sleeper_rank"],
+            "espn_proj": xc["espn_proj"], "espn_rank": xc["espn_rank"],
+            "mean": xc["mean"], "disagree": xc["disagree"],
+        })
+
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "week": week,
@@ -457,6 +497,13 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         },
         "opponent": opponent,
         "sit_start_diffs": sit_start_diffs,
+        "xcheck": xcheck_rows,
+        "xcheck_note": (
+            "ESPN standard-scoring projections converted to league PPR via "
+            "projected receptions. Ranks are positional. '!' = sources differ "
+            "by 3+ pts or 6+ rank spots."
+            if xcheck_rows else "ESPN cross-check unavailable (fetch failed)"
+        ),
         "pool": pool[:30],
         "auctions_this_season": current_auctions,
         "auctions_last_season_this_week": [row for row in history_auctions if row["week"] == week],
@@ -534,6 +581,16 @@ def print_report(brief: dict) -> None:
             print(fmt_player(row))
     else:
         print("\nSTART/SIT: optimal lineup matches current starters")
+    print("\nPROJECTION CROSS-CHECK (Sleeper vs ESPN)")
+    print(f"  {brief['xcheck_note']}")
+    for row in brief["xcheck"]:
+        flag = " !" if row["disagree"] else "  "
+        start = "starting" if row["starting"] else "bench   "
+        print(
+            f" {flag} {start} {row['name']:<24} {row['pos']:<3} {row['team']:<4}"
+            f"Sleeper {row['sleeper_proj']:<6} (#{row['sleeper_rank']})  "
+            f"ESPN {row['espn_proj']:<6} (#{row['espn_rank']})  mean {row['mean']}"
+        )
     print("\nAVAILABLE (free agents, proj >= 6)")
     for row in brief["pool"][:20]:
         print(fmt_player(row))
