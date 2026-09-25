@@ -131,6 +131,14 @@ jobs:
         run: |
           echo "Running $REFRESH_MODE refresh..."
           python scripts/generate_data.py "--$REFRESH_MODE"
+
+      - name: Generate Chopped survival odds
+        # The Monte Carlo survival model lives in chopped_week.py, not
+        # generate_data.py (which only writes an empty stub). Without this
+        # step the deployed site has no P(survive) data and the Survival
+        # Odds sections render nothing.
+        run: |
+          PYTHONIOENCODING='utf-8' python scripts/chopped_week.py
       
       - name: Copy data to website
         run: |
