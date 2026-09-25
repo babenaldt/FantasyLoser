@@ -106,6 +106,13 @@ Sean is in survival mode, and FAAB is more valuable later. Default to spending $
 
 **FAAB bullying.** The enviable late-season position is having the most money when stars clear for cheap (2025: Taylor, Amon-Ra, Kittle went $0-8 from week 11 because he still had budget). Stay in the top FAAB tier; never drop out of it chasing tier-2 players.
 
+### How this league differs from standard guillotine
+Standard guillotine has fixed rosters — every add is a swap. Here rosters expand 8 -> 15 and starters grow 5 -> 11, which creates edges the standard format doesn't have:
+- **Fill every expansion spot.** Weeks 3, 5, 7, 9, 11, 13, 15 add a roster slot for free. Never leave one empty: claim the best available player at $0 even if marginal. Today's end-of-bench stash is week 13's 3rd RB starter.
+- **Buy ahead of slot openings (market timing).** The chart tells you exactly when positional demand spikes: 2nd QB startable week 11, 3rd RB / 3rd WR weeks 13-14. Acquire those positions a week early, before every rival needs them and prices rise.
+- **Convert stashes to starters over time.** By week 15, 11 of 15 roster spots start. There is no room for dead bench weight late — every spot must be startable. Early upside stashes should become reliable veterans by week 12.
+- **Bodies matter more here.** A star is still worth star money, but the 11th starter has real value in this format — which is why expansion-week $0 claims are mandatory, not optional.
+
 Spend triggers (exceptions to $0 default): the week-5 bye hole, fewer than 2 startable RBs entering week 9, or an injury to a starter. The 2025 bids that mattered — Josh Allen $41 in week 5, Puka Nacua $31 in week 7 — were tier-1 overspends, and they were correct.
 
 ### Waiver shopping list (from the starter-slot chart)
