@@ -735,30 +735,6 @@ select {
   white-space: normal !important;
 }
 
-.weekly-chopped-page .review-container,
-.weekly-chopped-page .section,
-.weekly-chopped-page .week-nav {
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.weekly-chopped-page .section {
-  overflow: hidden;
-}
-
-.weekly-chopped-page .elimination-cards {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  width: 100%;
-}
-
-.weekly-chopped-page .elim-card {
-  width: auto;
-  min-width: 0 !important;
-  max-width: 100%;
-}
-
 .weekly-chopped-page .elim-name,
 .weekly-chopped-page .survival-line,
 .weekly-chopped-page .team-name {

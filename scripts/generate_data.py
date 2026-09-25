@@ -16,6 +16,7 @@ from generate_kicker_stats import generate_kicker_stats
 from generate_enriched_stats import generate_enriched_player_stats
 from generate_user_lineups import generate_user_lineups
 from generate_weekly_reviews import generate_weekly_reviews
+from core_data import ASTRO_DATA_DIR
 from core_data import (
     ASTRO_DATA_DIR,
     OUTPUT_DIR,
@@ -51,6 +52,23 @@ def save_players_database():
         return {}
 
 
+def ensure_chopped_survival_odds_stub():
+    """Guarantee website/public/data/chopped_survival_odds.json exists.
+
+    The real file is written by scripts/chopped_week.py (daily brief). The
+    chopped weekly-review page statically imports it, so a stub keeps fresh
+    builds working when the brief hasn't run yet in this environment.
+    """
+    import json
+    path = os.path.join(ASTRO_DATA_DIR, "chopped_survival_odds.json")
+    if os.path.exists(path):
+        return
+    os.makedirs(ASTRO_DATA_DIR, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"week": 0, "generated_at": None, "teams": []}, handle, indent=2)
+    print("  • wrote chopped_survival_odds.json stub (no brief data yet)")
+
+
 def generate_all(current_season_only: bool = False):
     """Generate all statistics.
     
@@ -84,6 +102,7 @@ def generate_all(current_season_only: bool = False):
         generate_season_stats_json()
         generate_user_lineups()
         generate_weekly_reviews()
+        ensure_chopped_survival_odds_stub()
         
         print("\n" + "=" * 80)
         print("✅ ALL DATA GENERATED SUCCESSFULLY!")

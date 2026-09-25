@@ -410,6 +410,17 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
     p_survive = float(np.mean(below >= chops))
     p_survive_1chop = float(np.mean(below >= 1))
 
+    team_odds = []
+    for j, t in enumerate(teams):
+        below_j = np.sum(scores < scores[:, j:j + 1], axis=1)
+        team_odds.append({
+            "owner": t["owner"],
+            "p_survive": round(float(np.mean(below_j >= chops)), 4),
+            "proj_final": round(float(locked[j] + mus[j]), 1),
+            "locked": round(float(locked[j]), 1),
+        })
+    team_odds.sort(key=lambda r: -r["p_survive"])
+
     ordered = np.sort(scores, axis=1)
     cut = ordered[:, chops - 1]
     return {
@@ -425,6 +436,7 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
         "cut_sd": round(float(cut.std()), 1),
         "need_90": round(float(np.quantile(cut, 0.90)), 1),
         "need_95": round(float(np.quantile(cut, 0.95)), 1),
+        "teams": team_odds,
     }
 
 
@@ -842,6 +854,17 @@ def main():
         json.dump(brief, handle, indent=2)
     print_report(brief)
     print(f"JSON brief: {BRIEF_PATH}")
+    site_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "website", "public", "data", "chopped_survival_odds.json")
+    os.makedirs(os.path.dirname(site_path), exist_ok=True)
+    with open(site_path, "w", encoding="utf-8") as handle:
+        json.dump({
+            "week": brief["week"],
+            "generated_at": brief["generated_at"],
+            **brief["survival_mc"],
+        }, handle, indent=2)
+    print(f"Survival odds: {site_path}")
 
 
 if __name__ == "__main__":
