@@ -104,6 +104,15 @@ If the lineup is safe, the only acceptable claims are $0 or $1 on a player he wo
 
 When he is on the bubble, pay the clearing price for the one player who raises the floor, and still do not pay the winner's vanity number from a past auction.
 
+### Waiver shopping list (from the starter-slot chart)
+Positional demand ramps as starters grow 5 -> 11. Build in this order:
+1. **RB** — the scarce one. Needed: week 5 bye cover (Walker + Hubbard both out), a 2nd startable RB from week 9, a 3rd from week 13. Never feel "done" at RB; every upside stash should be an RB first.
+2. **WR** — 2nd WR slot opens week 5, 3rd WR week 8, 3 per week from 13.
+3. **QB** — a 2nd QB is only *startable* from week 11 (WRTQ superflex slots), not week 5. Add one on the week 10/11 waivers; QBs are cheap. The old "planned Week 5 QB spend" is obsolete: week 5's expansion spot goes to RB/WR.
+4. **TE** — 2nd TE slot opens week 11; Kraft + Juwan Johnson already cover it.
+
+Spend triggers (exceptions to $0 default): the week-5 bye hole, fewer than 2 startable RBs entering week 9, or an injury to a starter. Expansion weeks (5, 7, 9, 11, 13, 15) need no drop — prefer adds then; on must-drop weeks (4, 6, 8, 10, 12, 14) only add windfalls (chopped teams' drops).
+
 ## League chart
 
 Sleeper's `roster_positions` are the starting slots. The chart caps are separate, and the script enforces them. Do not recommend a player at a capped position.
