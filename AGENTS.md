@@ -108,15 +108,27 @@ When he is on the bubble, pay the clearing price for the one player who raises t
 
 Sleeper's `roster_positions` are the starting slots. The chart caps are separate, and the script enforces them. Do not recommend a player at a capped position.
 
-Teams entering the week: 20, 18, 16, 14, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2.
+Teams entering the week: 20, 18, 16, 14, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1.
 
-Chops: 2 teams in weeks 1-4, then 1 team in weeks 5-14. Week 15 is the final.
+Chops: 2 teams in weeks 1-4, then 1 team in weeks 5-15. Week 16 has 1 team left.
 
-Roster size: 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15. An expansion week adds one bench spot, so he can add without a drop. On a non-expansion week he must drop.
+Roster size: 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15. An expansion week adds one bench spot, so he can add without a drop. On a non-expansion week he must drop.
 
-Roster caps: weeks 1-4 max 1 QB and 2 TE. Weeks 5-9 max 2 QB and 2 TE. Weeks 10-15 max 3 QB and 3 TE.
+Roster caps: weeks 1-4 max 1 QB and 2 TE. Weeks 5-9 max 2 QB and 2 TE. Weeks 10+ max 3 QB and 3 TE.
 
-Early lineup (through week 4): QB, RB, WR, TE, WRT, plus bench. Week 5 adds a second WR starter and opens the second QB roster spot. That week is the planned QB spend.
+Starter slots (full chart transcribed from the commissioner's photo, 2026-09-25; also encoded as CHART_SLOTS in scripts/chopped_week.py, and the brief lists upcoming changes):
+- Weeks 1-3: QB, RB, WR, TE, WRT (5 starters)
+- Week 4: adds a 2nd WRT (6)
+- Week 5: 2nd WR replaces a WRT -> QB, RB, WR, WR, TE, WRT (6)
+- Week 6-7: 2nd WRT back (7)
+- Week 8: 3rd WR (8)
+- Weeks 9-10: 2nd RB replaces a WR (8)
+- Week 11: 2nd TE and 2 WRTQ replace the WRTs (9)
+- Week 12: QB, RB, RB, WR, WR, TE, TE, WRT, WRTQ, WRTQ (10)
+- Weeks 13-14: 3rd RB and 3rd WR, WRTQ single (10)
+- Weeks 15-16: QB, RB x3, WR x3, TE, WRT x2, WRTQ (11)
+
+Week 5 adds the second WR starter and opens the second QB roster spot. That week was the planned QB spend, but the 2026 Week 5 RB bye crunch (Walker + Hubbard both out) deprioritized it.
 
 ## What to answer
 

@@ -38,8 +38,62 @@ BRIEF_PATH = os.path.join(OUTPUT_DIR, "chopped_week_brief.json")
 
 # Chart rules that Sleeper does not encode. Lineup slots come from the live
 # league; these are roster caps, elimination counts, and roster size.
-ROSTER_SIZE = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15]
+# CHART_SLOTS is transcribed from the commissioner's chart (photo, 2026-09-25):
+# starting slots per week; the rest of the roster is bench.
+ROSTER_SIZE = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15]
 TEAM_ALIASES = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX"}
+
+CHART_SLOTS = {
+    1:  ["QB", "RB", "WR", "TE", "WRT"],
+    2:  ["QB", "RB", "WR", "TE", "WRT"],
+    3:  ["QB", "RB", "WR", "TE", "WRT"],
+    4:  ["QB", "RB", "WR", "TE", "WRT", "WRT"],
+    5:  ["QB", "RB", "WR", "WR", "TE", "WRT"],
+    6:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
+    7:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
+    8:  ["QB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT"],
+    9:  ["QB", "RB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
+    10: ["QB", "RB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
+    11: ["QB", "RB", "RB", "WR", "WR", "TE", "TE", "WRTQ", "WRTQ"],
+    12: ["QB", "RB", "RB", "WR", "WR", "TE", "TE", "WRT", "WRTQ", "WRTQ"],
+    13: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "WRT", "WRT", "WRTQ"],
+    14: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "WRT", "WRT", "WRTQ"],
+    15: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT", "WRTQ"],
+    16: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT", "WRTQ"],
+}
+
+# WRTQ is a superflex-style slot (QB/RB/WR/TE); WRT is RB/WR/TE.
+CHART_ELIGIBILITY = {
+    "QB": {"QB"}, "RB": {"RB"}, "WR": {"WR"}, "TE": {"TE"},
+    "WRT": {"RB", "WR", "TE"}, "WRTQ": {"QB", "RB", "WR", "TE"},
+}
+
+
+def chart_slot_changes(from_week: int) -> list[str]:
+    """Human-readable upcoming starter-slot changes after from_week."""
+    notes = []
+    weeks = sorted(CHART_SLOTS)
+    for i, wk in enumerate(weeks):
+        if wk <= from_week or i == 0:
+            continue
+        prev = CHART_SLOTS[weeks[i - 1]]
+        cur = CHART_SLOTS[wk]
+        added = sorted(set(cur) - set(prev))
+        # Count-aware diff for duplicate slots (e.g. a 2nd WRT).
+        from collections import Counter
+        add_counts = Counter(cur) - Counter(prev)
+        drop_counts = Counter(prev) - Counter(cur)
+        bits = []
+        for slot in sorted(add_counts):
+            n = add_counts[slot]
+            bits.append(f"+{n} {slot}" if n > 1 else f"+{slot}")
+        for slot in sorted(drop_counts):
+            n = drop_counts[slot]
+            bits.append(f"-{n} {slot}" if n > 1 else f"-{slot}")
+        if bits:
+            notes.append(f"Week {wk}: {', '.join(bits)} "
+                         f"({len(cur)} starters)")
+    return notes
 
 
 def teams_entering(week: int) -> int:
@@ -52,7 +106,7 @@ def teams_entering(week: int) -> int:
 def chops_in_week(week: int) -> int:
     if week <= 4:
         return 2
-    if week <= 14:
+    if week <= 15:
         return 1
     return 0
 
@@ -481,6 +535,8 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         "chops_this_week": chops_in_week(week),
         "chart_roster_size": roster_size(week),
         "live_roster_positions": roster_positions,
+        "chart_slots": CHART_SLOTS.get(week, []),
+        "chart_slot_changes": chart_slot_changes(week),
         "open_spots": max(0, len(roster_positions) - len(sean["player_ids"])),
         "roster_caps": caps,
         "sean_position_counts": dict(counts),
@@ -562,6 +618,11 @@ def print_report(brief: dict) -> None:
         f"roster {brief['chart_roster_size']}  open spots {brief['open_spots']}"
     )
     print(f"Slots {brief['live_roster_positions']}")
+    print(f"Chart slots this week: {', '.join(brief['chart_slots'])}")
+    if brief["chart_slot_changes"]:
+        print("Upcoming slot changes (league chart):")
+        for note in brief["chart_slot_changes"]:
+            print(f"  {note}")
     print(
         f"Caps {brief['roster_caps']}  currently {brief['sean_position_counts']}  "
         f"blocked {brief['cap_blocked']}"
