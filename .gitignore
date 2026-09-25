@@ -13,6 +13,15 @@ __pycache__/
 output/league_data/
 output/*.json
 
+# Accidental output from running generators in the wrong directory
+scripts/output/
+scripts/website/
+website/output/
+website/website/
+
+# One-off scratch from draft night and ad-hoc scripts
+temp_*
+
 # Generated website data (dynamically created, not committed)
 website/public/data/*.json
 
