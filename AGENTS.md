@@ -1,3 +1,45 @@
+# Dynasty weekly roster and FAAB
+
+Use this when Sean asks for Dynasty lineup, roster, or waiver advice.
+
+His Sleeper name is `SeanRabenaldt`. The 2026 league id is `1312064104759844864`
+(GM Chassis Controls Dynasty, superflex). Scoring is full PPR. The 2025 season
+of the same league is `1264304480178950144`, used only for FAAB bid history.
+
+## Start here
+
+From the repo root:
+
+```bash
+PYTHONIOENCODING='utf-8' python scripts/dynasty_week.py
+```
+
+Read that report before giving advice. Do not write temp scripts, one-off API
+dumps, or extra snapshot files. The report already has the matchup, a
+projection-optimal lineup, start/sit flags, the waiver pool, and every bid.
+
+If `website/public/data/archive/2025/dynasty_faab_all_bids_2025.json` is
+missing, run once:
+
+```bash
+python scripts/dynasty_week.py --refresh-history
+```
+
+## How to use the start/sit flags
+
+The script assigns the projection-optimal lineup greedily (best proj into each
+eligible slot, FLEX = RB/WR/TE, SUPER_FLEX = QB/RB/WR/TE). Flags mark where the
+live Sleeper lineup differs. Apply injury judgment on top: a Questionable tag
+can override a small projection edge (e.g. a Q Nico Collins at 14.09 vs a
+healthy Jaylen Waddle at 13.17 is a real call, not an auto-start).
+
+## FAAB posture
+
+No standing doctrine yet like Chopped's. Default posture: Sean is 2-0 with a
+deep roster, so treat FAAB as precious and bid only for players who would crack
+the starting lineup or cover a starter's injury. Price against clearing
+(second bid + $1), not the winning bid.
+
 # Chopped weekly roster and FAAB
 
 Use this when Sean asks for Chopped lineup, roster, waiver, or FAAB advice.
