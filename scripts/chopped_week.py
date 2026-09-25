@@ -341,6 +341,93 @@ def proj_points(stats: dict, rec_points: float) -> float:
     return stats.get("pts_std") or 0
 
 
+def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
+                      week, completed, chops, n_sims=50000, seed=7):
+    """Monte Carlo chop survival with the real chop count for the week.
+
+    Each alive team's final score = locked actuals (starters who already
+    played this week, from live matchup data) + t-distributed draws for
+    unplayed starters. Team sigma comes from the league's historical
+    coefficient of variation applied to the unplayed projection mass,
+    so a bye-depleted team is both low-mean and low-variance.
+    """
+    import numpy as np
+    from scipy.stats import t as t_dist
+
+    totals = []
+    for view in views:
+        if not view["player_ids"]:
+            continue
+        for played in range(1, completed + 1):
+            s = view["scores"].get(played) or 0
+            if s > 0:
+                totals.append(s)
+    totals = np.array(totals, dtype=float)
+    league_mean = float(totals.mean()) if len(totals) else 100.0
+    league_sd = float(totals.std(ddof=1)) if len(totals) > 1 else 25.0
+    cv = league_sd / league_mean if league_mean > 0 else 0.25
+
+    live = {}
+    for matchup in api.get_matchups(week) or []:
+        live[matchup.get("roster_id")] = {
+            str(pid): pts
+            for pid, pts in (matchup.get("players_points") or {}).items()
+        }
+
+    teams = []
+    for view in views:
+        if not view["player_ids"]:
+            continue
+        pp = live.get(view["roster_id"], {})
+        locked = 0.0
+        unplayed_mu = 0.0
+        for pid in view["starters"]:
+            actual = pp.get(pid) or 0
+            if actual > 0:
+                locked += actual
+            else:
+                unplayed_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
+        sigma = 0.0 if unplayed_mu <= 0 else min(45.0, max(12.0, cv * unplayed_mu))
+        teams.append({
+            "owner": view["owner"],
+            "locked": locked,
+            "mu": unplayed_mu,
+            "sigma": sigma,
+            "is_sean": view["owner"] == owner_name,
+        })
+
+    n = len(teams)
+    locked = np.array([t["locked"] for t in teams])
+    mus = np.array([t["mu"] for t in teams])
+    sigmas = np.array([t["sigma"] for t in teams])
+    sean_idx = next(i for i, t in enumerate(teams) if t["is_sean"])
+
+    rng = np.random.default_rng(seed)
+    draws = t_dist.rvs(6, size=(n_sims, n), random_state=rng)
+    scores = locked + mus + sigmas * draws
+    sean_scores = scores[:, sean_idx]
+    below = np.sum(scores < sean_scores[:, None], axis=1)
+    p_survive = float(np.mean(below >= chops))
+    p_survive_1chop = float(np.mean(below >= 1))
+
+    ordered = np.sort(scores, axis=1)
+    cut = ordered[:, chops - 1]
+    return {
+        "n_sims": n_sims,
+        "chops": chops,
+        "league_cv": round(cv, 3),
+        "p_survive": round(p_survive, 4),
+        "p_survive_1chop": round(p_survive_1chop, 4),
+        "sean_locked": round(float(locked[sean_idx]), 1),
+        "sean_proj_remaining": round(float(mus[sean_idx]), 1),
+        "sean_proj_final": round(float(locked[sean_idx] + mus[sean_idx]), 1),
+        "cut_mean": round(float(cut.mean()), 1),
+        "cut_sd": round(float(cut.std()), 1),
+        "need_90": round(float(np.quantile(cut, 0.90)), 1),
+        "need_95": round(float(np.quantile(cut, 0.95)), 1),
+    }
+
+
 def build_brief(owner_name: str, refresh_history: bool) -> dict:
     week = get_current_nfl_week()
     completed = get_last_completed_nfl_week()
@@ -492,6 +579,10 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         key=lambda r: -r["faab"],
     )
 
+    survival = simulate_survival(
+        api, views, proj_by_id, rec_points, owner_name,
+        week, completed, chops_in_week(week))
+
     current_bids = fetch_bids(LEAGUE_ID, players, through_week=max(week, 1))
     history_auctions = auctions_from(history.get("bids") or [])
     current_auctions = auctions_from(current_bids)
@@ -601,6 +692,7 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         "alive_last_week": alive_scores,
         "chop_watch": chop_watch,
         "faab_board": faab_board,
+        "survival_mc": survival,
         "pool": pool[:30],
         "xcheck": xcheck_rows,
         "xcheck_note": (
@@ -697,6 +789,12 @@ def print_report(brief: dict) -> None:
     )
     top = ", ".join(f"{r['owner']} ${r['faab']}" for r in board[:5])
     print(f"FAAB board: {top} ... you are #{my_rank} at ${sean['faab_remaining']}")
+    mc = brief["survival_mc"]
+    print(f"\nSURVIVAL SIM ({mc['n_sims']:,} sims, t-dist, {mc['chops']} chops, league CV {mc['league_cv']})")
+    print(f"  P(survive) {mc['p_survive']:.1%}  (with 1 chop: {mc['p_survive_1chop']:.1%})")
+    print(f"  Your final: {mc['sean_locked']} locked + {mc['sean_proj_remaining']} proj = {mc['sean_proj_final']}")
+    print(f"  Cut line ({mc['chops']}nd lowest): {mc['cut_mean']} ± {mc['cut_sd']}")
+    print(f"  Score needed: {mc['need_90']} for 90% safe, {mc['need_95']} for 95% safe")
     print("\nROSTER")
     for row in sean["players"]:
         print(fmt_player(row))
