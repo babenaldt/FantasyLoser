@@ -1,0 +1,1078 @@
+{
+  "league_id": "1264304480178950144",
+  "season": 2025,
+  "waiver_budget": 100,
+  "generated_at": "2026-09-24T20:27:18",
+  "bids": [
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 1,
+      "owner": "McInally",
+      "player_id": "8698",
+      "player_name": "Jake Tonges",
+      "position": "TE",
+      "dropped": [
+        "Ray Davis"
+      ]
+    },
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 11,
+      "owner": "emiliosolay",
+      "player_id": "9504",
+      "player_name": "Kayshon Boutte",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 7,
+      "owner": "emiliosolay",
+      "player_id": "8125",
+      "player_name": "Calvin Austin",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "failed",
+      "bid": 4,
+      "owner": "Sangha",
+      "player_id": "8125",
+      "player_name": "Calvin Austin",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 3,
+      "owner": "agrusa17",
+      "player_id": "7002",
+      "player_name": "Juwan Johnson",
+      "position": "TE",
+      "dropped": [
+        "Roman Wilson"
+      ]
+    },
+    {
+      "week": 1,
+      "status": "failed",
+      "bid": 2,
+      "owner": "NLadocsi",
+      "player_id": "9504",
+      "player_name": "Kayshon Boutte",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "failed",
+      "bid": 1,
+      "owner": "McInally",
+      "player_id": "7002",
+      "player_name": "Juwan Johnson",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "failed",
+      "bid": 2,
+      "owner": "BTThomp",
+      "player_id": "8125",
+      "player_name": "Calvin Austin",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 1,
+      "owner": "McInally",
+      "player_id": "11575",
+      "player_name": "Ray Davis",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 1,
+      "owner": "agrusa17",
+      "player_id": "10219",
+      "player_name": "Chris Rodriguez",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 1,
+      "status": "complete",
+      "bid": 1,
+      "owner": "agrusa17",
+      "player_id": "11627",
+      "player_name": "Troy Franklin",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 2,
+      "status": "complete",
+      "bid": 5,
+      "owner": "McInally",
+      "player_id": "421",
+      "player_name": "Matthew Stafford",
+      "position": "QB",
+      "dropped": [
+        "Jake Tonges"
+      ]
+    },
+    {
+      "week": 2,
+      "status": "complete",
+      "bid": 3,
+      "owner": "McInally",
+      "player_id": "8132",
+      "player_name": "Tyler Allgeier",
+      "position": "RB",
+      "dropped": [
+        "Colston Loveland"
+      ]
+    },
+    {
+      "week": 2,
+      "status": "complete",
+      "bid": 5,
+      "owner": "Taubitz",
+      "player_id": "7587",
+      "player_name": "Dyami Brown",
+      "position": "WR",
+      "dropped": [
+        "Michael Wilson"
+      ]
+    },
+    {
+      "week": 2,
+      "status": "complete",
+      "bid": 2,
+      "owner": "Sangha",
+      "player_id": "10219",
+      "player_name": "Chris Rodriguez",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 2,
+      "status": "failed",
+      "bid": 7,
+      "owner": "agrusa17",
+      "player_id": "6111",
+      "player_name": "Jake Browning",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 2,
+      "status": "failed",
+      "bid": 2,
+      "owner": "McInally",
+      "player_id": "6111",
+      "player_name": "Jake Browning",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 2,
+      "status": "failed",
+      "bid": 10,
+      "owner": "dbyrd55",
+      "player_id": "8132",
+      "player_name": "Tyler Allgeier",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 2,
+      "status": "complete",
+      "bid": 20,
+      "owner": "dbyrd55",
+      "player_id": "6111",
+      "player_name": "Jake Browning",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 3,
+      "status": "failed",
+      "bid": 1,
+      "owner": "Sangha",
+      "player_id": "8917",
+      "player_name": "KaVontae Turpin",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 3,
+      "status": "complete",
+      "bid": 1,
+      "owner": "Sangha",
+      "player_id": "11199",
+      "player_name": "Emari Demercado",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 3,
+      "status": "complete",
+      "bid": 2,
+      "owner": "Sangha",
+      "player_id": "8917",
+      "player_name": "KaVontae Turpin",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 3,
+      "status": "failed",
+      "bid": 1,
+      "owner": "dbyrd55",
+      "player_id": "11199",
+      "player_name": "Emari Demercado",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 3,
+      "status": "complete",
+      "bid": 1,
+      "owner": "dbyrd55",
+      "player_id": "6130",
+      "player_name": "Devin Singletary",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 3,
+      "status": "complete",
+      "bid": 5,
+      "owner": "Taubitz",
+      "player_id": "3200",
+      "player_name": "Sterling Shepard",
+      "position": "WR",
+      "dropped": [
+        "Trevor Etienne"
+      ]
+    },
+    {
+      "week": 3,
+      "status": "complete",
+      "bid": 1,
+      "owner": "BTThomp",
+      "player_id": "6826",
+      "player_name": "Cole Kmet",
+      "position": "TE",
+      "dropped": [
+        "Terrance Ferguson"
+      ]
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 1,
+      "owner": "emiliosolay",
+      "player_id": "4574",
+      "player_name": "Cooper Rush",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 4,
+      "owner": "emiliosolay",
+      "player_id": "2505",
+      "player_name": "Darren Waller",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 3,
+      "owner": "Sangha",
+      "player_id": "4574",
+      "player_name": "Cooper Rush",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 4,
+      "owner": "Sangha",
+      "player_id": "12486",
+      "player_name": "Dillon Gabriel",
+      "position": "QB",
+      "dropped": [
+        "Joe Flacco"
+      ]
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 1,
+      "owner": "Sangha",
+      "player_id": "2505",
+      "player_name": "Darren Waller",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 6,
+      "owner": "SeanRabenaldt",
+      "player_id": "4574",
+      "player_name": "Cooper Rush",
+      "position": "QB",
+      "dropped": [
+        "Adam Thielen"
+      ]
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 11,
+      "owner": "SeanRabenaldt",
+      "player_id": "5995",
+      "player_name": "Justice Hill",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 1,
+      "owner": "emiliosolay",
+      "player_id": "2505",
+      "player_name": "Darren Waller",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 3,
+      "owner": "McInally",
+      "player_id": "6149",
+      "player_name": "Darius Slayton",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "failed",
+      "bid": 5,
+      "owner": "McInally",
+      "player_id": "2505",
+      "player_name": "Darren Waller",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 17,
+      "owner": "agrusa17",
+      "player_id": "9757",
+      "player_name": "Kendre Miller",
+      "position": "RB",
+      "dropped": [
+        "Evan Engram"
+      ]
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 10,
+      "owner": "BTThomp",
+      "player_id": "2505",
+      "player_name": "Darren Waller",
+      "position": "TE",
+      "dropped": [
+        "Jalen Tolbert"
+      ]
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 1,
+      "owner": "dbyrd55",
+      "player_id": "11610",
+      "player_name": "Malik Washington",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 4,
+      "status": "complete",
+      "bid": 10,
+      "owner": "NLadocsi",
+      "player_id": "6149",
+      "player_name": "Darius Slayton",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 5,
+      "status": "complete",
+      "bid": 3,
+      "owner": "emiliosolay",
+      "player_id": "19",
+      "player_name": "Joe Flacco",
+      "position": "QB",
+      "dropped": [
+        "Marcus Mariota"
+      ]
+    },
+    {
+      "week": 5,
+      "status": "complete",
+      "bid": 7,
+      "owner": "B-Ray",
+      "player_id": "11647",
+      "player_name": "Kimani Vidal",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 5,
+      "status": "complete",
+      "bid": 7,
+      "owner": "B-Ray",
+      "player_id": "11603",
+      "player_name": "AJ Barner",
+      "position": "TE",
+      "dropped": [
+        "Cade Otton"
+      ]
+    },
+    {
+      "week": 5,
+      "status": "failed",
+      "bid": 3,
+      "owner": "emiliosolay",
+      "player_id": "8123",
+      "player_name": "Hassan Haskins",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 5,
+      "status": "failed",
+      "bid": 19,
+      "owner": "agrusa17",
+      "player_id": "11647",
+      "player_name": "Kimani Vidal",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 5,
+      "status": "complete",
+      "bid": 21,
+      "owner": "agrusa17",
+      "player_id": "8123",
+      "player_name": "Hassan Haskins",
+      "position": "RB",
+      "dropped": [
+        "Carson Wentz"
+      ]
+    },
+    {
+      "week": 6,
+      "status": "failed",
+      "bid": 3,
+      "owner": "Sangha",
+      "player_id": "8122",
+      "player_name": "Zonovan Knight",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 6,
+      "status": "complete",
+      "bid": 3,
+      "owner": "agrusa17",
+      "player_id": "8111",
+      "player_name": "Cade Otton",
+      "position": "TE",
+      "dropped": [
+        "Juwan Johnson"
+      ]
+    },
+    {
+      "week": 6,
+      "status": "complete",
+      "bid": 6,
+      "owner": "agrusa17",
+      "player_id": "8122",
+      "player_name": "Zonovan Knight",
+      "position": "RB",
+      "dropped": [
+        "Brenton Strange"
+      ]
+    },
+    {
+      "week": 6,
+      "status": "complete",
+      "bid": 3,
+      "owner": "agrusa17",
+      "player_id": "11994",
+      "player_name": "Kameron Johnson",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 6,
+      "status": "complete",
+      "bid": 1,
+      "owner": "SeanRabenaldt",
+      "player_id": "8142",
+      "player_name": "Alec Pierce",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 6,
+      "status": "failed",
+      "bid": 11,
+      "owner": "SeanRabenaldt",
+      "player_id": "3321",
+      "player_name": "Tyreek Hill",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 6,
+      "status": "complete",
+      "bid": 20,
+      "owner": "NLadocsi",
+      "player_id": "3321",
+      "player_name": "Tyreek Hill",
+      "position": "WR",
+      "dropped": [
+        "Parker Washington"
+      ]
+    },
+    {
+      "week": 6,
+      "status": "failed",
+      "bid": 5,
+      "owner": "Sangha",
+      "player_id": "3321",
+      "player_name": "Tyreek Hill",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 7,
+      "status": "complete",
+      "bid": 1,
+      "owner": "McInally",
+      "player_id": "4066",
+      "player_name": "Evan Engram",
+      "position": "TE",
+      "dropped": [
+        "Trevor Etienne"
+      ]
+    },
+    {
+      "week": 7,
+      "status": "complete",
+      "bid": 1,
+      "owner": "NLadocsi",
+      "player_id": "4219",
+      "player_name": "Jeremy McNichols",
+      "position": "RB",
+      "dropped": [
+        "Ja'Tavion Sanders"
+      ]
+    },
+    {
+      "week": 7,
+      "status": "complete",
+      "bid": 10,
+      "owner": "McInally",
+      "player_id": "12540",
+      "player_name": "Chimere Dike",
+      "position": "WR",
+      "dropped": [
+        "Jake Tonges"
+      ]
+    },
+    {
+      "week": 7,
+      "status": "failed",
+      "bid": 1,
+      "owner": "SeanRabenaldt",
+      "player_id": "12502",
+      "player_name": "Gunnar Helm",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 7,
+      "status": "complete",
+      "bid": 4,
+      "owner": "SeanRabenaldt",
+      "player_id": "12517",
+      "player_name": "Colston Loveland",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 8,
+      "status": "complete",
+      "bid": 6,
+      "owner": "agrusa17",
+      "player_id": "9225",
+      "player_name": "Tank Bigsby",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 8,
+      "status": "failed",
+      "bid": 6,
+      "owner": "agrusa17",
+      "player_id": "11559",
+      "player_name": "Michael Penix",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 8,
+      "status": "failed",
+      "bid": 3,
+      "owner": "BTThomp",
+      "player_id": "9225",
+      "player_name": "Tank Bigsby",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 8,
+      "status": "complete",
+      "bid": 30,
+      "owner": "Taubitz",
+      "player_id": "11559",
+      "player_name": "Michael Penix",
+      "position": "QB",
+      "dropped": [
+        "Tyler Huntley"
+      ]
+    },
+    {
+      "week": 8,
+      "status": "complete",
+      "bid": 5,
+      "owner": "NLadocsi",
+      "player_id": "11637",
+      "player_name": "Keon Coleman",
+      "position": "WR",
+      "dropped": [
+        "Michael Carter"
+      ]
+    },
+    {
+      "week": 8,
+      "status": "failed",
+      "bid": 1,
+      "owner": "McInally",
+      "player_id": "11637",
+      "player_name": "Keon Coleman",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 8,
+      "status": "complete",
+      "bid": 1,
+      "owner": "SeanRabenaldt",
+      "player_id": "12531",
+      "player_name": "Trevor Etienne",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 9,
+      "status": "complete",
+      "bid": 17,
+      "owner": "agrusa17",
+      "player_id": "3257",
+      "player_name": "Jacoby Brissett",
+      "position": "QB",
+      "dropped": [
+        "Zonovan Knight"
+      ]
+    },
+    {
+      "week": 9,
+      "status": "failed",
+      "bid": 17,
+      "owner": "agrusa17",
+      "player_id": "2307",
+      "player_name": "Marcus Mariota",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 9,
+      "status": "failed",
+      "bid": 8,
+      "owner": "agrusa17",
+      "player_id": "9481",
+      "player_name": "Luke Musgrave",
+      "position": "TE",
+      "dropped": []
+    },
+    {
+      "week": 9,
+      "status": "complete",
+      "bid": 3,
+      "owner": "NLadocsi",
+      "player_id": "6271",
+      "player_name": "Olamide Zaccheaus",
+      "position": "WR",
+      "dropped": [
+        "Jeremy McNichols"
+      ]
+    },
+    {
+      "week": 9,
+      "status": "failed",
+      "bid": 1,
+      "owner": "emiliosolay",
+      "player_id": "3257",
+      "player_name": "Jacoby Brissett",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 10,
+      "status": "complete",
+      "bid": 8,
+      "owner": "agrusa17",
+      "player_id": "2307",
+      "player_name": "Marcus Mariota",
+      "position": "QB",
+      "dropped": [
+        "Tank Bigsby"
+      ]
+    },
+    {
+      "week": 10,
+      "status": "complete",
+      "bid": 10,
+      "owner": "McInally",
+      "player_id": "8180",
+      "player_name": "Jalen Nailor",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 10,
+      "status": "complete",
+      "bid": 6,
+      "owner": "SeanRabenaldt",
+      "player_id": "6768",
+      "player_name": "Tua Tagovailoa",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 10,
+      "owner": "emiliosolay",
+      "player_id": "9228",
+      "player_name": "Bryce Young",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 1,
+      "owner": "McInally",
+      "player_id": "11650",
+      "player_name": "Luke McCaffrey",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 30,
+      "owner": "McInally",
+      "player_id": "9506",
+      "player_name": "Sean Tucker",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 7,
+      "owner": "Sangha",
+      "player_id": "7090",
+      "player_name": "Darnell Mooney",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 6,
+      "owner": "Sangha",
+      "player_id": "7891",
+      "player_name": "Brock Wright",
+      "position": "TE",
+      "dropped": [
+        "KaVontae Turpin"
+      ]
+    },
+    {
+      "week": 11,
+      "status": "failed",
+      "bid": 10,
+      "owner": "NLadocsi",
+      "player_id": "9506",
+      "player_name": "Sean Tucker",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "failed",
+      "bid": 3,
+      "owner": "agrusa17",
+      "player_id": "9228",
+      "player_name": "Bryce Young",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 6,
+      "owner": "B-Ray",
+      "player_id": "11439",
+      "player_name": "Jaleel McLaughlin",
+      "position": "RB",
+      "dropped": [
+        "Kimani Vidal"
+      ]
+    },
+    {
+      "week": 11,
+      "status": "failed",
+      "bid": 11,
+      "owner": "SeanRabenaldt",
+      "player_id": "9506",
+      "player_name": "Sean Tucker",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 11,
+      "status": "complete",
+      "bid": 10,
+      "owner": "NLadocsi",
+      "player_id": "8154",
+      "player_name": "Brian Robinson",
+      "position": "RB",
+      "dropped": [
+        "Bryce Young"
+      ]
+    },
+    {
+      "week": 11,
+      "status": "failed",
+      "bid": 6,
+      "owner": "agrusa17",
+      "player_id": "8154",
+      "player_name": "Brian Robinson",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 12,
+      "status": "failed",
+      "bid": 2,
+      "owner": "SeanRabenaldt",
+      "player_id": "11647",
+      "player_name": "Kimani Vidal",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 13,
+      "status": "complete",
+      "bid": 3,
+      "owner": "emiliosolay",
+      "player_id": "11834",
+      "player_name": "Devaughn Vele",
+      "position": "WR",
+      "dropped": [
+        "Joe Flacco"
+      ]
+    },
+    {
+      "week": 13,
+      "status": "failed",
+      "bid": 2,
+      "owner": "NLadocsi",
+      "player_id": "11834",
+      "player_name": "Devaughn Vele",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 13,
+      "status": "complete",
+      "bid": 6,
+      "owner": "NLadocsi",
+      "player_id": "11647",
+      "player_name": "Kimani Vidal",
+      "position": "RB",
+      "dropped": [
+        "Brian Robinson"
+      ]
+    },
+    {
+      "week": 13,
+      "status": "complete",
+      "bid": 2,
+      "owner": "NLadocsi",
+      "player_id": "827",
+      "player_name": "Tyrod Taylor",
+      "position": "QB",
+      "dropped": [
+        "Jameis Winston"
+      ]
+    },
+    {
+      "week": 14,
+      "status": "complete",
+      "bid": 10,
+      "owner": "emiliosolay",
+      "player_id": "11643",
+      "player_name": "Jaylen Wright",
+      "position": "RB",
+      "dropped": [
+        "Rashod Bateman"
+      ]
+    },
+    {
+      "week": 14,
+      "status": "complete",
+      "bid": 67,
+      "owner": "SeanRabenaldt",
+      "player_id": "11783",
+      "player_name": "Ryan Flournoy",
+      "position": "WR",
+      "dropped": []
+    },
+    {
+      "week": 14,
+      "status": "failed",
+      "bid": 8,
+      "owner": "NLadocsi",
+      "player_id": "11643",
+      "player_name": "Jaylen Wright",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 14,
+      "status": "complete",
+      "bid": 11,
+      "owner": "agrusa17",
+      "player_id": "8154",
+      "player_name": "Brian Robinson",
+      "position": "RB",
+      "dropped": [
+        "Marcus Mariota"
+      ]
+    },
+    {
+      "week": 15,
+      "status": "complete",
+      "bid": 3,
+      "owner": "SeanRabenaldt",
+      "player_id": "7607",
+      "player_name": "Michael Carter",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 15,
+      "status": "failed",
+      "bid": 2,
+      "owner": "NLadocsi",
+      "player_id": "7607",
+      "player_name": "Michael Carter",
+      "position": "RB",
+      "dropped": []
+    },
+    {
+      "week": 16,
+      "status": "failed",
+      "bid": 20,
+      "owner": "NLadocsi",
+      "player_id": "331",
+      "player_name": "Philip Rivers",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 16,
+      "status": "complete",
+      "bid": 20,
+      "owner": "NLadocsi",
+      "player_id": "260",
+      "player_name": "Josh Johnson",
+      "position": "QB",
+      "dropped": [
+        "Luke Musgrave"
+      ]
+    },
+    {
+      "week": 16,
+      "status": "complete",
+      "bid": 50,
+      "owner": "emiliosolay",
+      "player_id": "331",
+      "player_name": "Philip Rivers",
+      "position": "QB",
+      "dropped": []
+    },
+    {
+      "week": 17,
+      "status": "complete",
+      "bid": 23,
+      "owner": "NLadocsi",
+      "player_id": "7607",
+      "player_name": "Michael Carter",
+      "position": "RB",
+      "dropped": [
+        "Kimani Vidal"
+      ]
+    }
+  ]
+}
