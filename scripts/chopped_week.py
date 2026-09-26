@@ -403,7 +403,10 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
     sean_idx = next(i for i, t in enumerate(teams) if t["is_sean"])
 
     rng = np.random.default_rng(seed)
-    draws = t_dist.rvs(6, size=(n_sims, n), random_state=rng)
+    # Standard t(6) has variance 6/(6-2) = 1.5, not 1. Standardize the draws
+    # so that `sigmas` is the true standard deviation of simulated scores;
+    # otherwise realized volatility is ~22% higher than calibrated.
+    draws = t_dist.rvs(6, size=(n_sims, n), random_state=rng) / np.sqrt(1.5)
     scores = locked + mus + sigmas * draws
     sean_scores = scores[:, sean_idx]
     below = np.sum(scores < sean_scores[:, None], axis=1)
