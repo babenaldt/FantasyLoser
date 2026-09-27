@@ -1,5 +1,11 @@
 name: Deploy to Cloudflare Pages
 
+# Scripts write naive local timestamps (generated_at) into the data files.
+# Pin the runner timezone so those are always America/New_York — the site
+# footer renders "Data synced … ET" from them.
+env:
+  TZ: America/New_York
+
 on:
   # Manual trigger with option for full refresh
   workflow_dispatch:
