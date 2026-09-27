@@ -69,6 +69,23 @@ def ensure_chopped_survival_odds_stub():
     print("  • wrote chopped_survival_odds.json stub (no brief data yet)")
 
 
+def ensure_chopped_survival_timeseries_stub():
+    """Guarantee website/public/data/chopped_survival_timeseries.json exists.
+
+    The real file is appended by scripts/chopped_week.py (each brief run is
+    one tick). The weekly-review page statically imports it, so a stub keeps
+    fresh builds working before any snapshot exists.
+    """
+    import json
+    path = os.path.join(ASTRO_DATA_DIR, "chopped_survival_timeseries.json")
+    if os.path.exists(path):
+        return
+    os.makedirs(ASTRO_DATA_DIR, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump({}, handle, indent=2)
+    print("  • wrote chopped_survival_timeseries.json stub (no snapshots yet)")
+
+
 def generate_all(current_season_only: bool = False):
     """Generate all statistics.
     
@@ -103,6 +120,7 @@ def generate_all(current_season_only: bool = False):
         generate_user_lineups()
         generate_weekly_reviews()
         ensure_chopped_survival_odds_stub()
+        ensure_chopped_survival_timeseries_stub()
         
         print("\n" + "=" * 80)
         print("✅ ALL DATA GENERATED SUCCESSFULLY!")
