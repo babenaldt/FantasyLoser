@@ -1,6 +1,11 @@
 ---
 import '../styles/retro-prototypes.css';
 import '../styles/almanac-site.css';
+import oddsSync from '../../public/data/chopped_survival_odds.json';
+import sscSync from '../../public/data/season_stats_chopped.json';
+import ssdSync from '../../public/data/season_stats_dynasty.json';
+import wrcSync from '../../public/data/weekly_reviews_chopped.json';
+import wrdSync from '../../public/data/weekly_reviews_dynasty.json';
 
 interface Props {
   title: string;
@@ -10,6 +15,23 @@ interface Props {
 
 const { title, description = "Fantasy Football Statistics and Analysis", bodyClass } = Astro.props;
 const currentPath = Astro.url.pathname;
+
+// Last data sync: newest generated_at across the pipeline's site data files.
+// Scripts write naive local timestamps, so the deploy workflow pins
+// TZ=America/New_York and we format explicitly in ET.
+const syncStamps = [oddsSync, sscSync, ssdSync, wrcSync, wrdSync]
+  .map((d: any) => d?.generated_at)
+  .filter((s: any) => typeof s === 'string' && s.length > 0)
+  .map((s: string) => new Date(s).getTime())
+  .filter((t: number) => !Number.isNaN(t));
+const lastSync = syncStamps.length ? new Date(Math.max(...syncStamps)) : null;
+const lastSyncLabel = lastSync
+  ? new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(lastSync).replace(/,([^,]*)$/, ' ·$1') + ' ET'
+  : null;
 ---
 
 <!doctype html>
@@ -355,7 +377,35 @@ const currentPath = Astro.url.pathname;
       <slot />
     </div>
 
+    <footer class="site-footer">
+      <span class="site-footer__brand">Fantasy Loser</span>
+      {lastSyncLabel && <span class="site-footer__sync">Data synced {lastSyncLabel}</span>}
+    </footer>
+
     <style>
+      .site-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 18px 30px;
+        border-top: 2px solid #ecf0f1;
+        background: rgba(255, 255, 255, 0.7);
+        color: #7f8c8d;
+        font-size: 12px;
+      }
+
+      .site-footer__brand {
+        font-weight: 700;
+        color: #2c3e50;
+        letter-spacing: 0.04em;
+      }
+
+      .site-footer__sync {
+        font-variant-numeric: tabular-nums;
+      }
+
       .settings-link {
         /* Inherits styles from .nav-links a */
       }
