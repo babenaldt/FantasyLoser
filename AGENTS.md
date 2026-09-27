@@ -74,6 +74,8 @@ python scripts/chopped_week.py --refresh-history
 
 That file is every 2025 waiver bid, including bids that lost. The winning-only archive (`archive_faab_chopped_2025.json`) is for the website and is the wrong file for pricing.
 
+Each brief run also appends one tick to `website/public/data/chopped_survival_timeseries.json` (per-team P(survive) from that run's sim). The weekly-review page draws these as a win-probability-style chart with event ticks on the x-axis (TNF, Sun 1pm, Sun 4pm, SNF, MNF, Final) — not wall-clock time. The file is gitignored and regenerates on deploy; history only accumulates prospectively, since Sleeper keeps no in-week score snapshots.
+
 `python scripts/generate_data.py --quick` refreshes the site. It is not required for the weekly advice. Dynasty playoff projections can fail on a local NumPy/SciPy mismatch; ignore that for Chopped.
 
 ## Projection cross-check

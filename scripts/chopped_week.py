@@ -443,6 +443,76 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
     }
 
 
+def snapshot_label(now=None):
+    """Human label for where we are in the fantasy week (ET).
+
+    Snapshots are event ticks, not wall-clock time: the chart's x-axis is
+    the ordered snapshot list, so the dead air between TNF and Sunday
+    costs nothing on the axis.
+    """
+    from zoneinfo import ZoneInfo
+    now = now or datetime.now(ZoneInfo("America/Detroit"))
+    wd = now.weekday()  # Monday=0
+    h = now.hour + now.minute / 60.0
+    if (wd == 3 and h >= 20.0) or (wd == 4 and h < 6.0):
+        return "TNF"
+    if wd == 6 and h < 13.0:
+        return "Sun morning"
+    if wd == 6 and h < 16.5:
+        return "Sun 1pm"
+    if wd == 6 and h < 20.0:
+        return "Sun 4pm"
+    if wd == 6 or (wd == 0 and h < 6.0):
+        return "SNF"
+    if wd == 0 and h < 18.0:
+        return "Mon morning"
+    if wd == 0 or (wd == 1 and h < 6.0):
+        return "MNF"
+    return "Final"
+
+
+def append_survival_snapshot(brief):
+    """Append this run's per-team survival odds to the weekly time series.
+
+    Each brief run is one tick on the chart's x-axis. Snapshots are cheap:
+    the Monte Carlo sim already ran for the brief, we just store its
+    per-team output. Back-to-back runs inside the same slate get a time
+    suffix so ticks stay distinct.
+    """
+    from zoneinfo import ZoneInfo
+    mc = brief.get("survival_mc") or {}
+    teams = mc.get("teams") or []
+    if not teams:
+        return None
+    now = datetime.now(ZoneInfo("America/Detroit"))
+    label = snapshot_label(now)
+    path = os.path.join(ROOT, "website", "public", "data",
+                        "chopped_survival_timeseries.json")
+    try:
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    week_key = str(brief.get("week"))
+    series = data.get(week_key) or []
+    if series and series[-1].get("label", "").split(" · ")[0] == label:
+        label = f"{label} · {now.strftime('%I:%M%p').lstrip('0').lower()}"
+    series.append({
+        "t": now.isoformat(timespec="minutes"),
+        "label": label,
+        "odds": {t["owner"]: t["p_survive"] for t in teams},
+        "locked": {t["owner"]: t["locked"] for t in teams},
+    })
+    data[week_key] = series
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2)
+    print(f"Survival snapshot: {path} (week {week_key}, {len(series)} ticks)")
+    return path
+
+
 def build_brief(owner_name: str, refresh_history: bool) -> dict:
     week = get_current_nfl_week()
     completed = get_last_completed_nfl_week()
@@ -868,6 +938,7 @@ def main():
             **brief["survival_mc"],
         }, handle, indent=2)
     print(f"Survival odds: {site_path}")
+    append_survival_snapshot(brief)
 
 
 if __name__ == "__main__":

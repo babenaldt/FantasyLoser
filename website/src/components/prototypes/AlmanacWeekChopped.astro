@@ -1,5 +1,6 @@
 ---
 import survivalDataRaw from '../../../public/data/chopped_survival_odds.json';
+import timeseriesRaw from '../../../public/data/chopped_survival_timeseries.json';
 
 interface Props {
   weekNum: number;
@@ -46,6 +47,37 @@ const showSurvival =
   survivalData.week === weekNum &&
   Array.isArray(survivalData.teams) &&
   survivalData.teams.length > 0;
+
+// Survival-odds time series: one tick per brief run during the week.
+// The x-axis is event ticks (not wall-clock time) so the TNF-to-Sunday
+// dead air costs nothing — same spirit as a win-probability chart.
+const tsRaw = timeseriesRaw as any;
+const tsSeries = (tsRaw?.[String(weekNum)] || []) as any[];
+const showTsChart = showSurvival && tsSeries.length >= 2;
+const tsOwners = [...new Set(tsSeries.flatMap((s: any) => Object.keys(s.odds || {})))] as string[];
+const TS_W = 720, TS_H = 340, TS_PL = 46, TS_PR = 14, TS_PT = 16, TS_PB = 36;
+const tsX = (i: number) =>
+  TS_PL + (tsSeries.length <= 1 ? 0 : (i * (TS_W - TS_PL - TS_PR)) / (tsSeries.length - 1));
+const tsY = (p: number) => {
+  const c = Math.min(1, Math.max(0, p || 0));
+  return TS_PT + (1 - c) * (TS_H - TS_PT - TS_PB);
+};
+const tsVals = tsOwners.map((owner) => {
+  const raw = tsSeries.map((s: any) => (s.odds || {})[owner]);
+  const firstKnown = raw.find((v: any) => v != null);
+  let last: number | null = null;
+  const vals = raw.map((v: any) => {
+    if (v != null) last = v;
+    else if (last == null) last = firstKnown;
+    return last ?? 0;
+  });
+  const path = vals
+    .map((v: number, i: number) => `${i === 0 ? "M" : "L"}${tsX(i).toFixed(1)},${tsY(v).toFixed(1)}`)
+    .join(" ");
+  return { owner, vals, path };
+});
+const tsSean = tsVals.find((t) => t.owner === "SeanRabenaldt");
+const tsOthers = tsVals.filter((t) => t.owner !== "SeanRabenaldt");
 ---
 
 <div class="edition-bar">
@@ -92,6 +124,34 @@ const showSurvival =
         );
       })}
     </div>
+    {showTsChart && (
+      <div class="ts-wrap">
+        <h3>Survival odds as the week unfolded</h3>
+        <svg viewBox={`0 0 ${TS_W} ${TS_H}`} role="img" aria-label="Survival odds over the course of the week">
+          {[0, 25, 50, 75, 100].map((g) => (
+            <g>
+              <line x1={TS_PL} x2={TS_W - TS_PR} y1={tsY(g / 100)} y2={tsY(g / 100)} class="ts-grid" />
+              <text x={TS_PL - 8} y={tsY(g / 100) + 4} text-anchor="end" class="ts-axis">{g}%</text>
+            </g>
+          ))}
+          {tsSeries.map((s: any, i: number) => (
+            <text x={tsX(i)} y={TS_H - 12} text-anchor="middle" class="ts-axis">{s.label}</text>
+          ))}
+          {tsOthers.map((t) => (
+            <path d={t.path} class="ts-line" fill="none"><title>{t.owner}</title></path>
+          ))}
+          {tsSean && (
+            <g>
+              <path d={tsSean.path} class="ts-line ts-sean" fill="none" />
+              {tsSean.vals.map((v: number, i: number) => (
+                <circle cx={tsX(i)} cy={tsY(v)} r="3.5" class="ts-dot"><title>{`Sean: ${(v * 100).toFixed(1)}%`}</title></circle>
+              ))}
+            </g>
+          )}
+        </svg>
+        <p class="section-copy">Each tick is one report run — Sean in <span class="ts-key">rust</span>, hover any line for the team. The week resolves on the final tick.</p>
+      </div>
+    )}
   </section>
 )}
 
@@ -315,6 +375,16 @@ const showSurvival =
   .odds-row i { height: 12px; background: var(--paper-deep); }
   .odds-row i b { display: block; height: 100%; background: var(--rust); }
   .odds-row strong { text-align: right; font-family: var(--mono); }
+
+  .ts-wrap { margin-top: 18px; border: 1px solid var(--rule); background: var(--white); padding: 12px; }
+  .ts-wrap h3 { margin: 0 0 8px; font: 900 13px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .06em; }
+  .ts-wrap svg { width: 100%; height: auto; display: block; }
+  .ts-grid { stroke: var(--rule); stroke-width: 1; }
+  .ts-axis { font: 700 10px var(--mono); fill: var(--muted); }
+  .ts-line { stroke: var(--muted); stroke-width: 1.5; opacity: .55; }
+  .ts-line.ts-sean { stroke: var(--rust); stroke-width: 3; opacity: 1; }
+  .ts-dot { fill: var(--rust); }
+  .ts-key { color: var(--rust); font-weight: 800; }
 
   .status-chopped { color: var(--rust); font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
   .status-safe { color: var(--forest); font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
