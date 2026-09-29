@@ -91,6 +91,31 @@ class SimplePlayoffSimulator:
         self._actual_player_points = {}
         self._schedule_lookup = {}  # (team, week) -> opponent
         self._current_week = None  # Track which week's actual points are loaded
+        self._sleeper_weekly_proj = {}  # week -> {player_id: pts_ppr}
+
+    def _get_sleeper_week_projections(self, week: int) -> Dict[str, float]:
+        """Sleeper's weekly PPR projections, cached per week.
+
+        Used as a matchup-aware prior so small-sample season averages don't
+        get treated as true talent.
+        """
+        if week in self._sleeper_weekly_proj:
+            return self._sleeper_weekly_proj[week]
+        try:
+            url = f"https://api.sleeper.com/projections/nfl/{self.season}/{week}"
+            url += "?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
+            resp = requests.get(url, timeout=30)
+            proj = {}
+            if resp.status_code == 200:
+                for p in resp.json():
+                    pid = p.get('player_id')
+                    pts = (p.get('stats') or {}).get('pts_ppr', 0) or 0
+                    if pid and pts > 0:
+                        proj[str(pid)] = pts
+            self._sleeper_weekly_proj[week] = proj
+        except Exception:
+            self._sleeper_weekly_proj[week] = {}
+        return self._sleeper_weekly_proj[week]
         
     def _load_data(self, week: int):
         """Load league data and season statistics."""
@@ -316,56 +341,70 @@ class SimplePlayoffSimulator:
     
     def _get_player_projection(self, sleeper_id: str, week: int, current_week: int = None) -> Tuple[float, float]:
         """
-        Get projection for a player using season averages with defensive matchup adjustment.
+        Get projection for a player by blending the season average (with
+        defensive matchup adjustment) and Sleeper's weekly projection.
         Returns (mean, std).
+
+        The blend regresses small-sample season averages toward Sleeper's
+        matchup-aware projection instead of treating a few hot games as
+        true talent. Blend weight on the observed average grows with games
+        played: w = n / (n + 4).
         """
         # Check if player already played THIS SPECIFIC week (only for current week)
         if current_week and week == current_week and sleeper_id in self._actual_player_points:
             actual = self._actual_player_points[sleeper_id]
             return actual, 0.0  # No variance for actual scores
-        
-        # Get season stats
-        if sleeper_id not in self._player_stats:
-            return 0.0, 0.0
-        
-        stats = self._player_stats[sleeper_id]
-        base_ppg = stats['avg_ppg']
-        std_dev = stats['std_dev']
-        
-        # Apply defensive matchup adjustment
-        player_info = self._sleeper_players.get(sleeper_id, {})
-        position = player_info.get('position', '')
-        team = player_info.get('team', '')
-        
-        # Get opponent from schedule
-        opponent = self._schedule_lookup.get((team, week), None)
-        
-        if opponent and position in ['QB', 'RB', 'WR', 'TE']:
-            # Get league average points allowed at this position
-            league_avg = 0.0
-            count = 0
-            for def_team, positions in self._defense_stats.items():
-                if position in positions:
-                    league_avg += positions[position]
-                    count += 1
-            
-            if count > 0:
-                league_avg /= count
-                
-                # Get opponent's defensive strength
-                opp_defense = self._defense_stats.get(opponent, {})
-                opp_avg_allowed = opp_defense.get(position, league_avg)
-                
-                # Adjust projection: if defense allows more than average, boost projection
-                # If defense is tough (allows less), reduce projection
-                if league_avg > 0:
-                    defense_factor = opp_avg_allowed / league_avg
-                    # Cap adjustment to ±20%
-                    defense_factor = max(0.8, min(1.2, defense_factor))
-                    adjusted_ppg = base_ppg * defense_factor
-                    return adjusted_ppg, std_dev
-        
-        return base_ppg, std_dev
+
+        stats = self._player_stats.get(sleeper_id)
+        base_ppg = stats['avg_ppg'] if stats else 0.0
+        std_dev = stats['std_dev'] if stats else 0.0
+        n_games = stats['games_played'] if stats else 0
+
+        # Apply defensive matchup adjustment to the season-average component
+        adj_avg = base_ppg
+        if base_ppg > 0:
+            player_info = self._sleeper_players.get(sleeper_id, {})
+            position = player_info.get('position', '')
+            team = player_info.get('team', '')
+
+            # Get opponent from schedule
+            opponent = self._schedule_lookup.get((team, week), None)
+
+            if opponent and position in ['QB', 'RB', 'WR', 'TE']:
+                # Get league average points allowed at this position
+                league_avg = 0.0
+                count = 0
+                for def_team, positions in self._defense_stats.items():
+                    if position in positions:
+                        league_avg += positions[position]
+                        count += 1
+
+                if count > 0:
+                    league_avg /= count
+
+                    # Get opponent's defensive strength
+                    opp_defense = self._defense_stats.get(opponent, {})
+                    opp_avg_allowed = opp_defense.get(position, league_avg)
+
+                    # Adjust projection: if defense allows more than average, boost projection
+                    # If defense is tough (allows less), reduce projection
+                    if league_avg > 0:
+                        defense_factor = opp_avg_allowed / league_avg
+                        # Cap adjustment to ±20%
+                        defense_factor = max(0.8, min(1.2, defense_factor))
+                        adj_avg = base_ppg * defense_factor
+
+        # Blend with Sleeper's weekly projection (already matchup-aware)
+        sleeper_proj = self._get_sleeper_week_projections(week).get(str(sleeper_id), 0)
+        if sleeper_proj > 0 and base_ppg > 0:
+            w = n_games / (n_games + 4.0)
+            mean = w * adj_avg + (1 - w) * sleeper_proj
+        elif sleeper_proj > 0:
+            mean = sleeper_proj
+        else:
+            mean = adj_avg
+
+        return mean, std_dev
     
     def _calculate_lineup_projection(self, starter_ids: List[str], week: int) -> Tuple[float, float]:
         """Calculate projection for a specific lineup (list of player IDs)."""

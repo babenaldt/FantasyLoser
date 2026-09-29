@@ -22,17 +22,13 @@ const rawOdds = Object.values(probabilities).map((data: any) => data.playoff_odd
 const hasVariance = rawOdds.length > 0 && new Set(rawOdds.map((value: any) => value.toFixed(4))).size > 1;
 const hasMeaningfulPredictions = predictionWeek >= 4 && hasVariance;
 const isPlayoffs = predictions.is_playoffs || false;
-const championshipOdds = Object.entries(probabilities)
-  .map(([name, data]: [string, any]) => ({ name, ...data }))
-  .sort((a: any, b: any) => b.championship_prob - a.championship_prob);
 const loserOdds = Object.entries(probabilities)
   .map(([name, data]: [string, any]) => ({ name, ...data }))
   .filter((team: any) => team.loser_bracket_prob > 0)
   .sort((a: any, b: any) => b.loser_bracket_prob - a.loser_bracket_prob);
-const playoffOdds = Object.entries(probabilities)
+const combinedOdds = Object.entries(probabilities)
   .map(([name, data]: [string, any]) => ({ name, ...data }))
-  .filter((team: any) => (team.playoff_odds || 0) > 0)
-  .sort((a: any, b: any) => (b.playoff_odds || 0) - (a.playoff_odds || 0));
+  .sort((a: any, b: any) => ((b.playoff_odds || 0) - (a.playoff_odds || 0)) || ((b.championship_prob || 0) - (a.championship_prob || 0)));
 
 const isPreseason = !teams?.length || !current_week || current_week <= 0;
 const hasCompletedWeeks = teams?.some((team: any) => (team.weeks_played || 0) > 0);
@@ -227,17 +223,32 @@ const chartPayload = sortedTeams.map((team: any) => ({
 
     {hasMeaningfulPredictions && (
       <section>
-        <div class="section-heading"><h2>{isPlayoffs ? 'Championship Odds' : 'Playoff Odds'}</h2></div>
-        <div class="odds-grid">
-          {(isPlayoffs ? championshipOdds : playoffOdds).map((team: any) => {
-            const probability = ((isPlayoffs ? team.championship_prob : team.playoff_odds) || 0) * 100;
-            return (
-              <div class="odds-row">
-                <span>{team.name}</span><i><b style={`width:${probability}%`}></b></i><strong>{probability.toFixed(1)}%</strong>
-              </div>
-            );
-          })}
+        <div class="section-heading"><h2>Playoff &amp; Title Odds</h2></div>
+        <div class="table-wrap">
+          <table class="retro-table odds-table">
+            <thead>
+              <tr><th>Team</th><th>Playoffs</th><th>Title</th></tr>
+            </thead>
+            <tbody>
+              {combinedOdds.map((team: any) => {
+                const playoffPct = ((team.playoff_odds || 0) * 100);
+                const titlePct = ((team.championship_prob || 0) * 100);
+                return (
+                  <tr>
+                    <td class="team-cell">{team.name}</td>
+                    <td data-value={team.playoff_odds || 0}>
+                      <div class="odds-bar"><i><b style={`width:${playoffPct}%`}></b></i><strong>{playoffPct.toFixed(1)}%</strong></div>
+                    </td>
+                    <td data-value={team.championship_prob || 0}>
+                      <div class="odds-bar"><i><b style={`width:${titlePct}%`}></b></i><strong>{titlePct.toFixed(1)}%</strong></div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+        <p class="odds-note">10,000 sims per week. 100% means the team made it in every sim — not a mathematical clinch.</p>
         {isPlayoffs && loserOdds.length > 0 && (
           <>
             <div class="section-heading"><h2>Loser Bracket Odds</h2></div>
@@ -392,6 +403,11 @@ const chartPayload = sortedTeams.map((team: any) => ({
   .odds-row i { height: 12px; background: var(--paper-deep); }
   .odds-row i b { display: block; height: 100%; background: var(--rust); }
   .odds-row strong { text-align: right; font-family: var(--mono); }
+  .odds-table td .odds-bar { display: grid; grid-template-columns: 1fr 52px; gap: 8px; align-items: center; }
+  .odds-table td .odds-bar i { height: 12px; background: var(--paper-deep); }
+  .odds-table td .odds-bar i b { display: block; height: 100%; background: var(--rust); }
+  .odds-table td .odds-bar strong { text-align: right; font-family: var(--mono); font-size: 12px; }
+  .odds-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
   .review-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
   .review-links a { border: 1px solid var(--ink); background: var(--white); padding: 10px; text-decoration: none; }
   .review-links strong, .review-links span { display: block; }
