@@ -392,24 +392,111 @@ def proj_points(stats: dict, rec_points: float) -> float:
     return stats.get("pts_std") or 0
 
 
+def _optimal_fill(slots, must_place, pool, pos_of):
+    """Projection-optimal player set for a team's starting slots.
+
+    slots: week slot names (CHART_SLOTS[week]).
+    must_place: pids already locked into the lineup because their NFL game
+        started (Sleeper locks them); placed into any feasible slots, since
+        their contribution doesn't depend on which slot they occupy.
+    pool: {pid: projected points} of freely choosable players (game not
+        started, not Out/IR/Doubtful).
+    pos_of: {pid: fantasy position}.
+    Returns the pool pids filling the remaining slots, maximizing total
+    projection. A slot that can't be filled scores 0.
+    """
+    elig = CHART_ELIGIBILITY
+    # Most-constrained slots first (correct for any order; prunes faster).
+    order = sorted(range(len(slots)), key=lambda i: len(elig[slots[i]]))
+
+    # Phase 1: feasibility-place the locked-in starters.
+    fixed = sorted(must_place, key=lambda pid: sum(
+        1 for s in slots if pos_of.get(pid) in elig[s]))
+    fixed_slots = set()
+
+    def place_fixed(fi):
+        if fi == len(fixed):
+            return True
+        p = pos_of.get(fixed[fi])
+        for i in order:
+            if i in fixed_slots or p not in elig[slots[i]]:
+                continue
+            fixed_slots.add(i)
+            if place_fixed(fi + 1):
+                return True
+            fixed_slots.discard(i)
+        return False
+
+    if not place_fixed(0):
+        # Shouldn't happen (Sleeper lineups are slot-legal when locked);
+        # count their points anyway rather than crashing.
+        fixed_slots.clear()
+
+    # Phase 2: fill the remaining slots for max total projection.
+    remaining = [i for i in order if i not in fixed_slots]
+    items = sorted(pool.items(), key=lambda kv: -kv[1])
+    projs_desc = sorted((pr for _, pr in items), reverse=True)
+    top = [0.0]
+    for pr in projs_desc:
+        top.append(top[-1] + pr)  # top[r] = sum of the r largest projections
+
+    best = {"total": -1.0, "picks": []}
+
+    def fill(si, used, total, picks):
+        if si == len(remaining):
+            if total > best["total"]:
+                best["total"] = total
+                best["picks"] = list(picks)
+            return
+        left = len(remaining) - si
+        # Loose upper bound: even the best remaining projections can't beat best.
+        if total + top[min(left, len(projs_desc))] <= best["total"]:
+            return
+        slot_elig = elig[slots[remaining[si]]]
+        placed_any = False
+        for pid, pr in items:
+            if pid in used or pos_of.get(pid) not in slot_elig:
+                continue
+            placed_any = True
+            used.add(pid)
+            picks.append(pid)
+            fill(si + 1, used, total + pr, picks)
+            picks.pop()
+            used.discard(pid)
+        if not placed_any:
+            # Nobody eligible left: slot scores 0.
+            fill(si + 1, used, total, picks)
+
+    fill(0, set(), 0.0, [])
+    return best["picks"]
+
+
 def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
                       week, completed, chops, players=None,
                       n_sims=50000, seed=7):
     """Monte Carlo chop survival with the real chop count for the week.
 
-    Each alive team's final score = locked actuals (starters whose NFL game
-    is final, from live matchup data) + t-distributed draws for everyone
-    else. Game status comes from nflverse kickoff times: a nonzero score in
-    a game that hasn't finished is a live partial, NOT a final, so those
-    players are simulated from their full-game projection instead of having
-    the partial locked and their remaining projection zeroed. (Locking a
-    halftime score as final collapses the sim: every other game is done, so
-    all scores go deterministic and the two lowest teams show 0% while the
-    game is still live.) E[final] ~= projection for an unfinished game, so
-    this is unbiased; variance is slightly overstated for games already in
-    progress. Team sigma comes from the league's historical coefficient of
-    variation applied to the unplayed projection mass, so a bye-depleted
-    team is both low-mean and low-variance.
+    Team strength is best-ball: each team's score is simulated from its
+    projection-OPTIMAL lineup (highest total projected points in the week's
+    chart slots), not the manager's as-set starters. Starters whose NFL
+    game already started are locked into the lineup (Sleeper locks them):
+    finals lock their actual, live games simulate from the full-game
+    projection; everything else is chosen optimally from players whose
+    games haven't started.
+
+    Each alive team's final score = locked actuals + t-distributed draws
+    for everyone else. Game status comes from nflverse kickoff times: a
+    nonzero score in a game that hasn't finished is a live partial, NOT a
+    final, so those players are simulated from their full-game projection
+    instead of having the partial locked and their remaining projection
+    zeroed. (Locking a halftime score as final collapses the sim: every
+    other game is done, so all scores go deterministic and the two lowest
+    teams show 0% while the game is still live.) E[final] ~= projection
+    for an unfinished game, so this is unbiased; variance is slightly
+    overstated for games already in progress. Team sigma comes from the
+    league's historical coefficient of variation applied to the unplayed
+    projection mass, so a bye-depleted team is both low-mean and
+    low-variance.
     """
     import numpy as np
     from scipy.stats import t as t_dist
@@ -434,33 +521,66 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
             for pid, pts in (matchup.get("players_points") or {}).items()
         }
 
-    teams = []
     game_status = nfl_game_status(week)
+    slots = CHART_SLOTS.get(week) or ["QB", "RB", "WR", "TE", "WRT"]
+
+    def player_state(pid, actual):
+        team = (players.get(pid) or {}).get("team") if players else None
+        state = game_status.get(team) if team else None
+        if state:
+            return state
+        # No game-status info (schedule unavailable): legacy
+        # nonzero-means-final heuristic.
+        return "post" if actual > 0 else "pre"
+
+    teams = []
     for view in views:
         if not view["player_ids"]:
             continue
         pp = live.get(view["roster_id"], {})
+        pos_of = {}
+        if players:
+            for pid in view["player_ids"]:
+                pos_of[pid] = (players.get(pid) or {}).get("position")
+            for pid in view["starters"]:
+                if pid not in pos_of:
+                    pos_of[pid] = (players.get(pid) or {}).get("position")
+
         locked = 0.0
-        unplayed_mu = 0.0
+        must_place = []  # as-set starters whose game started: lineup-locked
+        live_mu = 0.0
         for pid in view["starters"]:
             actual = pp.get(pid) or 0
-            team = (players.get(pid) or {}).get("team") if players else None
-            state = game_status.get(team) if team else None
+            state = player_state(pid, actual)
             if state == "post":
                 # NFL game is final: lock the actual, even a zero (played and
                 # scored nothing, or inactive). Never stack projection on a
                 # final score.
                 locked += actual
-            elif state in ("pre", "in"):
-                # Game not finished: Sleeper's points are a live partial, so
-                # ignore them and simulate from the full-game projection.
-                unplayed_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
-            elif actual > 0:
-                # No game-status info (schedule unavailable): legacy
-                # nonzero-means-final heuristic.
-                locked += actual
-            else:
-                unplayed_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
+                must_place.append(pid)
+            elif state == "in":
+                # Game live: Sleeper's points are a partial, so ignore them
+                # and simulate from the full-game projection. The starter is
+                # still locked into their slot.
+                live_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
+                must_place.append(pid)
+            # "pre" starters are still changeable: the optimizer decides.
+
+        # Freely choosable: roster players whose game hasn't started and
+        # who aren't Out/IR/Doubtful.
+        pool = {}
+        for pid in view["player_ids"]:
+            if pid in must_place:
+                continue
+            if player_state(pid, pp.get(pid) or 0) != "pre":
+                continue
+            info = (players.get(pid) or {}) if players else {}
+            if (info.get("injury_status") or "") in ("Out", "IR", "Doubtful"):
+                continue
+            pool[pid] = proj_points(proj_by_id.get(pid, {}), rec_points)
+
+        picks = _optimal_fill(slots, must_place, pool, pos_of)
+        unplayed_mu = live_mu + sum(pool[pid] for pid in picks)
         sigma = 0.0 if unplayed_mu <= 0 else min(45.0, max(12.0, cv * unplayed_mu))
         teams.append({
             "owner": view["owner"],
