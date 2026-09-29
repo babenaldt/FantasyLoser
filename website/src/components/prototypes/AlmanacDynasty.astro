@@ -224,27 +224,19 @@ const chartPayload = sortedTeams.map((team: any) => ({
     {hasMeaningfulPredictions && (
       <section>
         <div class="section-heading"><h2>Playoff &amp; Title Odds</h2></div>
-        <div class="table-wrap">
+        <div class="retro-table-wrap">
           <table class="retro-table odds-table">
             <thead>
-              <tr><th>Team</th><th>Playoffs</th><th>Title</th></tr>
+              <tr><th>Team</th><th class="num">Playoffs</th><th class="num">Title</th></tr>
             </thead>
             <tbody>
-              {combinedOdds.map((team: any) => {
-                const playoffPct = ((team.playoff_odds || 0) * 100);
-                const titlePct = ((team.championship_prob || 0) * 100);
-                return (
-                  <tr>
-                    <td class="team-cell">{team.name}</td>
-                    <td data-value={team.playoff_odds || 0}>
-                      <div class="odds-bar"><i><b style={`width:${playoffPct}%`}></b></i><strong>{playoffPct.toFixed(1)}%</strong></div>
-                    </td>
-                    <td data-value={team.championship_prob || 0}>
-                      <div class="odds-bar"><i><b style={`width:${titlePct}%`}></b></i><strong>{titlePct.toFixed(1)}%</strong></div>
-                    </td>
-                  </tr>
-                );
-              })}
+              {combinedOdds.map((team: any) => (
+                <tr>
+                  <td class="team-cell">{team.name}</td>
+                  <td class="num" data-value={team.playoff_odds || 0}>{((team.playoff_odds || 0) * 100).toFixed(1)}%</td>
+                  <td class="num" data-value={team.championship_prob || 0}>{((team.championship_prob || 0) * 100).toFixed(1)}%</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -403,10 +395,9 @@ const chartPayload = sortedTeams.map((team: any) => ({
   .odds-row i { height: 12px; background: var(--paper-deep); }
   .odds-row i b { display: block; height: 100%; background: var(--rust); }
   .odds-row strong { text-align: right; font-family: var(--mono); }
-  .odds-table td .odds-bar { display: grid; grid-template-columns: 1fr 52px; gap: 8px; align-items: center; }
-  .odds-table td .odds-bar i { height: 12px; background: var(--paper-deep); }
-  .odds-table td .odds-bar i b { display: block; height: 100%; background: var(--rust); }
-  .odds-table td .odds-bar strong { text-align: right; font-family: var(--mono); font-size: 12px; }
+  .retro-table.odds-table { min-width: 0; }
+  .odds-table th.num, .odds-table td.num { text-align: right; white-space: nowrap; }
+  .odds-table td.num { font-family: var(--mono); font-size: 12px; }
   .odds-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
   .review-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
   .review-links a { border: 1px solid var(--ink); background: var(--white); padding: 10px; text-decoration: none; }
