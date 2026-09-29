@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple
 import numpy as np
 from scipy.stats import t as t_dist
+import random
 import requests
 import nflreadpy as nfl
 import statistics
@@ -718,23 +719,60 @@ class SimplePlayoffSimulator:
                 print(f"   Round {m['r']}, Match {m['m']}: {winner_name} beat {loser_name}")
         
         print(f"\n  Running {self.num_simulations:,} playoff simulations...")
-        
+
+        # Before the playoffs, Sleeper's bracket is seeded from current standings,
+        # so bracket participants would be identical every sim (playoff odds stuck
+        # at 100%/0%). Instead, simulate the rest of the regular season each sim
+        # and seed the brackets from the simulated standings.
+        in_playoffs = current_week >= playoff_start
+        if not in_playoffs:
+            print(f"  Simulating regular-season weeks {current_week}-{playoff_start - 1} "
+                  f"for probabilistic bracket seeding...")
+            team_strength, season_schedule = self._season_sim_precompute(current_week, playoff_start)
+            base_records = {}
+            for rid, entry in self._roster_map.items():
+                s = entry['roster']['settings']
+                base_records[rid] = {
+                    'wins': s.get('wins', 0),
+                    'losses': s.get('losses', 0),
+                    'ties': s.get('ties', 0),
+                    'points': s.get('fpts', 0) + s.get('fpts_decimal', 0) / 100.0,
+                }
+
         for sim in range(self.num_simulations):
             if sim > 0 and sim % 2000 == 0:
                 print(f"    Completed {sim:,} simulations...")
-            
+
             debug_mode = (sim == 0)
             if debug_mode:
                 print(f"\nDEBUG: First simulation:")
-            
+
+            if in_playoffs:
+                winners_bracket = self._winners_bracket.copy()
+                losers_bracket = self._losers_bracket.copy()
+            else:
+                seeds = self._simulate_season_to_seeds(base_records, team_strength, season_schedule)
+                if debug_mode:
+                    seed_names = [self._roster_map[r]['user_name'] for r in seeds]
+                    print(f"   Simulated seeds: {seed_names}")
+                winners_bracket = self._build_winners_template()
+                # QF: 3v6, 4v5; SF: 1vW(3v6), 2vW(4v5)
+                winners_bracket[0]['t1'], winners_bracket[0]['t2'] = seeds[2], seeds[5]
+                winners_bracket[1]['t1'], winners_bracket[1]['t2'] = seeds[3], seeds[4]
+                winners_bracket[2]['t1'] = seeds[0]
+                winners_bracket[3]['t1'] = seeds[1]
+                losers_bracket = self._build_losers_template()
+                losers_bracket[0]['t1'], losers_bracket[0]['t2'] = seeds[6], seeds[9]
+                losers_bracket[1]['t1'], losers_bracket[1]['t2'] = seeds[7], seeds[8]
+
             winner_results = self._simulate_bracket(
-                self._winners_bracket.copy(),
+                winners_bracket,
                 current_week,
                 playoff_start,
                 debug=debug_mode
             )
             loser_results = self._simulate_bracket(
-                self._losers_bracket.copy(),
+                losers_bracket,
                 current_week,
                 playoff_start,
                 debug=debug_mode
@@ -773,6 +811,81 @@ class SimplePlayoffSimulator:
         
         return results
     
+    def _season_sim_precompute(self, current_week: int, playoff_start: int):
+        """Precompute per-team strength for each remaining regular-season week.
+
+        Returns (team_strength, schedule) where team_strength[rid][week] is
+        (mean, std) from the optimal lineup, and schedule[week] is a list of
+        (roster_id_a, roster_id_b) pairings.
+        """
+        team_strength = {}
+        schedule = {}
+        for w in range(current_week, playoff_start):
+            matchups = self.api.get_matchups(w) or []
+            by_mid = {}
+            for m in matchups:
+                by_mid.setdefault(m['matchup_id'], []).append(m['roster_id'])
+            schedule[w] = [tuple(v) for v in by_mid.values() if len(v) == 2]
+            for rid in self._roster_map:
+                players = self._roster_map[rid]['players']
+                _, mean, std = self._build_optimal_lineup(players, w)
+                team_strength.setdefault(rid, {})[w] = (mean, std if std > 0 else 5.0)
+        return team_strength, schedule
+
+    def _simulate_season_to_seeds(self, base_records, team_strength, schedule):
+        """Simulate the rest of the regular season; return roster_ids seeded 1..N.
+
+        Seeding follows Sleeper's default: wins, then total points for.
+        """
+        standings = {rid: dict(rec) for rid, rec in base_records.items()}
+        for w, pairs in schedule.items():
+            for a, b in pairs:
+                m1, s1 = team_strength[a][w]
+                m2, s2 = team_strength[b][w]
+                sc1 = m1 + s1 * t_dist.rvs(6.0)
+                sc2 = m2 + s2 * t_dist.rvs(6.0)
+                if sc1 > sc2:
+                    standings[a]['wins'] += 1
+                    standings[b]['losses'] += 1
+                elif sc2 > sc1:
+                    standings[b]['wins'] += 1
+                    standings[a]['losses'] += 1
+                else:
+                    standings[a]['ties'] += 1
+                    standings[b]['ties'] += 1
+                standings[a]['points'] += sc1
+                standings[b]['points'] += sc2
+        return sorted(standings.keys(), key=lambda rid: (
+            -standings[rid]['wins'], -standings[rid]['points'], random.random()))
+
+    @staticmethod
+    def _build_winners_template():
+        """6-team winners bracket in Sleeper's bracket format (seeds filled per sim)."""
+        return [
+            {'m': 1, 'r': 1, 'w': None, 'l': None, 't1': None, 't2': None},
+            {'m': 2, 'r': 1, 'w': None, 'l': None, 't1': None, 't2': None},
+            {'m': 3, 'r': 2, 'w': None, 'l': None, 't1': None, 't2': None, 't2_from': {'w': 1}},
+            {'m': 4, 'r': 2, 'w': None, 'l': None, 't1': None, 't2': None, 't2_from': {'w': 2}},
+            {'m': 5, 'r': 2, 'w': None, 'l': None, 't1': None, 't2': None,
+             't1_from': {'l': 1}, 't2_from': {'l': 2}, 'p': 5},
+            {'m': 6, 'r': 3, 'w': None, 'l': None, 't1': None, 't2': None,
+             't1_from': {'w': 3}, 't2_from': {'w': 4}, 'p': 1},
+            {'m': 7, 'r': 3, 'w': None, 'l': None, 't1': None, 't2': None,
+             't1_from': {'l': 3}, 't2_from': {'l': 4}, 'p': 3},
+        ]
+
+    @staticmethod
+    def _build_losers_template():
+        """4-team losers bracket in Sleeper's bracket format (seeds filled per sim)."""
+        return [
+            {'m': 1, 'r': 1, 'w': None, 'l': None, 't1': None, 't2': None},
+            {'m': 2, 'r': 1, 'w': None, 'l': None, 't1': None, 't2': None},
+            {'m': 3, 'r': 2, 'w': None, 'l': None, 't1': None, 't2': None,
+             't1_from': {'w': 1}, 't2_from': {'w': 2}, 'p': 1},
+            {'m': 4, 'r': 2, 'w': None, 'l': None, 't1': None, 't2': None,
+             't1_from': {'l': 1}, 't2_from': {'l': 2}, 'p': 3},
+        ]
+
     def _simulate_bracket(self, bracket: List[dict], current_week: int, 
                           playoff_start: int, debug: bool = False) -> Dict[str, int]:
         """Simulate a bracket."""
