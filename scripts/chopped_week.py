@@ -169,6 +169,57 @@ def load_schedule(week: int) -> dict:
     return opponents
 
 
+def nfl_game_status(week: int, season: int = 2026) -> dict:
+    """Map Sleeper NFL team abbr -> 'pre' | 'in' | 'post' for a schedule week.
+
+    Kickoff times come from the nflverse schedule (gameday/gametime, ET); a
+    game counts as 'in' from kickoff until kickoff + 3.5h, 'post' after that,
+    'pre' before. The survival sim needs this because Sleeper's matchup
+    points update live: a nonzero score mid-game must NOT be locked as a
+    final, or teams with players still playing get their remaining
+    projection zeroed out and the sim collapses to a deterministic wrong
+    answer. Returns {} when the schedule can't be loaded; callers then fall
+    back to the legacy nonzero-means-final heuristic.
+    """
+    from zoneinfo import ZoneInfo
+    from datetime import datetime, timedelta
+    try:
+        import nflreadpy as nfl
+    except ImportError:
+        return {}
+    try:
+        schedules = nfl.load_schedules([season])
+    except Exception:
+        return {}
+    et = ZoneInfo("America/New_York")
+    now = datetime.now(et)
+    end = timedelta(hours=3.5)
+    status = {}
+    try:
+        for game in schedules.iter_rows(named=True):
+            if game.get("week") != week or game.get("game_type") not in ("REG", "", None):
+                continue
+            try:
+                kickoff = datetime.strptime(
+                    f"{game.get('gameday')} {game.get('gametime')}",
+                    "%Y-%m-%d %H:%M",
+                ).replace(tzinfo=et)
+            except (ValueError, TypeError):
+                continue
+            if now < kickoff:
+                state = "pre"
+            elif now <= kickoff + end:
+                state = "in"
+            else:
+                state = "post"
+            for team in (game.get("away_team"), game.get("home_team")):
+                if team:
+                    status[TEAM_ALIASES.get(team, team)] = state
+    except Exception:
+        return {}
+    return status
+
+
 def load_defense_ranks() -> dict:
     """Rank 1 = most fantasy points allowed at that position (softest)."""
     path = os.path.join(OUTPUT_DIR, "defense_stats.json")
@@ -342,14 +393,23 @@ def proj_points(stats: dict, rec_points: float) -> float:
 
 
 def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
-                      week, completed, chops, n_sims=50000, seed=7):
+                      week, completed, chops, players=None,
+                      n_sims=50000, seed=7):
     """Monte Carlo chop survival with the real chop count for the week.
 
-    Each alive team's final score = locked actuals (starters who already
-    played this week, from live matchup data) + t-distributed draws for
-    unplayed starters. Team sigma comes from the league's historical
-    coefficient of variation applied to the unplayed projection mass,
-    so a bye-depleted team is both low-mean and low-variance.
+    Each alive team's final score = locked actuals (starters whose NFL game
+    is final, from live matchup data) + t-distributed draws for everyone
+    else. Game status comes from nflverse kickoff times: a nonzero score in
+    a game that hasn't finished is a live partial, NOT a final, so those
+    players are simulated from their full-game projection instead of having
+    the partial locked and their remaining projection zeroed. (Locking a
+    halftime score as final collapses the sim: every other game is done, so
+    all scores go deterministic and the two lowest teams show 0% while the
+    game is still live.) E[final] ~= projection for an unfinished game, so
+    this is unbiased; variance is slightly overstated for games already in
+    progress. Team sigma comes from the league's historical coefficient of
+    variation applied to the unplayed projection mass, so a bye-depleted
+    team is both low-mean and low-variance.
     """
     import numpy as np
     from scipy.stats import t as t_dist
@@ -375,6 +435,7 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
         }
 
     teams = []
+    game_status = nfl_game_status(week)
     for view in views:
         if not view["player_ids"]:
             continue
@@ -383,7 +444,20 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
         unplayed_mu = 0.0
         for pid in view["starters"]:
             actual = pp.get(pid) or 0
-            if actual > 0:
+            team = (players.get(pid) or {}).get("team") if players else None
+            state = game_status.get(team) if team else None
+            if state == "post":
+                # NFL game is final: lock the actual, even a zero (played and
+                # scored nothing, or inactive). Never stack projection on a
+                # final score.
+                locked += actual
+            elif state in ("pre", "in"):
+                # Game not finished: Sleeper's points are a live partial, so
+                # ignore them and simulate from the full-game projection.
+                unplayed_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
+            elif actual > 0:
+                # No game-status info (schedule unavailable): legacy
+                # nonzero-means-final heuristic.
                 locked += actual
             else:
                 unplayed_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
@@ -666,7 +740,7 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
 
     survival = simulate_survival(
         api, views, proj_by_id, rec_points, owner_name,
-        week, completed, chops_in_week(week))
+        week, completed, chops_in_week(week), players)
 
     current_bids = fetch_bids(LEAGUE_ID, players, through_week=max(week, 1))
     history_auctions = auctions_from(history.get("bids") or [])
