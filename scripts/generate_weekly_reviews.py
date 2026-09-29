@@ -127,6 +127,19 @@ def build_week_data(week, matchups, transactions, roster_map, user_map,
         user = user_map.get(uid, {})
         return user.get('display_name', user.get('metadata', {}).get('team_name', f'Team {roster_id}'))
 
+    # --- Exclude eliminated (ghost) teams ---
+    # In Chopped, a chopped team's roster is emptied but its roster_id persists,
+    # so Sleeper keeps returning a matchup row for it every later week with
+    # all-'0' starters and 0 points. Including those rows corrupts team_scores,
+    # all-play records, and the elimination pick (ghosts always sort lowest,
+    # naming the wrong teams as chopped with 0 points). A team participates in
+    # a week iff it fielded at least one real starter.
+    if league_type == 'chopped':
+        matchups = [
+            m for m in matchups
+            if any(s and str(s) != '0' for s in (m.get('starters') or []))
+        ]
+
     # --- Build matchup pairs ---
     teams_by_matchup = {}
     all_team_scores = []
