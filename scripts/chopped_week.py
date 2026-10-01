@@ -38,9 +38,13 @@ BRIEF_PATH = os.path.join(OUTPUT_DIR, "chopped_week_brief.json")
 
 # Chart rules that Sleeper does not encode. Lineup slots come from the live
 # league; these are roster caps, elimination counts, and roster size.
-# CHART_SLOTS is transcribed from the commissioner's chart (photo, 2026-09-25):
+# CHART_SLOTS is transcribed from the commissioner's chart (photo, updated 2026-10-01;
+# previously 2026-09-25). The 10-01 revision: season ends Week 15 with a 2-team
+# final (1st $385 / 2nd $64) instead of a Week 16 last-man-standing; Week 8 has
+# 7 starters (no 3rd WR); Weeks 11-12 have a single WRTQ (not two); Weeks 13-14
+# need 2 RB + a TE (not 3 RB, no TE slot).
 # starting slots per week; the rest of the roster is bench.
-ROSTER_SIZE = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15]
+ROSTER_SIZE = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15]
 TEAM_ALIASES = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX"}
 
 CHART_SLOTS = {
@@ -51,15 +55,14 @@ CHART_SLOTS = {
     5:  ["QB", "RB", "WR", "WR", "TE", "WRT"],
     6:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
     7:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
-    8:  ["QB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT"],
+    8:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
     9:  ["QB", "RB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
     10: ["QB", "RB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
-    11: ["QB", "RB", "RB", "WR", "WR", "TE", "TE", "WRTQ", "WRTQ"],
-    12: ["QB", "RB", "RB", "WR", "WR", "TE", "TE", "WRT", "WRTQ", "WRTQ"],
-    13: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "WRT", "WRT", "WRTQ"],
-    14: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "WRT", "WRT", "WRTQ"],
+    11: ["QB", "RB", "RB", "WR", "WR", "TE", "TE", "WRT", "WRTQ"],
+    12: ["QB", "RB", "RB", "WR", "WR", "TE", "TE", "WRT", "WRTQ"],
+    13: ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT", "WRTQ"],
+    14: ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT", "WRTQ"],
     15: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT", "WRTQ"],
-    16: ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "TE", "WRT", "WRT", "WRTQ"],
 }
 
 # WRTQ is a superflex-style slot (QB/RB/WR/TE); WRT is RB/WR/TE.
