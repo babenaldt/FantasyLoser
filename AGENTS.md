@@ -110,8 +110,8 @@ Sean is in survival mode, and FAAB is more valuable later. Default to spending $
 
 ### How this league differs from standard guillotine
 Standard guillotine has fixed rosters — every add is a swap. Here rosters expand 8 -> 15 and starters grow 5 -> 11, which creates edges the standard format doesn't have:
-- **Fill every expansion spot.** Weeks 3, 5, 7, 9, 11, 13, 15 add a roster slot for free. Never leave one empty: claim the best available player at $0 even if marginal. Today's end-of-bench stash is week 13's 3rd RB starter.
-- **Buy ahead of slot openings (market timing).** The chart tells you exactly when positional demand spikes: 2nd QB startable week 11, 3rd RB / 3rd WR weeks 13-14. Acquire those positions a week early, before every rival needs them and prices rise.
+- **Fill every expansion spot.** Weeks 3, 5, 7, 9, 11, 13, 15 add a roster slot for free. Never leave one empty: claim the best available player at $0 even if marginal. Today's end-of-bench stash is a 4th WR for weeks 13-15's three WR slots.
+- **Buy ahead of slot openings (market timing).** The chart tells you exactly when positional demand spikes: 2nd QB startable week 11 (single WRTQ slot), 3rd WR weeks 13-15. Acquire those positions a week early, before every rival needs them and prices rise.
 - **Convert stashes to starters over time.** By week 15, 11 of 15 roster spots start. There is no room for dead bench weight late — every spot must be startable. Early upside stashes should become reliable veterans by week 12.
 - **Bodies matter more here.** A star is still worth star money, but the 11th starter has real value in this format — which is why expansion-week $0 claims are mandatory, not optional.
 
@@ -119,10 +119,10 @@ Spend triggers (exceptions to $0 default): the week-5 bye hole, fewer than 2 sta
 
 ### Waiver shopping list (from the starter-slot chart)
 Positional demand ramps as starters grow 5 -> 11. Build in this order:
-1. **RB** — the scarce one. Needed: week 5 bye cover (Walker + Hubbard both out), a 2nd startable RB from week 9, a 3rd from week 13. Never feel "done" at RB; every upside stash should be an RB first.
-2. **WR** — 2nd WR slot opens week 5, 3rd WR week 8, 3 per week from 13.
-3. **QB** — a 2nd QB is only *startable* from week 11 (WRTQ superflex slots), not week 5. Add one on the week 10/11 waivers; QBs are cheap. The old "planned Week 5 QB spend" is obsolete: week 5's expansion spot goes to RB/WR.
-4. **TE** — 2nd TE slot opens week 11; Kraft + Juwan Johnson already cover it.
+1. **RB** — the scarce one. Needed: week 5 bye cover (Walker + Hubbard both out), a 2nd startable RB from week 9. Weeks 13-14 need only 2 RBs (revised chart), so RB depth beyond 3 is a luxury, not a requirement. Never feel "done" at RB, but the old 3rd-RB mandate is gone.
+2. **WR** — 2nd WR slot opens week 5, 3 per week from 13. (The old week-8 3rd WR slot was removed in the revised chart.) With exactly 3 WRs for 3 slots in weeks 13-15, a 4th WR is the best end-of-bench stash.
+3. **QB** — a 2nd QB is only *startable* from week 11, and only in a single WRTQ slot (weeks 11-14; two in the week-15 final), not week 5. Add one on the week 10/11 waivers; QBs are cheap. The old "planned Week 5 QB spend" is obsolete: week 5's expansion spot goes to RB/WR.
+4. **TE** — 2nd TE slot opens week 11, and weeks 13-14 now carry a dedicated TE slot. Kraft + Juwan Johnson already cover it; don't churn a TE for a flier.
 
 Spend triggers (exceptions to $0 default): the week-5 bye hole, fewer than 2 startable RBs entering week 9, or an injury to a starter. Expansion weeks (5, 7, 9, 11, 13, 15) need no drop — prefer adds then; on must-drop weeks (4, 6, 8, 10, 12, 14) only add windfalls (chopped teams' drops).
 
@@ -130,25 +130,23 @@ Spend triggers (exceptions to $0 default): the week-5 bye hole, fewer than 2 sta
 
 Sleeper's `roster_positions` are the starting slots. The chart caps are separate, and the script enforces them. Do not recommend a player at a capped position.
 
-Teams entering the week: 20, 18, 16, 14, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1.
+Teams entering the week: 20, 18, 16, 14, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2.
 
-Chops: 2 teams in weeks 1-4, then 1 team in weeks 5-15. Week 16 has 1 team left.
+Chops: 2 teams in weeks 1-4, then 1 team in weeks 5-14. Week 15 is a 2-team final: 1st place $385, 2nd place $64 (total pot $449).
 
-Roster size: 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15. An expansion week adds one bench spot, so he can add without a drop. On a non-expansion week he must drop.
+Roster size: 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15. An expansion week adds one bench spot, so he can add without a drop. On a non-expansion week he must drop.
 
 Roster caps: weeks 1-4 max 1 QB and 2 TE. Weeks 5-9 max 2 QB and 2 TE. Weeks 10+ max 3 QB and 3 TE.
 
-Starter slots (full chart transcribed from the commissioner's photo, 2026-09-25; also encoded as CHART_SLOTS in scripts/chopped_week.py, and the brief lists upcoming changes):
+Starter slots (full chart transcribed from the commissioner's photo, revised 2026-10-01; also encoded as CHART_SLOTS in scripts/chopped_week.py, and the brief lists upcoming changes):
 - Weeks 1-3: QB, RB, WR, TE, WRT (5 starters)
 - Week 4: adds a 2nd WRT (6)
 - Week 5: 2nd WR replaces a WRT -> QB, RB, WR, WR, TE, WRT (6)
-- Week 6-7: 2nd WRT back (7)
-- Week 8: 3rd WR (8)
-- Weeks 9-10: 2nd RB replaces a WR (8)
-- Week 11: 2nd TE and 2 WRTQ replace the WRTs (9)
-- Week 12: QB, RB, RB, WR, WR, TE, TE, WRT, WRTQ, WRTQ (10)
-- Weeks 13-14: 3rd RB and 3rd WR, WRTQ single (10)
-- Weeks 15-16: QB, RB x3, WR x3, TE, WRT x2, WRTQ (11)
+- Weeks 6-8: 2nd WRT back (7)
+- Weeks 9-10: 2nd RB replaces a WR -> QB, RB, RB, WR, WR, TE, WRT, WRT (8)
+- Weeks 11-12: 2nd TE slot opens; single WRTQ -> QB, RB, RB, WR, WR, TE, TE, WRT, WRTQ (9)
+- Weeks 13-14: 3rd WR and a dedicated TE slot -> QB, RB, RB, WR, WR, WR, TE, WRT, WRT, WRTQ (10)
+- Week 15 (final): QB, RB x3, WR x3, TE, WRT x2, WRTQ (11)
 
 Week 5 adds the second WR starter and opens the second QB roster spot. That week was the planned QB spend, but the 2026 Week 5 RB bye crunch (Walker + Hubbard both out) deprioritized it.
 
