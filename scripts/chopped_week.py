@@ -47,6 +47,20 @@ BRIEF_PATH = os.path.join(OUTPUT_DIR, "chopped_week_brief.json")
 ROSTER_SIZE = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15]
 TEAM_ALIASES = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX"}
 
+
+def _team_keys(abbr):
+    """All plausible keys for an NFL team abbr across nflverse/Sleeper.
+
+    nflverse and Sleeper disagree on a few abbreviations (LA vs LAR, WSH vs
+    WAS, JAC vs JAX, depending on dataset). Game-state lookups must hit
+    regardless of which side a code came from, so index under every variant.
+    """
+    keys = {abbr, TEAM_ALIASES.get(abbr, abbr)}
+    for key, val in TEAM_ALIASES.items():
+        if val == abbr:
+            keys.add(key)
+    return keys
+
 CHART_SLOTS = {
     1:  ["QB", "RB", "WR", "TE", "WRT"],
     2:  ["QB", "RB", "WR", "TE", "WRT"],
@@ -313,10 +327,50 @@ def nfl_game_status(week: int, season: int = 2026) -> dict:
                 state = "post"
             for team in (game.get("away_team"), game.get("home_team")):
                 if team:
-                    status[TEAM_ALIASES.get(team, team)] = state
+                    for key in _team_keys(team):
+                        status[key] = state
     except Exception:
         return {}
     return status
+
+
+def nfl_kickoffs(week: int, season: int = 2026) -> dict:
+    """Map NFL team abbr -> kickoff datetime (ET) for a schedule week.
+
+    Same source and alias handling as nfl_game_status. The survival sim uses
+    this to time-decay remaining projection for live games. Returns {} when
+    the schedule can't be loaded.
+    """
+    from zoneinfo import ZoneInfo
+    from datetime import datetime
+    try:
+        import nflreadpy as nfl
+    except ImportError:
+        return {}
+    try:
+        schedules = nfl.load_schedules([season])
+    except Exception:
+        return {}
+    et = ZoneInfo("America/New_York")
+    kickoffs = {}
+    try:
+        for game in schedules.iter_rows(named=True):
+            if game.get("week") != week or game.get("game_type") not in ("REG", "", None):
+                continue
+            try:
+                kickoff = datetime.strptime(
+                    f"{game.get('gameday')} {game.get('gametime')}",
+                    "%Y-%m-%d %H:%M",
+                ).replace(tzinfo=et)
+            except (ValueError, TypeError):
+                continue
+            for team in (game.get("away_team"), game.get("home_team")):
+                if team:
+                    for key in _team_keys(team):
+                        kickoffs[key] = kickoff
+    except Exception:
+        return {}
+    return kickoffs
 
 
 def load_defense_ranks() -> dict:
@@ -579,20 +633,16 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
     projection-OPTIMAL lineup (highest total projected points in the week's
     chart slots), not the manager's as-set starters. Starters whose NFL
     game already started are locked into the lineup (Sleeper locks them):
-    finals lock their actual, live games simulate from the full-game
-    projection; everything else is chosen optimally from players whose
-    games haven't started.
+    finals lock their actual; live games blend the live actual with a
+    time-decayed slice of remaining projection (mirroring the Sleeper app's
+    live projected total), so a player three quarters into a bad game no
+    longer counts at his full pre-game projection. Everything else is chosen
+    optimally from players whose games haven't started.
 
-    Each alive team's final score = locked actuals + t-distributed draws
-    for everyone else. Game status comes from nflverse kickoff times: a
-    nonzero score in a game that hasn't finished is a live partial, NOT a
-    final, so those players are simulated from their full-game projection
-    instead of having the partial locked and their remaining projection
-    zeroed. (Locking a halftime score as final collapses the sim: every
-    other game is done, so all scores go deterministic and the two lowest
-    teams show 0% while the game is still live.) E[final] ~= projection
-    for an unfinished game, so this is unbiased; variance is slightly
-    overstated for games already in progress. Team sigma comes from the
+    Each alive team's final score = locked actuals + blended live
+    expectations + t-distributed draws for everyone else. Game status comes
+    from nflverse kickoff times: a nonzero score in a game that hasn't
+    finished is a live partial, NOT a final. Team sigma comes from the
     league's historical coefficient of variation applied to the unplayed
     projection mass, so a bye-depleted team is both low-mean and
     low-variance.
@@ -621,7 +671,21 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
         }
 
     game_status = nfl_game_status(week)
+    kickoffs = nfl_kickoffs(week)
     slots = CHART_SLOTS.get(week) or ["QB", "RB", "WR", "TE", "WRT"]
+
+    from zoneinfo import ZoneInfo
+    et = ZoneInfo("America/New_York")
+    now = datetime.now(et)
+    game_len_s = 3.5 * 3600
+
+    def remaining_frac(team):
+        """Share of projection still unplayed for a live game (1 at kickoff)."""
+        kickoff = kickoffs.get(team) if team else None
+        if kickoff is None:
+            return 1.0
+        elapsed = (now - kickoff).total_seconds() / game_len_s
+        return max(0.0, min(1.0, 1.0 - elapsed))
 
     def player_state(pid, actual):
         team = (players.get(pid) or {}).get("team") if players else None
@@ -650,7 +714,9 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
         live_mu = 0.0
         for pid in view["starters"]:
             actual = pp.get(pid) or 0
+            team = (players.get(pid) or {}).get("team") if players else None
             state = player_state(pid, actual)
+            proj = proj_points(proj_by_id.get(pid, {}), rec_points)
             if state == "post":
                 # NFL game is final: lock the actual, even a zero (played and
                 # scored nothing, or inactive). Never stack projection on a
@@ -658,10 +724,10 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
                 locked += actual
                 must_place.append(pid)
             elif state == "in":
-                # Game live: Sleeper's points are a partial, so ignore them
-                # and simulate from the full-game projection. The starter is
-                # still locked into their slot.
-                live_mu += proj_points(proj_by_id.get(pid, {}), rec_points)
+                # Game live: credit the actual plus a time-decayed slice of
+                # remaining projection (the Sleeper app's live-total idea).
+                # The starter is still locked into their slot.
+                live_mu += actual + proj * remaining_frac(team)
                 must_place.append(pid)
             # "pre" starters are still changeable: the optimizer decides.
 
