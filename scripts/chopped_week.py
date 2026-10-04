@@ -106,6 +106,102 @@ def teams_entering(week: int) -> int:
     return remaining
 
 
+def next_week_bye_risks(players, proj_by_id, views, week, rec_points):
+    """Rank alive teams by next week's bye crunch.
+
+    For each alive team, fill next week's chart slots optimally twice: with
+    the full roster, and with bye-week players removed. Uses current-week
+    Sleeper projections as the player-quality proxy, because Sleeper zeroes
+    next-week projections for bye players (which would flatten every crunch
+    to 0). This is the "if nobody makes a move" number -- waiver adds will
+    raise the depleted totals.
+    Returns {"week", "byes", "rows"} or None if the schedule is unavailable.
+    """
+    nxt = week + 1
+    if nxt not in CHART_SLOTS:
+        return None
+    try:
+        import nflreadpy as nfl
+    except ImportError:
+        return None
+    try:
+        schedules = nfl.load_schedules([2026])
+    except Exception:
+        return None
+    universe, playing = set(), set()
+    for game in schedules.iter_rows(named=True):
+        if game.get("game_type") not in ("REG", "", None):
+            continue
+        home, away = game.get("home_team"), game.get("away_team")
+        if not home or not away:
+            continue
+        universe.add(home)
+        universe.add(away)
+        if game.get("week") == nxt:
+            playing.add(home)
+            playing.add(away)
+    if not universe or not playing:
+        return None
+    bye_nfl = sorted(t for t in universe if t not in playing)
+
+    def sleeper_variants(abbr):
+        variants = {abbr}
+        if abbr == "LA":
+            variants.add("LAR")
+        if abbr == "WSH":
+            variants.add("WAS")
+        if abbr == "JAX":
+            variants.add("JAC")
+        return variants
+
+    bye_teams = set()
+    for t in bye_nfl:
+        bye_teams |= sleeper_variants(t)
+
+    slots = CHART_SLOTS[nxt]
+    rows = []
+    for view in views:
+        ids = view["player_ids"]
+        if not ids:
+            continue  # chopped, roster emptied
+        pool, pos_of, info = {}, {}, {}
+        for pid in ids:
+            p = players.get(pid, {})
+            pos = p.get("position")
+            if pos not in ("QB", "RB", "WR", "TE"):
+                continue
+            if (p.get("injury_status") or "").upper() in (
+                    "IR", "OUT", "DOUBTFUL", "SUSPENDED"):
+                continue
+            pool[pid] = proj_points(proj_by_id.get(pid, {}), rec_points)
+            pos_of[pid] = pos
+            info[pid] = p
+        if not pool:
+            continue
+        full_picks = _optimal_fill(slots, [], pool, pos_of)
+        full = sum(pool[pid] for pid in full_picks)
+        dep_pool = {pid: pr for pid, pr in pool.items()
+                    if (info[pid].get("team") or "").upper() not in bye_teams}
+        dep_picks = _optimal_fill(slots, [], dep_pool, pos_of)
+        depleted = sum(dep_pool[pid] for pid in dep_picks)
+        lost = [
+            {"name": player_name(players, pid),
+             "pos": pos_of[pid],
+             "proj": round(pool[pid], 1)}
+            for pid in full_picks
+            if (info[pid].get("team") or "").upper() in bye_teams
+        ]
+        rows.append({
+            "owner": view["owner"],
+            "full": round(full, 1),
+            "depleted": round(depleted, 1),
+            "crunch": round(full - depleted, 1),
+            "lost": lost,
+        })
+    rows.sort(key=lambda r: -r["crunch"])
+    return {"week": nxt, "byes": bye_nfl, "rows": rows}
+
+
 def chops_in_week(week: int) -> int:
     if week <= 4:
         return 2
@@ -946,6 +1042,8 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
             counts[row["pos"]] += 1
     caps = roster_caps(week)
 
+    bye_risks = next_week_bye_risks(players, proj_by_id, views, week, rec_points)
+
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "week": week,
@@ -973,6 +1071,7 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
         },
         "alive_last_week": alive_scores,
         "chop_watch": chop_watch,
+        "next_week_bye_risks": bye_risks,
         "faab_board": faab_board,
         "survival_mc": survival,
         "pool": pool[:30],
@@ -1071,6 +1170,25 @@ def print_report(brief: dict) -> None:
     )
     top = ", ".join(f"{r['owner']} ${r['faab']}" for r in board[:5])
     print(f"FAAB board: {top} ... you are #{my_rank} at ${sean['faab_remaining']}")
+    risks = brief.get("next_week_bye_risks")
+    if risks:
+        print(
+            f"\nNEXT WEEK BYE RISKS (week {risks['week']} byes: "
+            f"{', '.join(risks['byes'])}; if nobody makes a move)"
+        )
+        for r in risks["rows"]:
+            if r["crunch"] <= 0:
+                continue
+            lost = ", ".join(
+                f"{p['name']} ({p['pos']} {p['proj']})" for p in r["lost"]
+            ) or "-"
+            print(
+                f"  {r['owner']}: {r['full']} -> {r['depleted']} "
+                f"(-{r['crunch']}) loses {lost}"
+            )
+        unaffected = sum(1 for r in risks["rows"] if r["crunch"] <= 0)
+        if unaffected:
+            print(f"  ({unaffected} teams unaffected by byes)")
     mc = brief["survival_mc"]
     print(f"\nSURVIVAL SIM ({mc['n_sims']:,} sims, t-dist, {mc['chops']} chops, league CV {mc['league_cv']})")
     print(f"  P(survive) {mc['p_survive']:.1%}  (with 1 chop: {mc['p_survive_1chop']:.1%})")
