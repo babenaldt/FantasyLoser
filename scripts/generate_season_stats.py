@@ -490,14 +490,17 @@ def calculate_season_stats(league_id, league_name):
                 team['pythagorean_wins'] = 0
                 team['luck_factor'] = 0
 
-            # Trend (Last 3 Weeks Avg vs Season Avg)
-            if len(team['weekly_scores']) >= 3:
-                last_3_weeks = team['weekly_scores'][-3:]
-                last_3_avg = sum(w['points'] for w in last_3_weeks) / 3
-                if team['avg_points_per_game'] > 0:
-                    team['trend'] = ((last_3_avg - team['avg_points_per_game']) / team['avg_points_per_game']) * 100
-                else:
-                    team['trend'] = 0
+            # Trend (recent form vs earlier baseline): last 2 weeks avg vs avg of all prior weeks.
+            # The old formula compared the last 3 weeks against a season average that
+            # *included* those same weeks, so it collapsed to ~0 whenever the last 3
+            # covered most of the season. The baseline must exclude the recent weeks.
+            _ws = team['weekly_scores']
+            if len(_ws) >= 3:
+                _recent = _ws[-2:]
+                _baseline = _ws[:-2]
+                _recent_avg = sum(w['points'] for w in _recent) / len(_recent)
+                _base_avg = sum(w['points'] for w in _baseline) / len(_baseline)
+                team['trend'] = ((_recent_avg - _base_avg) / _base_avg * 100) if _base_avg > 0 else 0
             else:
                 team['trend'] = 0
 

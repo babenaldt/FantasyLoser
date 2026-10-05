@@ -213,7 +213,7 @@ const chartPayload = sortedTeams.map((team: any) => ({
                 <td data-value={team.consistency_score || 0}>{(team.consistency_score || 0).toFixed(2)}</td>
                 <td data-value={team.faab_spent || 0}>${team.faab_spent || 0}</td>
                 <td data-value={team.points_per_faab || 0}>{(team.points_per_faab || 0).toFixed(2)}</td>
-                <td data-value={team.trend || 0}>{(team.trend || 0) > 0 ? '▲' : '▼'} {Math.abs(team.trend || 0).toFixed(1)}%</td>
+                <td data-value={team.trend || 0}>{(() => { const _t = team.trend || 0; const _a = _t > 0.5 ? '▲' : (_t < -0.5 ? '▼' : '–'); return `${_a} ${Math.abs(_t).toFixed(1)}%`; })()}</td>
               </tr>
             ))}
           </tbody>
