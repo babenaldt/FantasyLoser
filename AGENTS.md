@@ -139,9 +139,8 @@ Roster size: 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15. An expansio
 Roster caps: weeks 1-4 max 1 QB and 2 TE. Weeks 5-9 max 2 QB and 2 TE. Weeks 10+ max 3 QB and 3 TE.
 
 Starter slots (full chart transcribed from the commissioner's photo, revised 2026-10-01; also encoded as CHART_SLOTS in scripts/chopped_week.py, and the brief lists upcoming changes):
-- Weeks 1-3: QB, RB, WR, TE, WRT (5 starters)
-- Week 4: adds a 2nd WRT (6)
-- Week 5: 2nd WR replaces a WRT -> QB, RB, WR, WR, TE, WRT (6)
+- Weeks 1-4: QB, RB, WR, TE, WRT (5 starters)
+- Week 5: adds a 2nd WR -> QB, RB, WR, WR, TE, WRT (6)
 - Weeks 6-8: 2nd WRT back (7)
 - Weeks 9-10: 2nd RB replaces a WR -> QB, RB, RB, WR, WR, TE, WRT, WRT (8)
 - Weeks 11-12: 2nd TE slot opens; single WRTQ -> QB, RB, RB, WR, WR, TE, TE, WRT, WRTQ (9)

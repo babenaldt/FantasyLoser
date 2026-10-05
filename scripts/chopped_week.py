@@ -65,7 +65,7 @@ CHART_SLOTS = {
     1:  ["QB", "RB", "WR", "TE", "WRT"],
     2:  ["QB", "RB", "WR", "TE", "WRT"],
     3:  ["QB", "RB", "WR", "TE", "WRT"],
-    4:  ["QB", "RB", "WR", "TE", "WRT", "WRT"],
+    4:  ["QB", "RB", "WR", "TE", "WRT"],
     5:  ["QB", "RB", "WR", "WR", "TE", "WRT"],
     6:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
     7:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
