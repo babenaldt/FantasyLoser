@@ -180,6 +180,39 @@ const tsOthers = tsVals.filter((t) => t.owner !== "SeanRabenaldt");
       </section>
     )}
 
+    {(() => {
+      const bw = weekData?.bye_warnings;
+      if (!bw || !Array.isArray(bw.rows) || !bw.rows.length) return null;
+      const atRisk = bw.rows.filter((r: any) => (r.crunch || 0) > 0.5);
+      return (
+        <section>
+          <div class="section-heading"><h2>Bye Week Warnings</h2><span>Week {bw.week} byes: {(bw.byes || []).join(', ') || 'none'}</span></div>
+          <p class="section-copy">
+            Projected points each surviving team loses to byes next week if nobody makes a move —
+            waiver adds will soften the blow. {atRisk.length} of {bw.rows.length} teams take a hit.
+          </p>
+          <div class="retro-table-wrap">
+            <table class="retro-table">
+              <thead>
+                <tr><th>Team</th><th>Full Lineup</th><th>Depleted</th><th>Lost</th><th>Key Losses</th></tr>
+              </thead>
+              <tbody>
+                {bw.rows.map((r: any) => (
+                  <tr>
+                    <td class="team-cell">{r.owner}</td>
+                    <td>{r.full?.toFixed(1)}</td>
+                    <td>{r.depleted?.toFixed(1)}</td>
+                    <td data-value={r.crunch || 0}>-{(r.crunch || 0).toFixed(1)}</td>
+                    <td>{(r.lost || []).map((p: any) => `${p.name} (${p.pos}, ${p.proj})`).join(', ') || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    })()}
+
     <section>
       <div class="section-heading"><h2>Weekly Awards</h2></div>
       <div class="award-grid">

@@ -550,6 +550,41 @@ def generate_weekly_review(league_key, league_config):
                     'bid': txn['bid'],
                 })
 
+    # Chopped: bye-week warnings for the upcoming week, attached to the latest
+    # review only (older weeks' alive-rosters aren't reconstructible from the
+    # current ones). Same projection-optimal logic as the weekly brief's
+    # NEXT WEEK BYE RISKS: optimal lineup with full roster vs bye players
+    # removed, using last completed week's projections as the quality proxy.
+    if league_type == 'chopped' and weeks_data:
+        try:
+            from chopped_week import next_week_bye_risks
+            from core_data import make_request
+            _players_full = SleeperAPI.get_all_players() or {}
+            _proj_rows = make_request(
+                "https://api.sleeper.com/projections/nfl/2026/"
+                f"{last_completed}?season_type=regular"
+                "&position[]=QB&position[]=RB&position[]=WR&position[]=TE"
+            ) or []
+            _proj_by_id = {str(r.get("player_id")): (r.get("stats") or {})
+                           for r in _proj_rows}
+            _rec = (league.get("scoring_settings") or {}).get("rec", 0) or 0
+            _views = []
+            for _rid, _roster in roster_map.items():
+                _pids = [str(p) for p in (_roster.get("players") or [])
+                         if str(p) != "0"]
+                if not _pids:
+                    continue  # chopped: roster emptied
+                _views.append({"owner": owner_name_from_rid(_rid),
+                               "player_ids": _pids})
+            _risks = next_week_bye_risks(_players_full, _proj_by_id, _views,
+                                         last_completed, _rec)
+            if _risks:
+                weeks_data[-1]["bye_warnings"] = _risks
+                print(f"    Bye warnings for week {_risks['week']}: "
+                      f"{len(_risks['rows'])} teams ranked")
+        except Exception as _e:
+            print(f"    Warning: bye warnings failed: {_e}")
+
     # Build FAAB summary
     faab_by_team = []
     for rid in roster_map:
