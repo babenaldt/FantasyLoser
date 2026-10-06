@@ -34,9 +34,9 @@ const awardItems = [
     stat: `${awards.efficiency_king.efficiency}% efficient`,
   },
   awards.underachiever && {
-    title: 'Points Abandoned',
+    title: 'Underachiever',
     name: awards.underachiever.owner_name,
-    stat: `${awards.underachiever.missed.toFixed(1)} left behind`,
+    stat: `${Math.abs(awards.underachiever.delta).toFixed(1)} under projection`,
   },
   awards.player_of_week && {
     title: 'Player of the Week',

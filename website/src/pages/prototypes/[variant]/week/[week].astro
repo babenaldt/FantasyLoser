@@ -45,12 +45,12 @@ const awardItems = [
   awards.overachiever && {
     title: 'Overachiever',
     name: awards.overachiever.owner_name,
-    stat: `Only ${awards.overachiever.missed.toFixed(1)} missed`,
+    stat: `+${awards.overachiever.delta.toFixed(1)} vs projection`,
   },
   awards.underachiever && {
     title: 'Underachiever',
     name: awards.underachiever.owner_name,
-    stat: `${awards.underachiever.missed.toFixed(1)} left behind`,
+    stat: `${Math.abs(awards.underachiever.delta).toFixed(1)} under projection`,
   },
   awards.bench_boss && {
     title: 'Bench Boss',
