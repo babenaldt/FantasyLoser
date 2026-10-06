@@ -16,10 +16,11 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core_data import (
-    ensure_directories, save_json, SleeperAPI,
+    ensure_directories, save_json, SleeperAPI, make_request,
     OUTPUT_DIR, ASTRO_DATA_DIR, load_sleeper_player_lookup
 )
 from nfl_week_helper import get_last_completed_nfl_week
+from chopped_week import next_week_bye_risks, proj_points
 
 # League configurations (must match generate_season_stats.py)
 LEAGUES = {
@@ -105,7 +106,8 @@ def calculate_optimal_score(matchup, roster_positions, player_data):
 
 
 def build_week_data(week, matchups, transactions, roster_map, user_map,
-                    player_data, roster_positions, league_type, elims_for_week_fn=None):
+                    player_data, roster_positions, league_type, elims_for_week_fn=None,
+                    proj_by_id=None, rec_points=0):
     """Build the complete data object for a single week.
 
     Args:
@@ -167,13 +169,20 @@ def build_week_data(week, matchups, transactions, roster_map, user_map,
                     'points': round(sp, 2),
                 })
 
-        # Projected total
-        proj = 0  # projections not fetched here; we use delta from optimal/actual
+        # Projected total: sum of as-set starters' frozen pre-game projections
+        # (Sleeper freezes past-week projections, so this is the number
+        # managers actually saw on Sunday morning).
+        proj_total = 0.0
+        if proj_by_id:
+            for pid in starters:
+                if pid and str(pid) != '0':
+                    proj_total += proj_points(proj_by_id.get(str(pid), {}), rec_points)
 
         team_entry = {
             'roster_id': rid,
             'owner_name': owner_name(rid),
             'points': round(pts, 2),
+            'projected': round(proj_total, 2),
             'optimal': round(optimal, 2),
             'bench_points': round(bench_pts, 2),
             'efficiency': efficiency,
@@ -337,25 +346,26 @@ def compute_awards(all_team_scores, scoreboard, league_type, elims_for_week_fn, 
         'optimal': best_eff['optimal'],
     }
 
-    # 4. Overachiever: highest actual above bench expectation
-    # Simplify: team that left the fewest points on bench (optimal - actual smallest)
-    missed_pts = [(t, t['optimal'] - t['points']) for t in all_team_scores]
-    missed_pts.sort(key=lambda x: x[1])
-    overachiever = missed_pts[0]
+    # Overachiever: beat their projection by the most (actual - projected).
+    # Underachiever: missed their projection by the most.
+    # (Sleeper freezes past-week projections pre-game, so the delta is real.)
+    def proj_delta(t):
+        return t['points'] - t.get('projected', 0)
+
+    overachiever = max(all_team_scores, key=proj_delta)
     awards['overachiever'] = {
-        'owner_name': overachiever[0]['owner_name'],
-        'points': overachiever[0]['points'],
-        'optimal': overachiever[0]['optimal'],
-        'missed': round(overachiever[1], 2),
+        'owner_name': overachiever['owner_name'],
+        'points': overachiever['points'],
+        'projected': round(overachiever.get('projected', 0), 2),
+        'delta': round(proj_delta(overachiever), 2),
     }
 
-    # 5. Underachiever (most points left on bench relative to optimal)
-    underachiever = missed_pts[-1]
+    underachiever = min(all_team_scores, key=proj_delta)
     awards['underachiever'] = {
-        'owner_name': underachiever[0]['owner_name'],
-        'points': underachiever[0]['points'],
-        'optimal': underachiever[0]['optimal'],
-        'missed': round(underachiever[1], 2),
+        'owner_name': underachiever['owner_name'],
+        'points': underachiever['points'],
+        'projected': round(underachiever.get('projected', 0), 2),
+        'delta': round(proj_delta(underachiever), 2),
     }
 
     # 6. Bench Boss (most total bench points)
@@ -500,10 +510,23 @@ def generate_weekly_review(league_key, league_config):
         transactions = api.get_transactions(week) or []
 
         elim_fn = elims_for_week if league_type == 'chopped' else None
+
+        # Frozen pre-game projections for this week (for over/underachiever
+        # awards: actual vs projected). Sleeper keeps past weeks frozen.
+        proj_rows = make_request(
+            "https://api.sleeper.com/projections/nfl/2026/"
+            f"{week}?season_type=regular&position[]=QB&position[]=RB"
+            "&position[]=WR&position[]=TE"
+        ) or []
+        proj_by_id = {str(r.get("player_id")): (r.get("stats") or {})
+                      for r in proj_rows}
+        rec_points = (league.get("scoring_settings") or {}).get("rec", 0) or 0
+
         week_data = build_week_data(
             week, matchups, transactions,
             roster_map, user_map, player_data, roster_positions,
-            league_type, elim_fn
+            league_type, elim_fn,
+            proj_by_id=proj_by_id, rec_points=rec_points
         )
 
         # Set FAAB Big Spender award from transaction data
@@ -557,8 +580,6 @@ def generate_weekly_review(league_key, league_config):
     # removed, using last completed week's projections as the quality proxy.
     if league_type == 'chopped' and weeks_data:
         try:
-            from chopped_week import next_week_bye_risks
-            from core_data import make_request
             _players_full = SleeperAPI.get_all_players() or {}
             _proj_rows = make_request(
                 "https://api.sleeper.com/projections/nfl/2026/"
