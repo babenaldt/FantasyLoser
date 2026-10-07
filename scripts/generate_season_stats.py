@@ -10,6 +10,32 @@ from core_data import (
     OUTPUT_DIR, ASTRO_DATA_DIR, load_sleeper_player_lookup
 )
 from nfl_week_helper import get_last_completed_nfl_week
+from chopped_week import CHART_SLOTS
+
+
+def _chopped_week_corrupted(matchups, week):
+    """Detect Sleeper's historical-starter truncation for a completed Chopped week.
+
+    Returns True if a majority of active teams field fewer real starters than
+    the commissioner's chart mandates — the signature of Sleeper re-mapping
+    old lineups against new roster positions after a mid-season flip.
+    A lone short lineup (lazy manager) does not trip this; the Sleeper bug
+    hits every team uniformly.
+    """
+    expected = len(CHART_SLOTS.get(week, []))
+    if not expected:
+        return False
+    checked = 0
+    short = 0
+    for m in matchups or []:
+        starters = m.get('starters') or []
+        real = [s for s in starters if s and str(s) != '0']
+        if not real:
+            continue  # ghost team (chopped), not an active lineup
+        checked += 1
+        if len(real) != expected:
+            short += 1
+    return checked > 0 and short > checked / 2
 
 
 def get_sleeper_projections(week):
@@ -286,6 +312,24 @@ def calculate_season_stats(league_id, league_name):
         matchups = api.get_matchups(week)
         if not matchups:
             continue
+
+        # Corruption guard (Chopped): if Sleeper truncated this completed
+        # week's historical starters and no verified snapshot exists, refuse
+        # to generate from bad data rather than publishing deflated scores.
+        # The Tuesday 01:00 snapshot cron is the primary defense; this keeps
+        # a missed snapshot from silently corrupting the site.
+        if "Chopped" in league_name and _chopped_week_corrupted(matchups, week):
+            _snap_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                f'verified_week{week}_chopped.json')
+            if not os.path.exists(_snap_path):
+                raise RuntimeError(
+                    f"Chopped week {week}: Sleeper matchup data shows the "
+                    f"historical-starter truncation signature and no "
+                    f"verified_week{week}_chopped.json snapshot exists. "
+                    f"Refusing to generate deflated scores. Run "
+                    f"scripts/snapshot_chopped_week.py --week {week} (it will "
+                    f"refuse if data is bad) or restore from the Sleeper app.")
             
         # Calculate weekly elimination threshold for safety margin
         weekly_scores = [m.get('points', 0) for m in matchups]
