@@ -421,13 +421,15 @@ def calculate_season_stats(league_id, league_name):
                     active_rosters.remove(loser_id)
                     print(f"      Week {week}: Eliminated {team_stats[loser_id]['owner_name']} ({loser_score} pts)")
 
-        # Recalculate stats for eliminated teams to exclude post-elimination weeks
+        # Recalculate stats for eliminated teams to exclude post-elimination weeks.
+        # Also exclude 0-point weeks: a 0 means the team didn't field a lineup
+        # (chopped), so it must not drag down their average.
         for rid, team in team_stats.items():
             if team['eliminated_week']:
                 elim_week = team['eliminated_week']
                 
                 # Filter weeks
-                valid_weeks = [w for w in team['weekly_scores'] if w['week'] <= elim_week]
+                valid_weeks = [w for w in team['weekly_scores'] if w['week'] <= elim_week and w['points'] > 0]
                 
                 # Reset and recalculate totals
                 team['total_points_scored'] = sum(w['points'] for w in valid_weeks)
