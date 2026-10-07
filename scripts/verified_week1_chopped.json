@@ -1,1 +1,186 @@
-{"note":"VERIFIED ground truth for 2026 chopped week 1 (confirmed 2026-10-07 from Sleeper app screenshots + lineup reconstruction). Sleeper API blanked historical starters (TE/WRT slots return as '0') after the week-5 position change, so matchup points for weeks 1-3 are undercounted; this snapshot takes precedence. Reconstruction: Welcome2TheIR started Barner (3.3) at TE and Burden (9.5) at WRT over LaPorta/Watson; alessandroromaa started Loveland (0.0) at TE and Godwin (8.3) at WRT.","teams":{"19":{"owner_name":"Welcome2TheIR","points":27.92},"20":{"owner_name":"alessandroromaa","points":36.96}},"week":1}
+{
+ "note": "VERIFIED ground truth for 2026 chopped week 1 (from pre-corruption GitHub Actions artifact 2026-10-06T17:11Z, before Sleeper API blanked historical starters). This snapshot takes precedence.",
+ "week": 1,
+ "teams": {
+  "9": {
+   "owner_name": "HughesLineupIsItAnyway",
+   "points": 83.3,
+   "optimal": 94.7,
+   "bench": 25.6,
+   "projected": 73.4,
+   "efficiency": 88.0,
+   "bench_points": 25.6
+  },
+  "10": {
+   "owner_name": "vmaxlau",
+   "points": 88.0,
+   "optimal": 97.7,
+   "bench": 14.200000000000001,
+   "projected": 71.5,
+   "efficiency": 90.1,
+   "bench_points": 14.2
+  },
+  "1": {
+   "owner_name": "NLadocsi",
+   "points": 91.66,
+   "optimal": 99.46,
+   "bench": 11.4,
+   "projected": 71.2,
+   "efficiency": 92.2,
+   "bench_points": 11.4
+  },
+  "17": {
+   "owner_name": "schweb",
+   "points": 94.46,
+   "optimal": 104.25999999999999,
+   "bench": 21.7,
+   "projected": 73.2,
+   "efficiency": 90.6,
+   "bench_points": 21.7
+  },
+  "13": {
+   "owner_name": "thefatstig",
+   "points": 97.66,
+   "optimal": 136.76,
+   "bench": 52.199999999999996,
+   "projected": 74.3,
+   "efficiency": 71.4,
+   "bench_points": 52.2
+  },
+  "6": {
+   "owner_name": "SeanRabenaldt",
+   "points": 82.7,
+   "optimal": 109.50000000000001,
+   "bench": 36.3,
+   "projected": 64.6,
+   "efficiency": 75.5,
+   "bench_points": 36.3
+  },
+  "18": {
+   "owner_name": "gcarnes",
+   "points": 76.64,
+   "optimal": 88.54,
+   "bench": 26.6,
+   "projected": 75.2,
+   "efficiency": 86.6,
+   "bench_points": 26.6
+  },
+  "4": {
+   "owner_name": "ProfOaks",
+   "points": 80.46,
+   "optimal": 102.86000000000001,
+   "bench": 33.1,
+   "projected": 75.3,
+   "efficiency": 78.2,
+   "bench_points": 33.1
+  },
+  "14": {
+   "owner_name": "BTThomp",
+   "points": 54.52,
+   "optimal": 78.02000000000001,
+   "bench": 27.8,
+   "projected": 77.1,
+   "efficiency": 69.9,
+   "bench_points": 27.8
+  },
+  "12": {
+   "owner_name": "emiliosolay",
+   "points": 66.6,
+   "optimal": 79.19999999999999,
+   "bench": 27.7,
+   "projected": 74.5,
+   "efficiency": 84.1,
+   "bench_points": 27.7
+  },
+  "3": {
+   "owner_name": "B-Ray",
+   "points": 65.74,
+   "optimal": 74.53999999999999,
+   "bench": 16.3,
+   "projected": 76.9,
+   "efficiency": 88.2,
+   "bench_points": 16.3
+  },
+  "7": {
+   "owner_name": "McInally",
+   "points": 42.14,
+   "optimal": 49.94,
+   "bench": 15.600000000000001,
+   "projected": 72.9,
+   "efficiency": 84.4,
+   "bench_points": 15.6
+  },
+  "16": {
+   "owner_name": "SamirNazir",
+   "points": 71.52,
+   "optimal": 92.22,
+   "bench": 39.6,
+   "projected": 70.9,
+   "efficiency": 77.6,
+   "bench_points": 39.6
+  },
+  "11": {
+   "owner_name": "ItalianLasagna",
+   "points": 63.86,
+   "optimal": 66.36,
+   "bench": 6.9,
+   "projected": 66.7,
+   "efficiency": 96.2,
+   "bench_points": 6.9
+  },
+  "8": {
+   "owner_name": "Sangha",
+   "points": 85.52,
+   "optimal": 103.51999999999998,
+   "bench": 25.2,
+   "projected": 75.2,
+   "efficiency": 82.6,
+   "bench_points": 25.2
+  },
+  "15": {
+   "owner_name": "Jiggs24",
+   "points": 96.66,
+   "optimal": 102.26,
+   "bench": 9.2,
+   "projected": 68.7,
+   "efficiency": 94.5,
+   "bench_points": 9.2
+  },
+  "2": {
+   "owner_name": "agrusa17",
+   "points": 82.2,
+   "optimal": 92.8,
+   "bench": 12.899999999999999,
+   "projected": 71.4,
+   "efficiency": 88.6,
+   "bench_points": 12.9
+  },
+  "5": {
+   "owner_name": "EliWorkman",
+   "points": 56.78,
+   "optimal": 73.68,
+   "bench": 21.7,
+   "projected": 68.3,
+   "efficiency": 77.1,
+   "bench_points": 21.7
+  },
+  "20": {
+   "owner_name": "alessandroromaa",
+   "points": 36.96,
+   "optimal": 55.959999999999994,
+   "bench": 22.5,
+   "projected": 80.3,
+   "efficiency": 66.0,
+   "bench_points": 22.5
+  },
+  "19": {
+   "owner_name": "Welcome2TheIR",
+   "points": 27.92,
+   "optimal": 67.12,
+   "bench": 47.5,
+   "projected": 71.0,
+   "efficiency": 41.6,
+   "bench_points": 47.5
+  }
+ }
+}

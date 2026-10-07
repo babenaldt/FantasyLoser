@@ -370,15 +370,26 @@ def calculate_season_stats(league_id, league_name):
                 w_stats['win_loss_margin'] = win_loss_margin
                 w_stats['opponent_points'] = opponent_points
                 w_stats['projected'] = round(projected_total, 1)
+                # Verified snapshots (pre-corruption) override computed details too:
+                # the API's blanked starters corrupt optimal/bench/missed, not just points.
+                _snap_entry = _snap.get(str(roster_id)) if _snap else None
+                if _snap_entry:
+                    if _snap_entry.get('optimal') is not None:
+                        w_stats['optimal'] = _snap_entry['optimal']
+                        w_stats['missed'] = max(0, w_stats['optimal'] - points)
+                    if _snap_entry.get('bench') is not None:
+                        w_stats['bench'] = _snap_entry['bench']
+                    if _snap_entry.get('projected') is not None:
+                        w_stats['projected'] = _snap_entry['projected']
                 w_stats['has_matchup'] = True
                 w_stats['starters'] = matchup.get('starters', [])  # Save starter player IDs
                 
                 # Update running totals (will be corrected later for Chopped)
                 stats = team_stats[roster_id]
                 stats['total_points_scored'] += points
-                stats['total_optimal_points'] += optimal_points
-                stats['points_left_on_bench'] += missed_pts
-                stats['total_bench_points'] += bench_pts
+                stats['total_optimal_points'] += w_stats['optimal']
+                stats['points_left_on_bench'] += w_stats['missed']
+                stats['total_bench_points'] += w_stats['bench']
                 stats['weeks_played'] += 1
                 stats['safety_margin_sum'] += margin
                 if points > 0 and margin <= 10 and margin > 0: # Close call logic
