@@ -135,6 +135,16 @@ jobs:
             fi
           done
 
+      - name: Snapshot Chopped week (pre-generation backup)
+        # Backup for the Tuesday 01:00 snapshot cron. If the cron already
+        # captured this week, the script exits 0 (keep-first-wins). If the
+        # commissioner flipped positions before the cron ran, the sanity
+        # gate refuses (exit 2) and we continue — the corruption guard in
+        # generate_season_stats.py will fail the build rather than publish
+        # deflated scores.
+        run: |
+          PYTHONIOENCODING='utf-8' python scripts/snapshot_chopped_week.py || echo "snapshot step exited $? (2 = already corrupted, guard will catch it)"
+
       - name: Generate data files
         env:
           REFRESH_MODE: ${{ steps.refresh-mode.outputs.mode }}
