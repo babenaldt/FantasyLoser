@@ -194,6 +194,32 @@ def build_week_data(week, matchups, transactions, roster_map, user_map,
         if mid is not None:
             teams_by_matchup.setdefault(mid, []).append(team_entry)
 
+    # --- Verified snapshot override (chopped week 4) ---
+    # Sleeper's API began returning corrupted/underestimated week-4 matchup
+    # points on 2026-10-07 (e.g. 35.42 instead of the verified 50.92). The
+    # snapshot holds ground truth captured 2026-10-06 and confirmed by the
+    # actual chop outcomes (SamirNazir + ItalianLasagna emptied).
+    if league_type == 'chopped' and week == 4:
+        try:
+            _snap_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      'verified_week4_chopped.json')
+            with open(_snap_path, 'r', encoding='utf-8') as _f:
+                _snap = json.load(_f).get('teams', {})
+            _fixed = 0
+            for _t in all_team_scores:
+                _c = _snap.get(str(_t['roster_id']))
+                if _c:
+                    _t['points'] = _c['points']
+                    _t['optimal'] = _c.get('optimal', _t['optimal'])
+                    _t['efficiency'] = _c.get('efficiency', _t['efficiency'])
+                    _t['bench_points'] = _c.get('bench_points', _t['bench_points'])
+                    _t['projected'] = _c.get('projected', _t.get('projected'))
+                    _fixed += 1
+            if _fixed:
+                print(f"    Applied verified week-4 snapshot to {_fixed} teams")
+        except Exception as _e:
+            print(f"    Warning: week-4 snapshot failed: {_e}")
+
     # --- Build scoreboard matchups ---
     scoreboard = []
     for mid, teams in sorted(teams_by_matchup.items()):
