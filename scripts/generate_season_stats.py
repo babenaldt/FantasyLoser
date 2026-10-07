@@ -220,6 +220,19 @@ def calculate_season_stats(league_id, league_name):
         total_proj = sum(len(p) for p in weekly_projections.values())
         print(f"    Loaded projections for {total_proj} player-weeks")
 
+    # Verified snapshot for chopped week 4 (Sleeper API began returning
+    # corrupted/underestimated week-4 matchup points on 2026-10-07).
+    _week4_snap = {}
+    if "Chopped" in league_name:
+        try:
+            import json as _json, os as _os
+            _snap_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                       'verified_week4_chopped.json')
+            with open(_snap_path, 'r', encoding='utf-8') as _f:
+                _week4_snap = _json.load(_f).get('teams', {})
+        except Exception:
+            pass
+
     # Fetch weekly data
     for week in range(1, last_week_to_process + 1):
         # Calculate Best Theoretical Lineup for this week (Chopped only)
@@ -296,6 +309,8 @@ def calculate_season_stats(league_id, league_name):
                     continue
                 
                 points = matchup.get('points', 0)
+                if week == 4 and str(roster_id) in _week4_snap:
+                    points = _week4_snap[str(roster_id)]['points']
                 starters = matchup.get('starters', []) or []
                 players_points = matchup.get('players_points', {}) or {}
                 
