@@ -211,6 +211,8 @@ def calculate_season_stats(league_id, league_name):
             # show as '0'), so weekly points are undercounted; fpts is the
             # ground truth for totals and averages.
             '_fpts_total': (roster.get('settings', {}).get('fpts', 0) or 0) + (roster.get('settings', {}).get('fpts_decimal', 0) or 0) / 100.0,
+            # Ground truth for chop detection: empty roster = chopped.
+            '_roster_empty': len(roster.get('players') or []) == 0,
         }
     
     # Initialize Best Theoretical Lineups list
@@ -225,18 +227,25 @@ def calculate_season_stats(league_id, league_name):
         total_proj = sum(len(p) for p in weekly_projections.values())
         print(f"    Loaded projections for {total_proj} player-weeks")
 
-    # Verified snapshot for chopped week 4 (Sleeper API began returning
-    # corrupted/underestimated week-4 matchup points on 2026-10-07).
-    _week4_snap = {}
-    if "Chopped" in league_name:
-        try:
-            import json as _json, os as _os
-            _snap_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
-                                       'verified_week4_chopped.json')
-            with open(_snap_path, 'r', encoding='utf-8') as _f:
-                _week4_snap = _json.load(_f).get('teams', {})
-        except Exception:
-            pass
+    # Verified snapshots for chopped weeks (Sleeper's matchup API truncates
+    # historical starters arrays once roster positions change for a new
+    # week — seen 2026-10-07 for week 4). verified_week<N>_chopped.json
+    # files (written by snapshot_chopped_week.py, sanity-gated) take
+    # precedence for their week when present.
+    import json as _json, os as _os
+    _snap_dir = _os.path.dirname(_os.path.abspath(__file__))
+    _week_snaps = {}
+    def _week_snap(_w):
+        if _w not in _week_snaps:
+            _week_snaps[_w] = {}
+            if "Chopped" in league_name:
+                try:
+                    _p = _os.path.join(_snap_dir, f'verified_week{_w}_chopped.json')
+                    with open(_p, 'r', encoding='utf-8') as _f:
+                        _week_snaps[_w] = _json.load(_f).get('teams', {})
+                except Exception:
+                    pass
+        return _week_snaps[_w]
 
     # Fetch weekly data
     for week in range(1, last_week_to_process + 1):
@@ -314,8 +323,9 @@ def calculate_season_stats(league_id, league_name):
                     continue
                 
                 points = matchup.get('points', 0)
-                if week == 4 and str(roster_id) in _week4_snap:
-                    points = _week4_snap[str(roster_id)]['points']
+                _snap = _week_snap(week)
+                if str(roster_id) in _snap:
+                    points = _snap[str(roster_id)]['points']
                 starters = matchup.get('starters', []) or []
                 players_points = matchup.get('players_points', {}) or {}
                 
@@ -395,36 +405,21 @@ def calculate_season_stats(league_id, league_name):
                 team_stats[rid]['waiver_moves'] += w_stats['waiver_moves']
                 team_stats[rid]['faab_spent'] += w_stats['faab_spent']
     
-    # Calculate Eliminations for Chopped League
-    # Uses last_week_to_process (already accounts for date-based override)
-    # elims_for_week() was defined above (before the weekly loop) for safety margins
+    # Calculate Eliminations for Chopped League — from ground truth, not scores.
+    # A team is chopped iff their roster is empty. eliminated_week is their
+    # last week with a valid (>0) score. Score-based inference breaks when
+    # Sleeper's API truncates historical starters after roster-position changes.
     if "Chopped" in league_name:
-        active_rosters = set(team_stats.keys())
-        print(f"    Chopped: {total_teams} teams, double-elim weeks 1-{double_elim_weeks}, processing through week {last_week_to_process}")
-        
-        for week in range(1, last_week_to_process + 1):
-            if len(active_rosters) <= 1:
-                break
-            
-            num_to_eliminate = elims_for_week(week)
-                
-            # Find lowest scorer(s) among active rosters for this week
-            week_scores = []
-            for rid in list(active_rosters):
-                team = team_stats[rid]
-                score = next((w['points'] for w in team['weekly_scores'] if w['week'] == week), None)
-                
-                if score is not None:
-                    week_scores.append((rid, score))
-            
-            if week_scores:
-                # Sort by score (ascending) — bottom N get eliminated
-                week_scores.sort(key=lambda x: x[1])
-                for i in range(min(num_to_eliminate, len(week_scores))):
-                    loser_id, loser_score = week_scores[i]
-                    team_stats[loser_id]['eliminated_week'] = week
-                    active_rosters.remove(loser_id)
-                    print(f"      Week {week}: Eliminated {team_stats[loser_id]['owner_name']} ({loser_score} pts)")
+        print(f"    Chopped: determining eliminations from roster emptiness")
+        for rid, team in team_stats.items():
+            if not team.get('_roster_empty'):
+                continue
+            valid_weeks = [w for w in team['weekly_scores'] if w['points'] > 0]
+            if not valid_weeks:
+                continue
+            last_valid = max(w['week'] for w in valid_weeks)
+            team['eliminated_week'] = last_valid
+            print(f"      Week {last_valid}: Eliminated {team['owner_name']}")
 
         # Recalculate stats for eliminated teams to exclude post-elimination weeks.
         # Also exclude 0-point weeks: a 0 means the team didn't field a lineup

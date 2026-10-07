@@ -194,15 +194,17 @@ def build_week_data(week, matchups, transactions, roster_map, user_map,
         if mid is not None:
             teams_by_matchup.setdefault(mid, []).append(team_entry)
 
-    # --- Verified snapshot override (chopped week 4) ---
-    # Sleeper's API began returning corrupted/underestimated week-4 matchup
-    # points on 2026-10-07 (e.g. 35.42 instead of the verified 50.92). The
-    # snapshot holds ground truth captured 2026-10-06 and confirmed by the
-    # actual chop outcomes (SamirNazir + ItalianLasagna emptied).
-    if league_type == 'chopped' and week == 4:
+    # --- Verified snapshot override (chopped) ---
+    # Sleeper's matchup API truncates historical starters arrays once the
+    # commissioner changes roster positions for a new week (e.g. week-4 rows
+    # returned 35.42 instead of the verified 50.92 from 2026-10-07 on).
+    # verified_week<N>_chopped.json snapshots (written by
+    # snapshot_chopped_week.py, sanity-gated so they can only hold healthy
+    # data) take precedence for their week when present.
+    if league_type == 'chopped':
         try:
             _snap_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                      'verified_week4_chopped.json')
+                                      f'verified_week{week}_chopped.json')
             with open(_snap_path, 'r', encoding='utf-8') as _f:
                 _snap = json.load(_f).get('teams', {})
             _fixed = 0
@@ -216,9 +218,11 @@ def build_week_data(week, matchups, transactions, roster_map, user_map,
                     _t['projected'] = _c.get('projected', _t.get('projected'))
                     _fixed += 1
             if _fixed:
-                print(f"    Applied verified week-4 snapshot to {_fixed} teams")
+                print(f"    Applied verified week-{week} snapshot to {_fixed} teams")
+        except FileNotFoundError:
+            pass
         except Exception as _e:
-            print(f"    Warning: week-4 snapshot failed: {_e}")
+            print(f"    Warning: week-{week} snapshot failed: {_e}")
 
     # --- Build scoreboard matchups ---
     scoreboard = []
