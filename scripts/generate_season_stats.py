@@ -205,7 +205,12 @@ def calculate_season_stats(league_id, league_name):
             'eliminated_week': None,
             'all_play_wins': 0,
             'all_play_losses': 0,
-            'all_play_ties': 0
+            'all_play_ties': 0,
+            # Sleeper's authoritative season total (roster settings). The
+            # matchup API truncates historical starters arrays (TE/WRT slots
+            # show as '0'), so weekly points are undercounted; fpts is the
+            # ground truth for totals and averages.
+            '_fpts_total': (roster.get('settings', {}).get('fpts', 0) or 0) + (roster.get('settings', {}).get('fpts_decimal', 0) or 0) / 100.0,
         }
     
     # Initialize Best Theoretical Lineups list
@@ -471,6 +476,14 @@ def calculate_season_stats(league_id, league_name):
         if weeks > 0:
             team['average_points'] = team['total_points_scored'] / weeks
             team['avg_points_per_game'] = team['average_points'] # Alias for Astro
+            # Prefer Sleeper's authoritative fpts total: the matchup API
+            # truncates historical starters arrays, undercounting weekly
+            # points. fpts is the ground truth; average over valid weeks.
+            _fpts = team.get('_fpts_total')
+            if _fpts:
+                team['total_points_scored'] = round(_fpts, 2)
+                team['avg_points_per_game'] = round(_fpts / weeks, 2)
+                team['average_points'] = team['avg_points_per_game']
             
             team['efficiency_rate'] = (team['total_points_scored'] / team['total_optimal_points'] * 100) if team['total_optimal_points'] > 0 else 0
             
