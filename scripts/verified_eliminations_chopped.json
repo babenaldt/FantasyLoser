@@ -1,0 +1,21 @@
+{
+ "note": "VERIFIED chop outcomes from roster emptiness. Score-based inference fails when Sleeper truncates historical starters.",
+ "weeks": {
+  "1": [
+   "alessandroromaa",
+   "Welcome2TheIR"
+  ],
+  "2": [
+   "agrusa17",
+   "EliWorkman"
+  ],
+  "3": [
+   "Jiggs24",
+   "Sangha"
+  ],
+  "4": [
+   "SamirNazir",
+   "ItalianLasagna"
+  ]
+ }
+}
