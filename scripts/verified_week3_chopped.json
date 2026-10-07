@@ -1,0 +1,150 @@
+{
+ "note": "VERIFIED ground truth for 2026 chopped week 3 (from pre-corruption GitHub Actions artifact 2026-10-06T17:11Z, before Sleeper API blanked historical starters). This snapshot takes precedence.",
+ "week": 3,
+ "teams": {
+  "9": {
+   "owner_name": "HughesLineupIsItAnyway",
+   "points": 86.22,
+   "optimal": 111.32000000000001,
+   "bench": 42.5,
+   "projected": 65.3,
+   "efficiency": 77.5,
+   "bench_points": 42.5
+  },
+  "10": {
+   "owner_name": "vmaxlau",
+   "points": 101.38,
+   "optimal": 109.67999999999999,
+   "bench": 24.2,
+   "projected": 84.7,
+   "efficiency": 92.4,
+   "bench_points": 24.2
+  },
+  "1": {
+   "owner_name": "NLadocsi",
+   "points": 110.08,
+   "optimal": 113.97999999999999,
+   "bench": 8.399999999999999,
+   "projected": 75.2,
+   "efficiency": 96.6,
+   "bench_points": 8.4
+  },
+  "17": {
+   "owner_name": "schweb",
+   "points": 91.24,
+   "optimal": 123.74000000000001,
+   "bench": 68.5,
+   "projected": 75.6,
+   "efficiency": 73.7,
+   "bench_points": 68.5
+  },
+  "13": {
+   "owner_name": "thefatstig",
+   "points": 92.54,
+   "optimal": 98.74,
+   "bench": 13.0,
+   "projected": 80.7,
+   "efficiency": 93.7,
+   "bench_points": 13.0
+  },
+  "6": {
+   "owner_name": "SeanRabenaldt",
+   "points": 69.44,
+   "optimal": 106.14,
+   "bench": 50.400000000000006,
+   "projected": 79.2,
+   "efficiency": 65.4,
+   "bench_points": 50.4
+  },
+  "18": {
+   "owner_name": "gcarnes",
+   "points": 71.56,
+   "optimal": 101.46,
+   "bench": 35.6,
+   "projected": 82.2,
+   "efficiency": 70.5,
+   "bench_points": 35.6
+  },
+  "4": {
+   "owner_name": "ProfOaks",
+   "points": 75.44,
+   "optimal": 102.74,
+   "bench": 32.9,
+   "projected": 80.7,
+   "efficiency": 73.4,
+   "bench_points": 32.9
+  },
+  "14": {
+   "owner_name": "BTThomp",
+   "points": 86.76,
+   "optimal": 106.06,
+   "bench": 35.8,
+   "projected": 76.7,
+   "efficiency": 81.8,
+   "bench_points": 35.8
+  },
+  "12": {
+   "owner_name": "emiliosolay",
+   "points": 62.6,
+   "optimal": 75.3,
+   "bench": 25.2,
+   "projected": 78.1,
+   "efficiency": 83.1,
+   "bench_points": 25.2
+  },
+  "3": {
+   "owner_name": "B-Ray",
+   "points": 60.24,
+   "optimal": 72.64,
+   "bench": 14.1,
+   "projected": 64.7,
+   "efficiency": 82.9,
+   "bench_points": 14.1
+  },
+  "7": {
+   "owner_name": "McInally",
+   "points": 59.68,
+   "optimal": 78.58,
+   "bench": 33.400000000000006,
+   "projected": 74.9,
+   "efficiency": 75.9,
+   "bench_points": 33.4
+  },
+  "16": {
+   "owner_name": "SamirNazir",
+   "points": 56.4,
+   "optimal": 82.3,
+   "bench": 29.4,
+   "projected": 74.5,
+   "efficiency": 68.5,
+   "bench_points": 29.4
+  },
+  "11": {
+   "owner_name": "ItalianLasagna",
+   "points": 61.94,
+   "optimal": 92.14,
+   "bench": 55.699999999999996,
+   "projected": 68.7,
+   "efficiency": 67.2,
+   "bench_points": 55.7
+  },
+  "8": {
+   "owner_name": "Sangha",
+   "points": 54.32,
+   "optimal": 66.42,
+   "bench": 20.9,
+   "projected": 73.6,
+   "efficiency": 81.8,
+   "bench_points": 20.9
+  },
+  "15": {
+   "owner_name": "Jiggs24",
+   "points": 51.46,
+   "optimal": 72.96,
+   "bench": 37.5,
+   "projected": 73.4,
+   "efficiency": 70.5,
+   "bench_points": 37.5
+  }
+ }
+}
