@@ -325,6 +325,22 @@ def build_week_data(week, matchups, transactions, roster_map, user_map,
             } for e in eliminated],
             'survival_threshold': round(threshold, 2),
         }
+        # Verified eliminations override: score-based inference fails when
+        # Sleeper truncates historical starters. Use ground truth.
+        try:
+            _elim_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      'verified_eliminations_chopped.json')
+            with open(_elim_path, 'r', encoding='utf-8') as _f:
+                _verified = json.load(_f).get('weeks', {}).get(str(week), [])
+            if _verified:
+                _by_name = {t['owner_name']: t for t in all_team_scores}
+                elimination['eliminated_teams'] = [{
+                    'owner_name': _n,
+                    'points': _by_name.get(_n, {}).get('points', 0),
+                } for _n in _verified if _n in _by_name]
+                elimination['num_eliminated'] = len(elimination['eliminated_teams'])
+        except Exception:
+            pass
 
     week_data = {
         'week': week,
