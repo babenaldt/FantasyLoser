@@ -759,7 +759,12 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
     locked = np.array([t["locked"] for t in teams])
     mus = np.array([t["mu"] for t in teams])
     sigmas = np.array([t["sigma"] for t in teams])
-    sean_idx = next(i for i, t in enumerate(teams) if t["is_sean"])
+    # Sean may be eliminated (roster emptied after a chop). The sim still
+    # runs for the remaining field so the site keeps showing live odds;
+    # Sean's own odds are reported as 0 with eliminated=True.
+    sean_hits = [i for i, t in enumerate(teams) if t["is_sean"]]
+    eliminated = not sean_hits
+    sean_idx = sean_hits[0] if sean_hits else -1
 
     rng = np.random.default_rng(seed)
     # Standard t(6) has variance 6/(6-2) = 1.5, not 1. Standardize the draws
@@ -767,10 +772,18 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
     # otherwise realized volatility is ~22% higher than calibrated.
     draws = t_dist.rvs(6, size=(n_sims, n), random_state=rng) / np.sqrt(1.5)
     scores = locked + mus + sigmas * draws
-    sean_scores = scores[:, sean_idx]
-    below = np.sum(scores < sean_scores[:, None], axis=1)
-    p_survive = float(np.mean(below >= chops))
-    p_survive_1chop = float(np.mean(below >= 1))
+    if eliminated:
+        p_survive = 0.0
+        p_survive_1chop = 0.0
+        sean_locked = sean_proj_remaining = sean_proj_final = 0.0
+    else:
+        sean_scores = scores[:, sean_idx]
+        below = np.sum(scores < sean_scores[:, None], axis=1)
+        p_survive = float(np.mean(below >= chops))
+        p_survive_1chop = float(np.mean(below >= 1))
+        sean_locked = round(float(locked[sean_idx]), 1)
+        sean_proj_remaining = round(float(mus[sean_idx]), 1)
+        sean_proj_final = round(float(locked[sean_idx] + mus[sean_idx]), 1)
 
     team_odds = []
     for j, t in enumerate(teams):
@@ -789,11 +802,12 @@ def simulate_survival(api, views, proj_by_id, rec_points, owner_name,
         "n_sims": n_sims,
         "chops": chops,
         "league_cv": round(cv, 3),
+        "eliminated": eliminated,
         "p_survive": round(p_survive, 4),
         "p_survive_1chop": round(p_survive_1chop, 4),
-        "sean_locked": round(float(locked[sean_idx]), 1),
-        "sean_proj_remaining": round(float(mus[sean_idx]), 1),
-        "sean_proj_final": round(float(locked[sean_idx] + mus[sean_idx]), 1),
+        "sean_locked": sean_locked,
+        "sean_proj_remaining": sean_proj_remaining,
+        "sean_proj_final": sean_proj_final,
         "cut_mean": round(float(cut.mean()), 1),
         "cut_sd": round(float(cut.std()), 1),
         "need_90": round(float(np.quantile(cut, 0.90)), 1),
@@ -1257,8 +1271,11 @@ def print_report(brief: dict) -> None:
             print(f"  ({unaffected} teams unaffected by byes)")
     mc = brief["survival_mc"]
     print(f"\nSURVIVAL SIM ({mc['n_sims']:,} sims, t-dist, {mc['chops']} chops, league CV {mc['league_cv']})")
-    print(f"  P(survive) {mc['p_survive']:.1%}  (with 1 chop: {mc['p_survive_1chop']:.1%})")
-    print(f"  Your final: {mc['sean_locked']} locked + {mc['sean_proj_remaining']} proj = {mc['sean_proj_final']}")
+    if mc.get("eliminated"):
+        print("  ELIMINATED — roster emptied, simulating the remaining field only")
+    else:
+        print(f"  P(survive) {mc['p_survive']:.1%}  (with 1 chop: {mc['p_survive_1chop']:.1%})")
+        print(f"  Your final: {mc['sean_locked']} locked + {mc['sean_proj_remaining']} proj = {mc['sean_proj_final']}")
     print(f"  Cut line ({mc['chops']}nd lowest): {mc['cut_mean']} ± {mc['cut_sd']}")
     print(f"  Score needed: {mc['need_90']} for 90% safe, {mc['need_95']} for 95% safe")
     print("\nROSTER")
