@@ -1,0 +1,102 @@
+{
+ "note": "VERIFIED ground truth for 2026 chopped week 5 (snapshot_chopped_week.py, sanity-gated). Sleeper's matchup API truncates historical starters arrays once roster positions change for a new week; this snapshot takes precedence.",
+ "week": 5,
+ "teams": {
+  "1": {
+   "owner_name": "NLadocsi",
+   "points": 132.78,
+   "optimal": 161.56,
+   "efficiency": 82.2,
+   "bench_points": 75.96,
+   "projected": 98.19
+  },
+  "10": {
+   "owner_name": "vmaxlau",
+   "points": 124.06,
+   "optimal": 127.36,
+   "efficiency": 97.4,
+   "bench_points": 38.8,
+   "projected": 96.42
+  },
+  "13": {
+   "owner_name": "thefatstig",
+   "points": 117.44,
+   "optimal": 125.44,
+   "efficiency": 93.6,
+   "bench_points": 13.8,
+   "projected": 91.01
+  },
+  "7": {
+   "owner_name": "McInally",
+   "points": 102.0,
+   "optimal": 121.9,
+   "efficiency": 83.7,
+   "bench_points": 33.4,
+   "projected": 94.75
+  },
+  "14": {
+   "owner_name": "BTThomp",
+   "points": 96.64,
+   "optimal": 98.24,
+   "efficiency": 98.4,
+   "bench_points": 1.6,
+   "projected": 86.06
+  },
+  "18": {
+   "owner_name": "gcarnes",
+   "points": 96.04,
+   "optimal": 102.84,
+   "efficiency": 93.4,
+   "bench_points": 23.4,
+   "projected": 93.4
+  },
+  "3": {
+   "owner_name": "B-Ray",
+   "points": 93.64,
+   "optimal": 112.24,
+   "efficiency": 83.4,
+   "bench_points": 26.3,
+   "projected": 85.23
+  },
+  "17": {
+   "owner_name": "schweb",
+   "points": 92.68,
+   "optimal": 92.68,
+   "efficiency": 100.0,
+   "bench_points": 13.8,
+   "projected": 98.0
+  },
+  "4": {
+   "owner_name": "ProfOaks",
+   "points": 87.5,
+   "optimal": 102.9,
+   "efficiency": 85.0,
+   "bench_points": 21.7,
+   "projected": 88.93
+  },
+  "12": {
+   "owner_name": "emiliosolay",
+   "points": 82.92,
+   "optimal": 85.92,
+   "efficiency": 96.5,
+   "bench_points": 35.14,
+   "projected": 88.07
+  },
+  "9": {
+   "owner_name": "HughesLineupIsItAnyway",
+   "points": 78.32,
+   "optimal": 78.32,
+   "efficiency": 100.0,
+   "bench_points": 0.0,
+   "projected": 91.11
+  },
+  "6": {
+   "owner_name": "SeanRabenaldt",
+   "points": 63.94,
+   "optimal": 66.94,
+   "efficiency": 95.5,
+   "bench_points": 5.6,
+   "projected": 83.08
+  }
+ }
+}
