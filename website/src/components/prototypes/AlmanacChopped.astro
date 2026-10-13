@@ -35,7 +35,7 @@ const mostConsistent = reduceMax(qualifiedTeams, 'consistency_score');
 const benchWarmer = reduceMax(qualifiedTeams, 'points_left_on_bench');
 const waiverWizard = reduceMax(qualifiedTeams, 'points_per_faab');
 const validWaiverWizard = waiverWizard?.points_per_faab > 0 ? waiverWizard : null;
-const livingOnEdge = reduceMax(qualifiedTeams, 'avg_safety_margin');
+const livingOnEdge = reduceMin(qualifiedTeams, 'avg_safety_margin');
 const dangerZone = reduceMax(qualifiedTeams, 'close_calls');
 const validDangerZone = dangerZone?.close_calls > 0 ? dangerZone : null;
 const boomOrBust = reduceMin(qualifiedTeams, 'consistency_score');
@@ -57,22 +57,21 @@ activeTeams.forEach((team: any) => team.weekly_scores.forEach((week: any) => {
   if (week.points > 0 && week.points < lowestWeeklyScore.score) lowestWeeklyScore = { score: week.points, owner: team.owner_name, week: week.week };
 }));
 
-// Unluckiest Chop: eliminated team whose score was closest to that week's league average.
-let unluckiestChop = { owner: '', diff: 9999, elimScore: 0, leagueAvg: 0, week: 0 };
+// Unluckiest Chop: eliminated team with the highest per-starter score in
+// their elimination week. Raw scores aren't comparable across weeks because
+// the lineup expands (5 starters weeks 1-4, 6 in week 5, 7 in weeks 6-8,
+// 8 in weeks 9-10, 9 in weeks 11-12, 10 in weeks 13-14, 11 in week 15),
+// so each elimination score is divided by that week's starter count.
+const startersInWeek = (w: number) =>
+  w <= 4 ? 5 : w === 5 ? 6 : w <= 8 ? 7 : w <= 10 ? 8 : w <= 12 ? 9 : w <= 14 ? 10 : 11;
+let unluckiestChop = { owner: '', perStarter: -1, elimScore: 0, week: 0 };
 (teams || []).forEach((t: any) => {
   if (!t.eliminated_week) return;
   const elimScoreObj = t.weekly_scores.find((w: any) => w.week === t.eliminated_week);
   const elimScore = elimScoreObj?.points || 0;
   if (elimScore <= 0) return;
-  let weekSum = 0, weekCount = 0;
-  (teams || []).forEach((other: any) => {
-    const wScore = other.weekly_scores.find((w: any) => w.week === t.eliminated_week);
-    if (wScore && wScore.points > 0) { weekSum += wScore.points; weekCount++; }
-  });
-  if (!weekCount) return;
-  const leagueAvg = weekSum / weekCount;
-  const diff = Math.abs(elimScore - leagueAvg);
-  if (diff < unluckiestChop.diff) unluckiestChop = { owner: t.owner_name, diff, elimScore, leagueAvg, week: t.eliminated_week };
+  const perStarter = elimScore / startersInWeek(t.eliminated_week);
+  if (perStarter > unluckiestChop.perStarter) unluckiestChop = { owner: t.owner_name, perStarter, elimScore, week: t.eliminated_week };
 });
 
 const awardItems = [
@@ -81,7 +80,7 @@ const awardItems = [
   lowestWeeklyScore.score < 9999 && { title: 'Lowest Weekly Score', name: lowestWeeklyScore.owner, stat: `${lowestWeeklyScore.score.toFixed(1)} pts (Week ${lowestWeeklyScore.week})` },
   highestAvgScore && { title: 'Highest Average Score', name: highestAvgScore.owner_name, stat: `${highestAvgScore.avg_points_per_game.toFixed(1)} ppg` },
   bestManager && { title: 'Best Manager', name: bestManager.owner_name, stat: `${bestManager.efficiency_rate.toFixed(1)}% efficiency` },
-  unluckiestChop.owner && { title: 'Unluckiest Chop', name: unluckiestChop.owner, stat: `${unluckiestChop.elimScore.toFixed(1)} pts (Week ${unluckiestChop.week})` },
+  unluckiestChop.owner && { title: 'Unluckiest Chop', name: unluckiestChop.owner, stat: `${unluckiestChop.elimScore.toFixed(1)} pts (Week ${unluckiestChop.week}, ${unluckiestChop.perStarter.toFixed(1)}/starter)` },
   livingOnEdge && { title: 'Living on the Edge', name: livingOnEdge.owner_name, stat: `${livingOnEdge.avg_safety_margin.toFixed(1)} avg margin` },
   validDangerZone && { title: 'Danger Zone', name: validDangerZone.owner_name, stat: `${validDangerZone.close_calls} close calls` },
   boomOrBust && { title: 'Boom or Bust', name: boomOrBust.owner_name, stat: `${boomOrBust.consistency_score.toFixed(2)} consistency` },
