@@ -141,7 +141,8 @@ Roster caps: weeks 1-4 max 1 QB and 2 TE. Weeks 5-9 max 2 QB and 2 TE. Weeks 10+
 Starter slots (full chart transcribed from the commissioner's photo, revised 2026-10-01; also encoded as CHART_SLOTS in scripts/chopped_week.py, and the brief lists upcoming changes):
 - Weeks 1-4: QB, RB, WR, TE, WRT (5 starters)
 - Week 5: adds a 2nd WR -> QB, RB, WR, WR, TE, WRT (6)
-- Weeks 6-8: 2nd WRT back (7)
+- Week 6: same 6 as week 5 (corrected 2026-10-20: the 2nd WRT actually starts week 7 — verified against Sleeper's Week 6 lineups, which field exactly 6 starters; the wrong 7-slot chart entry falsely tripped the snapshot gate and the build's corruption guard)
+- Weeks 7-8: 2nd WRT back (7)
 - Weeks 9-10: 2nd RB replaces a WR -> QB, RB, RB, WR, WR, TE, WRT, WRT (8)
 - Weeks 11-12: 2nd TE slot opens; single WRTQ -> QB, RB, RB, WR, WR, TE, TE, WRT, WRTQ (9)
 - Weeks 13-14: 3rd WR and a dedicated TE slot -> QB, RB, RB, WR, WR, WR, TE, WRT, WRT, WRTQ (10)
