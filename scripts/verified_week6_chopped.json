@@ -1,0 +1,94 @@
+{
+ "note": "VERIFIED ground truth for 2026 chopped week 6 (snapshot_chopped_week.py, sanity-gated). Sleeper's matchup API truncates historical starters arrays once roster positions change for a new week; this snapshot takes precedence.",
+ "week": 6,
+ "teams": {
+  "14": {
+   "owner_name": "BTThomp",
+   "points": 124.4,
+   "optimal": 130.8,
+   "efficiency": 95.1,
+   "bench_points": 12.8,
+   "projected": 102.69
+  },
+  "12": {
+   "owner_name": "emiliosolay",
+   "points": 114.58,
+   "optimal": 117.28,
+   "efficiency": 97.7,
+   "bench_points": 19.2,
+   "projected": 100.91
+  },
+  "1": {
+   "owner_name": "NLadocsi",
+   "points": 100.74,
+   "optimal": 100.74,
+   "efficiency": 100.0,
+   "bench_points": 21.0,
+   "projected": 105.15
+  },
+  "13": {
+   "owner_name": "thefatstig",
+   "points": 95.94,
+   "optimal": 122.54,
+   "efficiency": 78.3,
+   "bench_points": 33.1,
+   "projected": 95.31
+  },
+  "9": {
+   "owner_name": "HughesLineupIsItAnyway",
+   "points": 86.02,
+   "optimal": 102.42,
+   "efficiency": 84.0,
+   "bench_points": 24.9,
+   "projected": 92.76
+  },
+  "10": {
+   "owner_name": "vmaxlau",
+   "points": 79.66,
+   "optimal": 96.26,
+   "efficiency": 82.8,
+   "bench_points": 30.8,
+   "projected": 80.86
+  },
+  "18": {
+   "owner_name": "gcarnes",
+   "points": 70.92,
+   "optimal": 70.92,
+   "efficiency": 100.0,
+   "bench_points": 0.0,
+   "projected": 89.31
+  },
+  "17": {
+   "owner_name": "schweb",
+   "points": 68.78,
+   "optimal": 68.78,
+   "efficiency": 100.0,
+   "bench_points": 0.0,
+   "projected": 91.89
+  },
+  "7": {
+   "owner_name": "McInally",
+   "points": 68.12,
+   "optimal": 68.12,
+   "efficiency": 100.0,
+   "bench_points": 0.0,
+   "projected": 88.26
+  },
+  "3": {
+   "owner_name": "B-Ray",
+   "points": 67.64,
+   "optimal": 90.66,
+   "efficiency": 74.6,
+   "bench_points": 42.86,
+   "projected": 97.42
+  },
+  "4": {
+   "owner_name": "ProfOaks",
+   "points": 51.5,
+   "optimal": 60.8,
+   "efficiency": 84.7,
+   "bench_points": 9.3,
+   "projected": 100.02
+  }
+ }
+}

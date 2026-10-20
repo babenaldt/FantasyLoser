@@ -44,6 +44,13 @@ BRIEF_PATH = os.path.join(OUTPUT_DIR, "chopped_week_brief.json")
 # 7 starters (no 3rd WR); Weeks 11-12 have a single WRTQ (not two); Weeks 13-14
 # need 2 RB + a TE (not 3 RB, no TE slot).
 # starting slots per week; the rest of the roster is bench.
+# Correction 2026-10-20: Week 6 has SIX starters, not seven — the 2nd WRT
+# starts Week 7. Verified against Sleeper itself: every Week 6 lineup fields
+# exactly 6 starters whose players_points sum exactly to the matchup points,
+# ProfOaks' fully-locked Monday-morning score (51.5) matches the 6-starter
+# sum, and Week 7 lineups show 7. The old 7-slot entry falsely tripped both
+# the snapshot sanity gate and the generate_data corruption guard, breaking
+# the site build on 2026-10-20.
 ROSTER_SIZE = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15]
 TEAM_ALIASES = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX"}
 
@@ -67,7 +74,7 @@ CHART_SLOTS = {
     3:  ["QB", "RB", "WR", "TE", "WRT"],
     4:  ["QB", "RB", "WR", "TE", "WRT"],
     5:  ["QB", "RB", "WR", "WR", "TE", "WRT"],
-    6:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
+    6:  ["QB", "RB", "WR", "WR", "TE", "WRT"],
     7:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
     8:  ["QB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
     9:  ["QB", "RB", "RB", "WR", "WR", "TE", "WRT", "WRT"],
