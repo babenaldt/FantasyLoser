@@ -187,7 +187,7 @@ const chartPayload = sortedTeams.map((team: any) => ({
         <table class="retro-table" id="almanacStatsTable">
           <thead>
             <tr>
-              {['Team','W-L','Total Points','Avg PPG','Proj +/-','Efficiency','Bench Pts','Missed Pts','Pythag W-L','Luck','All-Play','Consistency','FAAB Used','Pt/$','Trend'].map((label, index) => (
+              {['Team','W-L','Total Points','Avg PPG','Proj +/-','Efficiency','Bench Pts','Missed Pts','Exp W-L','Luck','All-Play','Consistency','FAAB Used','Pt/$','Trend'].map((label, index) => (
                 <th data-sort-column={index} tabindex="0">{label}</th>
               ))}
             </tr>
@@ -207,7 +207,7 @@ const chartPayload = sortedTeams.map((team: any) => ({
                 <td data-value={team.efficiency_rate || 0}>{(team.efficiency_rate || 0).toFixed(1)}%</td>
                 <td data-value={team.total_bench_points || 0}>{(team.total_bench_points || 0).toFixed(1)}</td>
                 <td data-value={team.points_left_on_bench || 0}>{(team.points_left_on_bench || 0).toFixed(1)}</td>
-                <td data-value={team.pythagorean_wins || 0}>{(team.pythagorean_wins || 0).toFixed(1)}-{((team.weeks_played || 0) - (team.pythagorean_wins || 0)).toFixed(1)}</td>
+                <td data-value={team.expected_wins || 0}>{(team.expected_wins || 0).toFixed(1)}-{((team.weeks_played || 0) - (team.expected_wins || 0)).toFixed(1)}</td>
                 <td data-value={team.luck_factor || 0}>{(team.luck_factor || 0) > 0 ? '+' : ''}{(team.luck_factor || 0).toFixed(1)}</td>
                 <td data-value={team.all_play_wins || 0}>{team.all_play_wins || 0}-{team.all_play_losses || 0} ({((team.all_play_wins / (team.all_play_wins + team.all_play_losses)) || 0).toFixed(3)})</td>
                 <td data-value={team.consistency_score || 0}>{(team.consistency_score || 0).toFixed(2)}</td>

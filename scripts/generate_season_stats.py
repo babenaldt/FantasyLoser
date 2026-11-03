@@ -511,7 +511,7 @@ def calculate_season_stats(league_id, league_name):
         team.setdefault('efficiency_rate', 0)
         team.setdefault('faab_efficiency', 0)
         team.setdefault('points_per_faab', 0)
-        team.setdefault('pythagorean_wins', 0)
+        team.setdefault('expected_wins', 0)
         team.setdefault('luck_factor', 0)
         team.setdefault('trend', 0)
         team.setdefault('avg_margin_above_last', 0)
@@ -559,15 +559,20 @@ def calculate_season_stats(league_id, league_name):
                 # The user wants columns to match.
                 pass
 
-            # Pythagorean Wins & Luck
-            pf = team['total_points_scored']
-            pa = team['total_points_against']
-            if pf > 0 and pa > 0:
-                pythag_exp = (pf ** 2.54) / ((pf ** 2.54) + (pa ** 2.54))
-                team['pythagorean_wins'] = pythag_exp * weeks
-                team['luck_factor'] = team['wins'] - team['pythagorean_wins']
+            # All-Play Expected Wins & Luck (replaces Pythagorean, 2026-11-03)
+            # Expected record = all-play win% applied to weeks played; luck
+            # is actual wins minus that. All-play compares each week's score
+            # against every other team's score, so it measures schedule luck
+            # directly instead of inferring it from season PF/PA totals
+            # through a fitted exponent. Ties count as half a win, matching
+            # the All-Play column.
+            ap_w = team['all_play_wins'] + 0.5 * team['all_play_ties']
+            ap_games = team['all_play_wins'] + team['all_play_losses'] + team['all_play_ties']
+            if ap_games > 0:
+                team['expected_wins'] = (ap_w / ap_games) * weeks
+                team['luck_factor'] = team['wins'] - team['expected_wins']
             else:
-                team['pythagorean_wins'] = 0
+                team['expected_wins'] = 0
                 team['luck_factor'] = 0
 
             # Trend (recent form vs earlier baseline): last 2 weeks avg vs avg of all prior weeks.
