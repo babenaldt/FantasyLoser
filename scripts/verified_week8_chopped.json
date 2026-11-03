@@ -1,0 +1,78 @@
+{
+ "note": "VERIFIED ground truth for 2026 chopped week 8 (snapshot_chopped_week.py, sanity-gated). Sleeper's matchup API truncates historical starters arrays once roster positions change for a new week; this snapshot takes precedence.",
+ "week": 8,
+ "teams": {
+  "1": {
+   "owner_name": "NLadocsi",
+   "points": 132.38,
+   "optimal": 139.92,
+   "efficiency": 94.6,
+   "bench_points": 22.52,
+   "projected": 113.89
+  },
+  "14": {
+   "owner_name": "BTThomp",
+   "points": 123.06,
+   "optimal": 137.96,
+   "efficiency": 89.2,
+   "bench_points": 14.9,
+   "projected": 121.39
+  },
+  "7": {
+   "owner_name": "McInally",
+   "points": 115.28,
+   "optimal": 115.28,
+   "efficiency": 100.0,
+   "bench_points": 25.4,
+   "projected": 104.52
+  },
+  "18": {
+   "owner_name": "gcarnes",
+   "points": 111.54,
+   "optimal": 149.74,
+   "efficiency": 74.5,
+   "bench_points": 52.0,
+   "projected": 109.08
+  },
+  "10": {
+   "owner_name": "vmaxlau",
+   "points": 109.4,
+   "optimal": 123.1,
+   "efficiency": 88.9,
+   "bench_points": 34.0,
+   "projected": 120.6
+  },
+  "9": {
+   "owner_name": "HughesLineupIsItAnyway",
+   "points": 96.68,
+   "optimal": 108.38,
+   "efficiency": 89.2,
+   "bench_points": 21.1,
+   "projected": 105.09
+  },
+  "13": {
+   "owner_name": "thefatstig",
+   "points": 91.56,
+   "optimal": 115.06,
+   "efficiency": 79.6,
+   "bench_points": 44.48,
+   "projected": 122.31
+  },
+  "12": {
+   "owner_name": "emiliosolay",
+   "points": 79.18,
+   "optimal": 97.78,
+   "efficiency": 81.0,
+   "bench_points": 18.6,
+   "projected": 92.88
+  },
+  "17": {
+   "owner_name": "schweb",
+   "points": 79.0,
+   "optimal": 121.54,
+   "efficiency": 65.0,
+   "bench_points": 44.34,
+   "projected": 113.18
+  }
+ }
+}
