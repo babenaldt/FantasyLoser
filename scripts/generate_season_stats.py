@@ -232,10 +232,12 @@ def calculate_season_stats(league_id, league_name):
             'all_play_wins': 0,
             'all_play_losses': 0,
             'all_play_ties': 0,
-            # Sleeper's authoritative season total (roster settings). The
-            # matchup API truncates historical starters arrays (TE/WRT slots
-            # show as '0'), so weekly points are undercounted; fpts is the
-            # ground truth for totals and averages.
+            # Sleeper's season total (roster settings). The matchup API
+            # truncates historical starters arrays (TE/WRT slots show as
+            # '0'), so weekly points are undercounted; fpts is the ground
+            # truth for Dynasty totals and averages. For Chopped it is NOT
+            # — fpts inherits flip corruption — so the derived-stats block
+            # below only prefers it outside Chopped.
             '_fpts_total': (roster.get('settings', {}).get('fpts', 0) or 0) + (roster.get('settings', {}).get('fpts_decimal', 0) or 0) / 100.0,
             # Ground truth for chop detection: empty roster = chopped.
             '_roster_empty': len(roster.get('players') or []) == 0,
@@ -526,13 +528,24 @@ def calculate_season_stats(league_id, league_name):
         if weeks > 0:
             team['average_points'] = team['total_points_scored'] / weeks
             team['avg_points_per_game'] = team['average_points'] # Alias for Astro
-            # Prefer Sleeper's authoritative fpts total: the matchup API
-            # truncates historical starters arrays, undercounting weekly
-            # points. fpts is the ground truth; average over valid weeks.
+            # Prefer Sleeper's fpts total — but only where it is actually
+            # authoritative. The matchup API truncates historical starters
+            # arrays, undercounting weekly points, so fpts is the ground
+            # truth for Dynasty (fixed roster positions). For Chopped,
+            # fpts inherits the same flip corruption (it is the sum of raw
+            # matchup points — 2026-11-05: every team's fpts ran 6-51
+            # points below the snapshot-corrected weekly sums), so there
+            # the snapshot-corrected weekly sum stays as the total.
             _fpts = team.get('_fpts_total')
-            if _fpts:
+            if _fpts and "Chopped" not in league_name:
                 team['total_points_scored'] = round(_fpts, 2)
                 team['avg_points_per_game'] = round(_fpts / weeks, 2)
+                team['average_points'] = team['avg_points_per_game']
+            else:
+                # Chopped (or no fpts): the snapshot-corrected weekly sum
+                # is the total; round off float dust from the summation.
+                team['total_points_scored'] = round(team['total_points_scored'], 2)
+                team['avg_points_per_game'] = round(team['total_points_scored'] / weeks, 2)
                 team['average_points'] = team['avg_points_per_game']
             
             team['efficiency_rate'] = (team['total_points_scored'] / team['total_optimal_points'] * 100) if team['total_optimal_points'] > 0 else 0
