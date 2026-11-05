@@ -926,6 +926,34 @@ def build_brief(owner_name: str, refresh_history: bool) -> dict:
                 "players": {str(pid): pts for pid, pts in (matchup.get("players_points") or {}).items()},
             }
 
+    # Verified snapshots take precedence for completed weeks. Sleeper
+    # re-maps historical starters arrays when the commissioner flips
+    # roster positions for a new week — Week 9's 2nd RB slot corrupted
+    # Week 8's live totals (thefatstig read 39.26 instead of 91.56,
+    # schweb 53.1 instead of 79.0) — while players_points stay intact.
+    # verified_week<N>_chopped.json files (written by
+    # snapshot_chopped_week.py, sanity-gated) hold the ground-truth
+    # totals; fall back to live data when no snapshot exists for a week.
+    _snap_dir = os.path.dirname(os.path.abspath(__file__))
+    for played in range(1, completed + 1):
+        try:
+            with open(os.path.join(_snap_dir, f"verified_week{played}_chopped.json"),
+                      "r", encoding="utf-8") as _f:
+                _snap_teams = json.load(_f).get("teams", {})
+        except Exception:
+            continue
+        _n = 0
+        for _rid, _entry in _snap_teams.items():
+            try:
+                _rid_int = int(_rid)
+            except (TypeError, ValueError):
+                continue
+            if _rid_int in week_points and played in week_points[_rid_int]:
+                week_points[_rid_int][played]["total"] = _entry.get("points", 0) or 0
+                _n += 1
+        if _n:
+            print(f"    Week {played}: using verified snapshot totals for {_n} teams")
+
     owned = {}
     views = []
     for roster in rosters:
