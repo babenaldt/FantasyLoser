@@ -1,0 +1,54 @@
+{
+ "note": "VERIFIED ground truth for 2026 chopped week 11 (snapshot_chopped_week.py, sanity-gated). Sleeper's matchup API truncates historical starters arrays once roster positions change for a new week; this snapshot takes precedence.",
+ "week": 11,
+ "teams": {
+  "14": {
+   "owner_name": "BTThomp",
+   "points": 167.24,
+   "optimal": 167.24,
+   "efficiency": 100.0,
+   "bench_points": 0.0,
+   "projected": 145.05
+  },
+  "18": {
+   "owner_name": "gcarnes",
+   "points": 153.72,
+   "optimal": 155.52,
+   "efficiency": 98.8,
+   "bench_points": 8.7,
+   "projected": 156.38
+  },
+  "13": {
+   "owner_name": "thefatstig",
+   "points": 147.46,
+   "optimal": 150.82,
+   "efficiency": 97.8,
+   "bench_points": 26.96,
+   "projected": 151.65
+  },
+  "10": {
+   "owner_name": "vmaxlau",
+   "points": 142.7,
+   "optimal": 175.9,
+   "efficiency": 81.1,
+   "bench_points": 41.4,
+   "projected": 149.41
+  },
+  "12": {
+   "owner_name": "emiliosolay",
+   "points": 131.4,
+   "optimal": 145.4,
+   "efficiency": 90.4,
+   "bench_points": 31.8,
+   "projected": 144.61
+  },
+  "9": {
+   "owner_name": "HughesLineupIsItAnyway",
+   "points": 129.7,
+   "optimal": 129.7,
+   "efficiency": 100.0,
+   "bench_points": 0,
+   "projected": 161.39
+  }
+ }
+}
